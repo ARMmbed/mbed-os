@@ -583,6 +583,24 @@ buffer_t *ipv6_forwarding_down(buffer_t *buf)
         return icmpv6_error(buf, NULL, ICMPV6_TYPE_ERROR_DESTINATION_UNREACH, ICMPV6_CODE_DST_UNREACH_NO_ROUTE, 0);
     }
 
+    /* Consider multicast forwarding /before/ calling routing code to modify
+     * extension headers - if that actually decides to tunnel it will
+     * overwrite the buffer's src_sa and dst_sa, when we want to consider
+     * forwarding the inner packet. This ordering works out for our only
+     * header-modifying multicast case of MPL:
+     * 1) We never want to forward packets with MPL headers, which means the
+     *    outer packet in a tunnel gets ignored anyway.
+     * 2) This also means we don't have to worry that we're forwarding packets
+     *    with the extension header not filled in yet.
+     * If we ever do have a multicast system where we are working with
+     * extension headers and forwarding those across interfaces, ipv6_get_exthdrs
+     * system will need a rework - probably split the "try MODIFY" call from the
+     * subsequent "give me tunnel parameters" part.
+     */
+    if (!buf->ip_routed_up && addr_is_ipv6_multicast(buf->dst_sa.address)) {
+        buf = ipv6_consider_forwarding_multicast_packet(buf, buf->interface, true);
+    }
+
     /* Allow routing code to update extension headers */
     int16_t exthdr_result;
     buf = ipv6_get_exthdrs(buf, IPV6_EXTHDR_MODIFY, &exthdr_result);
@@ -591,10 +609,6 @@ buffer_t *ipv6_forwarding_down(buffer_t *buf)
     }
     if (exthdr_result < 0) {
         goto drop;
-    }
-
-    if (!buf->ip_routed_up && addr_is_ipv6_multicast(buf->dst_sa.address)) {
-        buf = ipv6_consider_forwarding_multicast_packet(buf, buf->interface, true);
     }
 
     /* Routing code may say it needs to tunnel to add headers - loop back to IP layer if requested */

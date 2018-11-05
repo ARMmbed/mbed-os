@@ -48,14 +48,14 @@ typedef enum {
 #define MAC_PD_DATA_MEDIUM_PRIORITY 1    //Indirect Data which is polled
 #define MAC_PD_DATA_HIGH_PRIOTITY   2    //Beacon request Beacon response
 
-#define MCPS_SAP_DATA_IND_EVENT 1
-#define MCPS_SAP_DATA_CNF_EVENT 2
-#define MAC_MLME_EVENT_HANDLER  3
-#define MAC_MCPS_INDIRECT_TIMER_CB 4
-#define MAC_MLME_SCAN_CONFIRM_HANDLER 5
-#define MAC_SAP_TRIG_TX 6
-#define MCPS_SAP_DATA_ACK_CNF_EVENT 7
-
+#define MCPS_SAP_DATA_IND_EVENT         1
+#define MCPS_SAP_DATA_CNF_EVENT         2
+#define MCPS_SAP_DATA_CNF_FAIL_EVENT    3
+#define MAC_MLME_EVENT_HANDLER          4
+#define MAC_MCPS_INDIRECT_TIMER_CB      5
+#define MAC_MLME_SCAN_CONFIRM_HANDLER   6
+#define MAC_SAP_TRIG_TX                 7
+#define MCPS_SAP_DATA_ACK_CNF_EVENT     8
 
 /**
  * @brief struct mac_aux_security_header_t MAC auxiliarity security header structure
@@ -180,7 +180,9 @@ int8_t mcps_sap_pd_ind(mac_pre_parsed_frame_t *buffer);
 /**
  * MAC MCPS SAP layer data confirmation event trig
  */
-void mcps_sap_pd_confirm(void *mac_ptr);
+int8_t mcps_sap_pd_confirm(void *mac_ptr);
+
+int8_t mcps_sap_pd_confirm_failure(void *mac_ptr);
 
 void mcps_sap_pd_ack(void *ack_ptr);
 
@@ -200,7 +202,7 @@ int mac_convert_frame_type_to_fhss(uint8_t frame_type);
 
 void mcps_sap_trig_tx(void *mac_ptr);
 
-void mcps_sap_purge_reg_handler(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mcps_purge_s *purge_req);
+uint8_t mcps_sap_purge_reg_handler(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mcps_purge_s *purge_req);
 
 int8_t mcps_pd_data_rebuild(struct protocol_interface_rf_mac_setup *rf_ptr, mac_pre_build_frame_t *buffer);
 

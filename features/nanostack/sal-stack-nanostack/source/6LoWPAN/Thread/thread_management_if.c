@@ -50,7 +50,7 @@
 #include "6LoWPAN/Thread/thread_leader_service.h"
 #include "6LoWPAN/Thread/thread_nd.h"
 #include "thread_diagnostic.h"
-#include "6LoWPAN/Thread/thread_dhcpv6_client.h"
+#include "DHCPv6_client/dhcpv6_client_api.h"
 #include "6LoWPAN/Thread/thread_discovery.h"
 #include "6LoWPAN/Thread/thread_network_synch.h"
 #include "6LoWPAN/Thread/thread_management_internal.h"
@@ -63,6 +63,7 @@
 #include "6LoWPAN/Thread/thread_constants.h"
 #include "6LoWPAN/Thread/thread_extension_bootstrap.h"
 #include "6LoWPAN/Thread/thread_extension.h"
+#include "6LoWPAN/Thread/thread_bbr_api_internal.h"
 #include "6LoWPAN/Bootstraps/protocol_6lowpan.h"
 #include "RPL/rpl_control.h" // insanity - bootstraps shouldn't be doing each others' clean-up
 #include "MLE/mle.h"
@@ -71,9 +72,8 @@
 #include "thread_commissioning_if.h"
 #include "shalib.h"
 #include "Common_Protocols/icmpv6.h"
-#include "libDHCPv6/libDHCPv6.h"
-#include "libDHCPv6/libDHCPv6_server.h"
 #include "DHCPv6_Server/DHCPv6_server_service.h"
+#include "6LoWPAN/Thread/thread_dhcpv6_server.h"
 #include "Service_Libs/mle_service/mle_service_api.h"
 #include "Service_Libs/blacklist/blacklist.h"
 #include "6LoWPAN/MAC/mac_helper.h"
@@ -606,7 +606,7 @@ int thread_management_get_ml_prefix_112(int8_t interface_id, uint8_t *prefix_ptr
  */
 int thread_dhcpv6_server_add(int8_t interface_id, uint8_t *prefix_ptr, uint32_t max_client_cnt, bool stableData)
 {
-#ifdef HAVE_DHCPV6_SERVER
+#if defined(HAVE_THREAD) && defined(HAVE_DHCPV6_SERVER)
     protocol_interface_info_entry_t *cur;
     thread_prefix_tlv_t prefixTlv;
     thread_border_router_tlv_entry_t service;
@@ -622,7 +622,7 @@ int thread_dhcpv6_server_add(int8_t interface_id, uint8_t *prefix_ptr, uint32_t 
         return -1;
     }
 
-    if (DHCPv6_server_service_init(interface_id, prefix_ptr, cur->mac, DHCPV6_DUID_HARDWARE_EUI64_TYPE) != 0) {
+    if (thread_dhcp6_server_init(interface_id, prefix_ptr, cur->mac, THREAD_MIN_PREFIX_LIFETIME) != 0) {
         tr_warn("SerVER alloc fail");
         return -1;
     }
@@ -637,14 +637,9 @@ int thread_dhcpv6_server_add(int8_t interface_id, uint8_t *prefix_ptr, uint32_t 
     service.P_on_mesh = true;
     service.stableData = stableData;
 
-    //SET Timeout
-    DHCPv6_server_service_set_address_validlifetime(interface_id, prefix_ptr, THREAD_MIN_PREFIX_LIFETIME);
-
     // SET maximum number of accepted clients
     DHCPv6_server_service_set_max_clients_accepts_count(interface_id, prefix_ptr, max_client_cnt);
 
-    //Enable Mapping
-    //DHCPv6_server_service_set_gua_address_mapping(interface_id,prefix_ptr, true, cur->thread_info->threadPrivatePrefixInfo.ulaPrefix);
     tr_debug("GUA server Generate OK");
     memcpy(ptr, prefix_ptr, 8);
     memset(ptr + 8, 0, 8);
@@ -665,7 +660,7 @@ int thread_dhcpv6_server_add(int8_t interface_id, uint8_t *prefix_ptr, uint32_t 
 
 int thread_dhcpv6_server_set_lifetime(int8_t interface_id, uint8_t *prefix_ptr, uint32_t valid_lifetime)
 {
-#ifdef HAVE_DHCPV6_SERVER
+#if defined(HAVE_THREAD) && defined(HAVE_DHCPV6_SERVER)
     if (!prefix_ptr) {
         return -1;
     }
@@ -681,7 +676,7 @@ int thread_dhcpv6_server_set_lifetime(int8_t interface_id, uint8_t *prefix_ptr, 
 
 int thread_dhcpv6_server_set_max_client(int8_t interface_id, uint8_t *prefix_ptr, uint32_t max_client_count)
 {
-#ifdef HAVE_DHCPV6_SERVER
+#if defined(HAVE_THREAD) && defined(HAVE_DHCPV6_SERVER)
     if (!prefix_ptr) {
         return -1;
     }
@@ -697,7 +692,7 @@ int thread_dhcpv6_server_set_max_client(int8_t interface_id, uint8_t *prefix_ptr
 
 int thread_dhcpv6_server_set_anonymous_addressing(int8_t interface_id, uint8_t *prefix_ptr, bool anonymous)
 {
-#ifdef HAVE_DHCPV6_SERVER
+#if defined(HAVE_THREAD) && defined(HAVE_DHCPV6_SERVER)
     if (!prefix_ptr) {
         return -1;
     }
@@ -715,7 +710,7 @@ int thread_dhcpv6_server_set_anonymous_addressing(int8_t interface_id, uint8_t *
 
 int thread_dhcpv6_server_delete(int8_t interface_id, uint8_t *prefix_ptr)
 {
-#ifdef HAVE_DHCPV6_SERVER
+#if defined(HAVE_THREAD) && defined(HAVE_DHCPV6_SERVER)
     uint8_t temp[16];
     protocol_interface_info_entry_t *cur;
     thread_prefix_tlv_t prefixTlv;

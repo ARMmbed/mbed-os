@@ -48,7 +48,7 @@
 #include "6LoWPAN/Thread/thread_joiner_application.h"
 #include "6LoWPAN/Thread/thread_network_data_lib.h"
 #include "6LoWPAN/Thread/thread_network_data_storage.h"
-#include "6LoWPAN/Thread/thread_dhcpv6_client.h"
+#include "DHCPv6_client/dhcpv6_client_api.h"
 #include "6LoWPAN/MAC/mac_helper.h"
 #include "thread_management_if.h"
 #include "thread_meshcop_lib.h"
@@ -193,6 +193,7 @@ static uint16_t thread_nd_service_border_router_flags_read(thread_network_server
     flags |= (cur->P_default_route << THREAD_P_DEF_ROUTE_BIT_MOVE);
     flags |= (cur->P_on_mesh << THREAD_P_ON_MESH_BIT_MOVE);
     flags |= (cur->P_nd_dns << THREAD_P_ND_DNS_BIT_MOVE);
+    flags |= (cur->P_res1 << THREAD_P_ND_RES_BIT_MOVE);
     return flags;
 }
 
@@ -872,6 +873,7 @@ static int thread_service_data_delete_mark_by_router_id(thread_network_data_serv
 
 static int thread_server_context_clean(int8_t id, thread_network_data_cache_entry_t *cachePtr, thread_data_context_list_t *listPtr, thread_network_data_prefix_cache_entry_t *prefixEntry, lowpan_context_list_t *context_list)
 {
+    (void) id;
     int retVal = -1;
     (void) prefixEntry;
     ns_list_foreach_safe(thread_network_data_context_entry_t, cur, listPtr) {
@@ -881,9 +883,7 @@ static int thread_server_context_clean(int8_t id, thread_network_data_cache_entr
                 cachePtr->stableUpdatePushed = true;
             }
             // Set context lifetime to 0 to delete
-            if (thread_extension_context_can_delete(id, prefixEntry->servicesPrefix, cur->contextPrefixLength)) {
-                lowpan_context_update(context_list, cur->cid, 0, NULL, 0, true);
-            }
+            lowpan_context_update(context_list, cur->cid, 0, NULL, 0, true);
             ns_list_remove(listPtr, cur);
             ns_dyn_mem_free(cur);
             retVal = 0;
@@ -930,10 +930,17 @@ static bool thread_server_data_clean_by_router_id(thread_network_data_cache_entr
 
                 if (cur->P_dhcp) {
                     tr_debug("Delete DHCPv6 given address");
-                    thread_dhcp_client_global_address_delete(curInterface->id, addr, prefixEntry->servicesPrefix);
-                } else {
+                    dhcp_client_global_address_delete(curInterface->id, addr, prefixEntry->servicesPrefix);
+                }
+
+                if (cur->P_slaac) {
                     tr_debug("Delete SLAAC address");
                     addr_delete_matching(curInterface, prefixEntry->servicesPrefix, 64, ADDR_SOURCE_SLAAC);
+                }
+
+                if (cur->P_res1) {
+                    tr_debug("Delete thread domain address");
+                    addr_delete_matching(curInterface, prefixEntry->servicesPrefix, 64, ADDR_SOURCE_THREAD_DOMAIN);
                 }
             }
 
@@ -995,7 +1002,7 @@ void thread_network_local_server_data_base_init(thread_network_local_data_cache_
     ns_list_init(&cachePtr->service_list);
     cachePtr->registered_rloc16 = 0xffff;
     cachePtr->release_old_address = false;
-    cachePtr->publish_active = false;
+    cachePtr->publish_coap_req_id = 0;
     cachePtr->publish_pending = false;
 }
 
@@ -1077,6 +1084,7 @@ bool thread_network_data_router_id_free(thread_network_data_cache_entry_t *cache
 
 void thread_network_data_context_re_use_timer_update(int8_t id, thread_network_data_cache_entry_t *cachePtr, uint32_t ticks, lowpan_context_list_t *context_list)
 {
+    (void) id;
     ns_list_foreach_safe(thread_network_data_prefix_cache_entry_t, cur, &cachePtr->localPrefixList) {
         ns_list_foreach_safe(thread_network_data_context_entry_t, curContext, &cur->contextList) {
             if (!curContext->compression) {
@@ -1090,9 +1098,7 @@ void thread_network_data_context_re_use_timer_update(int8_t id, thread_network_d
                         cachePtr->temporaryUpdatePushed = true;
                     }
                     // Set context lifetime to 0 to delete
-                    if (thread_extension_context_can_delete(id, cur->servicesPrefix,curContext->contextPrefixLength)) {
-                        lowpan_context_update(context_list, curContext->cid, 0, NULL, 0, true);
-                    }
+                    lowpan_context_update(context_list, curContext->cid, 0, NULL, 0, true);
                     ns_dyn_mem_free(curContext);
                 }
             }
@@ -1162,7 +1168,7 @@ void thread_network_local_data_free_and_clean(thread_network_local_data_cache_en
     }
 
     cachePtr->publish_pending = false;
-    cachePtr->publish_active = false;
+    cachePtr->publish_coap_req_id = 0;
     cachePtr->release_old_address = false;
 }
 
@@ -1628,6 +1634,7 @@ int thread_nd_local_list_add_on_mesh_prefix(thread_network_data_cache_entry_t *n
             server_entry->P_nd_dns = service->P_nd_dns;
             trigDataPropagate = true;
         }
+
     }
 
     if (trigDataPropagate) {
@@ -1707,9 +1714,9 @@ int thread_nd_local_list_del_on_mesh_server(thread_network_data_cache_entry_t *n
 int thread_local_server_list_add_on_mesh_server(thread_network_local_data_cache_entry_t *networkDataList, thread_prefix_tlv_t *prefixTlv, thread_border_router_tlv_entry_t *service)
 {
     int retVal = -1;
-    tr_debug("Add prefix: %s prf:%d %s%s%s%s%s", trace_ipv6_prefix(prefixTlv->Prefix, prefixTlv->PrefixLen), service->Prf,
+    tr_debug("Add prefix: %s prf:%d %s%s%s%s%s%s", trace_ipv6_prefix(prefixTlv->Prefix, prefixTlv->PrefixLen), service->Prf,
              service->P_default_route?"Default Route ":"",service->P_dhcp?"DHCPv6 Server ":"", service->P_configure?"DHCPv6 Configuration ":"",
-             service->P_slaac?"SLAAC ":"",service->P_preferred?"Preferred ":"");
+             service->P_slaac?"SLAAC ":"",service->P_preferred?"Preferred ":"",service->P_res1?"P_res1 ":"");
 
     if (networkDataList) {
         thread_network_local_data_entry_t *prefix_entry = thread_local_prefix_entry_get(&networkDataList->prefix_list, prefixTlv);
@@ -2341,7 +2348,9 @@ bool thread_nd_service_anycast_address_mapping_from_network_data(thread_network_
         if (curService->S_id != S_id) {
             continue;
         }
-        ns_list_foreach(thread_network_data_service_server_entry_t, curServiceServer, &curService->server_list) {
+        /* any server will do - take first from the list */
+        thread_network_data_service_server_entry_t *curServiceServer = ns_list_get_first(&curService->server_list);
+        if (curServiceServer) {
             *rlocAddress = curServiceServer->router_id;
             return true;
         }
@@ -2352,7 +2361,7 @@ bool thread_nd_service_anycast_address_mapping_from_network_data(thread_network_
 bool thread_nd_on_mesh_address_valid(thread_network_server_data_entry_t *curRoute)
 {
     bool onMeshActive = false;
-    if (curRoute->P_dhcp || curRoute->P_slaac || curRoute->P_preferred) {
+    if (curRoute->P_dhcp || curRoute->P_slaac || curRoute->P_preferred || curRoute->P_on_mesh) {
         onMeshActive = true;
     }
 

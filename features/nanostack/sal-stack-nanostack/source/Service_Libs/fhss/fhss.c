@@ -34,6 +34,7 @@
 
 #define TRACE_GROUP "fhss"
 
+static void fhss_event_timer_cb(int8_t timer_id, uint16_t slots);
 static int fhss_reset(fhss_structure_t *fhss_structure);
 static bool fhss_is_bc_sending_superframe(fhss_structure_t *fhss_structure);
 static bool fhss_check_remaining_tx_time(fhss_structure_t *fhss_structure, uint16_t tx_length, uint8_t phy_header_length, uint8_t phy_tail_length);
@@ -67,6 +68,7 @@ fhss_structure_t *fhss_enable(fhss_api_t *fhss_api, const fhss_configuration_t *
     }
     memset(fhss_struct->bs, 0, sizeof(fhss_bs_t));
 
+    fhss_struct->fhss_event_timer = eventOS_callback_timer_register(fhss_event_timer_cb);
     fhss_struct->bs->fhss_configuration = *fhss_configuration;
     fhss_struct->bs->fhss_stats_ptr = fhss_statistics;
     fhss_struct->number_of_channels = channel_count;
@@ -97,6 +99,15 @@ bool fhss_is_synch_root(fhss_structure_t *fhss_structure)
         return false;
     }
     return true;
+}
+
+static void fhss_event_timer_cb(int8_t timer_id, uint16_t slots)
+{
+    (void) slots;
+    fhss_structure_t *fhss_structure = fhss_get_object_with_timer_id(timer_id);
+    if (fhss_structure) {
+        fhss_structure->callbacks.tx_poll(fhss_structure->fhss_api);
+    }
 }
 
 static bool fhss_is_bc_sending_superframe(fhss_structure_t *fhss_structure)
@@ -689,16 +700,16 @@ static void fhss_update_beacon_info_lifetimes(fhss_structure_t *fhss_structure, 
     }
 }
 
-static void fhss_synch_state_set_callback(const fhss_api_t *api, fhss_states fhss_state, uint16_t pan_id)
+static int16_t fhss_synch_state_set_callback(const fhss_api_t *api, fhss_states fhss_state, uint16_t pan_id)
 {
     fhss_structure_t *fhss_structure = fhss_get_object_with_api(api);
     if (!fhss_structure) {
-        return;
+        return -1;
     }
     // State is already set
     if (fhss_structure->fhss_state == fhss_state) {
         tr_debug("Synch same state %u", fhss_state);
-        return;
+        return -1;
     }
 
     if (fhss_state == FHSS_UNSYNCHRONIZED) {
@@ -712,7 +723,7 @@ static void fhss_synch_state_set_callback(const fhss_api_t *api, fhss_states fhs
         // Do not synchronize to current pan
         if (fhss_structure->bs->synch_panid == pan_id) {
             tr_debug("Synch same panid %u", pan_id);
-            return;
+            return -1;
         }
         fhss_generate_scramble_table(fhss_structure);
 
@@ -737,11 +748,11 @@ static void fhss_synch_state_set_callback(const fhss_api_t *api, fhss_states fhs
             fhss_start_timer(fhss_structure, fhss_structure->bs->synch_configuration.fhss_superframe_length, fhss_superframe_handler);
         } else {
             tr_error("Synch info not found");
-            return;
+            return -1;
         }
     }
     fhss_structure->fhss_state = fhss_state;
-    return;
+    return fhss_structure->rx_channel;
 }
 
 static void fhss_beacon_decode_raw(fhss_synchronization_beacon_payload_s* dest, const uint8_t* buffer)

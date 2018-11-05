@@ -35,6 +35,7 @@
 #include "nsdynmemLIB.h"
 #include "net_interface.h"
 #include "thread_management_if.h"
+#include "thread_management_server.h"
 #include "thread_common.h"
 #include "thread_joiner_application.h"
 #include "thread_leader_service.h"
@@ -229,6 +230,10 @@ static int thread_diagnostic_configuration_calc(protocol_interface_info_entry_t 
             payload_len += 2+1;
             break;
 
+        case DIAGCOP_TLV_MAX_CHILD_TIMEOUT:
+            payload_len += 2 + 4;
+            break;
+
         default:
             // todo: Other TLV's not supported atm
             break;
@@ -254,6 +259,7 @@ static uint8_t *thread_diagnostic_get_build(protocol_interface_info_entry_t *cur
     uint8_t *ptr;
     int written_address_count = 0;
     uint16_t ipv6_address_count = 0;
+    uint32_t max_child_timeout = 0;
     uint8_t extended_address[8] = {0};
 
     arm_net_interface_address_list_size(cur->id, &ipv6_address_count);
@@ -350,6 +356,12 @@ static uint8_t *thread_diagnostic_get_build(protocol_interface_info_entry_t *cur
         case DIAGCOP_TLV_CHANNEL_PAGES:
             // Only supporting channel page 0
             response_ptr = thread_diagcop_tlv_data_write_uint8(response_ptr, DIAGCOP_TLV_CHANNEL_PAGES, 0);
+            break;
+
+        case DIAGCOP_TLV_MAX_CHILD_TIMEOUT:
+            if (thread_router_bootstrap_child_max_timeout_get(cur, &max_child_timeout) == 0) {
+                response_ptr = thread_diagcop_tlv_data_write_uint32(response_ptr, DIAGCOP_TLV_MAX_CHILD_TIMEOUT, max_child_timeout);
+            }
             break;
 
         default:
@@ -532,7 +544,7 @@ int thread_diagnostic_init(int8_t interface_id)
 
     this->interface_id = interface_id;
 
-    this->coap_service_id = coap_service_initialize(this->interface_id, THREAD_MANAGEMENT_PORT, COAP_SERVICE_OPTIONS_NONE, NULL, NULL);
+    this->coap_service_id = thread_management_server_service_id_get(interface_id);
     if (this->coap_service_id < 0) {
         tr_error("Thread diagnostic init failed");
         ns_dyn_mem_free(this);
@@ -556,8 +568,9 @@ int thread_diagnostic_delete(int8_t interface_id)
     if (!this) {
         return -1;
     }
-
-    coap_service_delete(this->coap_service_id);
+    coap_service_unregister_uri(this->coap_service_id, THREAD_URI_DIAGNOSTIC_REQUEST);
+    coap_service_unregister_uri(this->coap_service_id, THREAD_URI_DIAGNOSTIC_RESET);
+    coap_service_unregister_uri(this->coap_service_id, THREAD_URI_DIAGNOSTIC_QUERY);
     ns_list_remove(&instance_list, this);
     ns_dyn_mem_free(this);
     return 0;

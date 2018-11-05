@@ -394,14 +394,14 @@ void ipv6_stack_route_advert_update(uint8_t *address, uint8_t prefixLength, uint
         return;
     }
 
+    if (addr_interface_gp_prefix_compare(cur, address) == 0) {
+        return;
+    }
 
-
-    if (addr_interface_gp_prefix_compare(cur, address) != 0) {
-        ns_list_foreach(ipv6_interface_route_on_link_t, cur_prefix, &route_on_link) {
-            if ((cur_prefix->prefix_len == prefixLength) && bitsequal(cur_prefix->prefix, address, prefixLength)) {
-                cur_prefix->routePrefer = routePrefer;
-                return;
-            }
+    ns_list_foreach(ipv6_interface_route_on_link_t, cur_prefix, &route_on_link) {
+        if ((cur_prefix->prefix_len == prefixLength) && bitsequal(cur_prefix->prefix, address, prefixLength)) {
+            cur_prefix->routePrefer = routePrefer;
+            return;
         }
     }
 

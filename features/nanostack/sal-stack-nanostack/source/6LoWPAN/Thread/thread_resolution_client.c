@@ -39,6 +39,7 @@
 #include "coap_service_api.h"
 
 #include "thread_config.h"
+#include "thread_management_server.h"
 #include "thread_resolution_client.h"
 
 #define TRACE_GROUP TRACE_GROUP_THREAD_RESOLUTION_CLIENT
@@ -294,7 +295,7 @@ void thread_resolution_client_init(int8_t interface_id)
     this->error_cb_ptr = NULL;
     ns_list_init(&this->queries);
     //TODO: Check if to use ephemeral port here
-    this->coap_service_id = coap_service_initialize(this->interface_id, THREAD_MANAGEMENT_PORT, COAP_SERVICE_OPTIONS_NONE, NULL, NULL);
+    this->coap_service_id = thread_management_server_service_id_get(interface_id);
     ns_list_add_to_start(&instance_list, this);
 
     coap_service_register_uri(this->coap_service_id, THREAD_URI_ADDRESS_NOTIFICATION, COAP_SERVICE_ACCESS_POST_ALLOWED, thread_resolution_client_notification_post_cb);
@@ -309,7 +310,7 @@ void thread_resolution_client_delete(int8_t interface_id)
     }
 
     coap_service_unregister_uri(this->coap_service_id, THREAD_URI_ADDRESS_NOTIFICATION);
-    coap_service_delete(this->coap_service_id);
+    coap_service_unregister_uri(this->coap_service_id, THREAD_URI_ADDRESS_ERROR);
     ns_list_foreach_safe(address_query_t, query, &this->queries) {
         ns_list_remove(&this->queries, query);
         ns_dyn_mem_free(query);
@@ -465,6 +466,7 @@ void thread_resolution_client_timer(int8_t interface_id, uint16_t seconds)
             }
         }
     }
-
 }
+
 #endif // HAVE_THREAD_NEIGHBOR_DISCOVERY
+

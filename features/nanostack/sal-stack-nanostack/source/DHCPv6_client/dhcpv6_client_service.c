@@ -1,34 +1,21 @@
 /*
- * Copyright (c) 2013-2018, Arm Limited and affiliates.
- * SPDX-License-Identifier: BSD-3-Clause
+ * Copyright (c) 2018, Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the copyright holder nor the
- *    names of its contributors may be used to endorse or promote products
- *    derived from this software without specific prior written permission.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #include "nsconfig.h"
-#ifdef HAVE_THREAD
 #include <string.h>
 #include <ns_types.h>
 #include <ns_trace.h>
@@ -36,31 +23,30 @@
 #include "ns_list.h"
 #include "common_functions.h"
 
-
+#ifdef HAVE_DHCPV6
 #include "dhcp_service_api.h"
-#include "thread_dhcpv6_client.h"
+#include "dhcpv6_client_api.h"
 #include "libDHCPv6/libDHCPv6.h"
 #include "NWK_INTERFACE/Include/protocol.h"
-#include "6LoWPAN/Thread/thread_common.h"
-#include "6LoWPAN/Thread/thread_bootstrap.h"
 
-#define TRACE_GROUP "TDHP"
+#define TRACE_GROUP "DHP"
 
 typedef struct {
-    thread_dhcp_client_global_adress_cb *global_address_cb;
+    dhcp_client_global_adress_cb *global_address_cb;
     uint16_t service_instance;
+    uint16_t relay_instance;
     uint8_t libDhcp_instance;
     int8_t interface;
-} thread_dhcp_client_class_t;
+} dhcp_client_class_t;
 
-thread_dhcp_client_class_t dhcp_client;
+static dhcp_client_class_t dhcp_client;
 
-void thread_dhcpv6_client_set_address(int8_t interface_id, dhcpv6_client_server_data_t *srv_data_ptr);
+void dhcpv6_client_set_address(int8_t interface_id, dhcpv6_client_server_data_t *srv_data_ptr);
 
 
-void thread_dhcp_client_init(int8_t interface)
+void dhcp_client_init(int8_t interface)
 {
-    // No support for multible thread instances yet.
+    // No support for multible instances yet.
     dhcp_client.service_instance = dhcp_service_init(interface, DHCP_INSTANCE_CLIENT, NULL);
     dhcp_client.interface = interface;
     dhcp_client.libDhcp_instance = libdhcpv6_nonTemporal_entry_get_unique_instance_id();
@@ -68,7 +54,13 @@ void thread_dhcp_client_init(int8_t interface)
     return;
 }
 
-void thread_dhcp_client_delete(int8_t interface)
+void dhcp_relay_agent_enable(int8_t interface, uint8_t border_router_address[static 16])
+{
+    dhcp_client.relay_instance = dhcp_service_init(interface, DHCP_INTANCE_RELAY_AGENT, NULL);
+    dhcp_service_relay_instance_enable(dhcp_client.relay_instance, border_router_address);
+}
+
+void dhcp_client_delete(int8_t interface)
 {
     protocol_interface_info_entry_t *cur = NULL;
     dhcpv6_client_server_data_t *srv_data_ptr;
@@ -96,7 +88,7 @@ void thread_dhcp_client_delete(int8_t interface)
 }
 
 
-void thread_dhcpv6_client_send_error_cb(dhcpv6_client_server_data_t *srv_data_ptr)
+void dhcpv6_client_send_error_cb(dhcpv6_client_server_data_t *srv_data_ptr)
 {
     if (srv_data_ptr != NULL) {
 
@@ -159,12 +151,11 @@ int dhcp_solicit_resp_cb(uint16_t instance_id, void *ptr, uint8_t msg_name,  uin
     srv_data_ptr->iaNontemporalAddress.validLifetime = dhcp_ia_non_temporal_params.validLifeTime;
     memcpy(srv_data_ptr->serverLinkId, serverId.linkID, 8);
     srv_data_ptr->serverLinkType = serverId.linkType;
-    srv_data_ptr->serverLinkType = serverId.linkType;
     srv_data_ptr->T0 = dhcp_ia_non_temporal_params.T0;
     srv_data_ptr->T1  = dhcp_ia_non_temporal_params.T1;
     srv_data_ptr->iaNonTemporalStructValid = true;
 
-    thread_dhcpv6_client_set_address(dhcp_client.interface, srv_data_ptr);
+    dhcpv6_client_set_address(dhcp_client.interface, srv_data_ptr);
 
 
     if (dhcp_client.global_address_cb) {
@@ -172,11 +163,11 @@ int dhcp_solicit_resp_cb(uint16_t instance_id, void *ptr, uint8_t msg_name,  uin
     }
     return RET_MSG_ACCEPTED;
 error_exit:
-    thread_dhcpv6_client_send_error_cb(srv_data_ptr);
+    dhcpv6_client_send_error_cb(srv_data_ptr);
     return RET_MSG_ACCEPTED;
 }
 
-int thread_dhcp_client_get_global_address(int8_t interface, uint8_t dhcp_addr[static 16], uint8_t prefix[static 16], uint8_t mac64[static 8], thread_dhcp_client_global_adress_cb *error_cb)
+int dhcp_client_get_global_address(int8_t interface, uint8_t dhcp_addr[static 16], uint8_t prefix[static 16], uint8_t mac64[static 8], dhcp_client_global_adress_cb *error_cb)
 {
     dhcpv6_solication_base_packet_s solPacket = {0};
     dhcpv6_ia_non_temporal_address_s nonTemporalAddress = {0};
@@ -190,16 +181,19 @@ int thread_dhcp_client_get_global_address(int8_t interface, uint8_t dhcp_addr[st
     }
 
     srv_data_ptr = libdhcvp6_nontemporalAddress_server_data_allocate(interface, dhcp_client.libDhcp_instance, mac64, DHCPV6_DUID_HARDWARE_EUI64_TYPE, prefix, dhcp_addr);
+    if (!srv_data_ptr) {
+        tr_error("OOM srv_data_ptr");
+        return -1;
+    }
 
     payload_len = libdhcpv6_solication_message_length(DHCPV6_DUID_HARDWARE_EUI64_TYPE, true, 0);
     payload_ptr = ns_dyn_mem_temporary_alloc(payload_len);
-
-    if (payload_ptr == NULL || srv_data_ptr == NULL) {
-        ns_dyn_mem_free(payload_ptr);
+    if (!payload_ptr) {
         libdhcvp6_nontemporalAddress_server_data_free(srv_data_ptr);
-        tr_error("Out of memory");
+        tr_error("OOM payload_ptr");
         return -1;
     }
+
     dhcp_client.global_address_cb = error_cb; //TODO Only supporting one instance globaly if we need more for different instances needs code.
     srv_data_ptr->GlobalAddress = true;
     // Build solicit
@@ -214,17 +208,22 @@ int thread_dhcp_client_get_global_address(int8_t interface, uint8_t dhcp_addr[st
 
     // send solicit
     srv_data_ptr->transActionId = dhcp_service_send_req(dhcp_client.service_instance, 0, srv_data_ptr , dhcp_addr, payload_ptr, payload_len, dhcp_solicit_resp_cb);
-    return srv_data_ptr->transActionId ? 0 : -1;
+    if (srv_data_ptr->transActionId == 0) {
+        ns_dyn_mem_free(payload_ptr);
+        libdhcvp6_nontemporalAddress_server_data_free(srv_data_ptr);
+        return -1;
+    }
+
+    return 0;
 }
 
-void thread_dhcp_client_global_address_renew(int8_t interface)
+void dhcp_client_global_address_renew(int8_t interface)
 {
-    // only prepared for changes in thread specifications
     (void)interface;
     return;
 }
 
-void thread_dhcp_client_global_address_delete(int8_t interface, uint8_t dhcp_addr[static 16], uint8_t prefix[static 16])
+void dhcp_client_global_address_delete(int8_t interface, uint8_t dhcp_addr[static 16], uint8_t prefix[static 16])
 {
     protocol_interface_info_entry_t *cur;
     dhcpv6_client_server_data_t *srv_data_ptr;
@@ -249,7 +248,7 @@ void thread_dhcp_client_global_address_delete(int8_t interface, uint8_t dhcp_add
     return;
 }
 
-void thread_dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_t reason)
+void dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_entry_t *addr, if_address_callback_t reason)
 {
     dhcpv6_ia_non_temporal_address_s nonTemporalAddress = {0};
     dhcp_link_options_params_t serverLink;
@@ -275,7 +274,7 @@ void thread_dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_
     payload_len = libdhcpv6_address_request_message_len(srv_data_ptr->clientLinkIdType, srv_data_ptr->serverLinkType, 0);
     payload_ptr = ns_dyn_mem_temporary_alloc(payload_len);
     if (payload_ptr == NULL) {
-        addr->state_timer = 200;//Retry after? should there be maximum 20 second retry
+        addr->state_timer = 200; //Retry after 20 seconds
         tr_error("Out of memory");
         return ;
     }
@@ -299,9 +298,14 @@ void thread_dhcpv6_renew(protocol_interface_info_entry_t *interface, if_address_
     libdhcpv6_generic_nontemporal_address_message_write(payload_ptr, &packetReq, &nonTemporalAddress, &serverLink);
     // send solicit
     srv_data_ptr->transActionId = dhcp_service_send_req(dhcp_client.service_instance, 0, srv_data_ptr, srv_data_ptr->server_address, payload_ptr, payload_len, dhcp_solicit_resp_cb);
+    if (srv_data_ptr->transActionId == 0) {
+        ns_dyn_mem_free(payload_ptr);
+        addr->state_timer = 200; //Retry after 20 seconds
+        tr_error("DHCP renew send failed");
+    }
 }
 
-void thread_dhcpv6_client_set_address(int8_t interface_id, dhcpv6_client_server_data_t *srv_data_ptr)
+void dhcpv6_client_set_address(int8_t interface_id, dhcpv6_client_server_data_t *srv_data_ptr)
 {
     protocol_interface_info_entry_t *cur = NULL;
     if_address_entry_t *address_entry = NULL;
@@ -335,6 +339,7 @@ void thread_dhcpv6_client_set_address(int8_t interface_id, dhcpv6_client_server_
         }
     }
     address_entry->state_timer = renewTimer;
-    address_entry->cb = thread_dhcpv6_renew;
+    address_entry->cb = dhcpv6_renew;
 }
+
 #endif

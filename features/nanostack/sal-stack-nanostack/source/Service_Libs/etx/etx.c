@@ -81,6 +81,9 @@ void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool succ
     if (!entry) {
         return;
     }
+    if (entry->etx_samples < 7) {
+        entry->etx_samples++;
+    }
 
     accumulated_failures = entry->accumulated_failures;
 

@@ -1011,17 +1011,41 @@ void mpl_clear_realm_scope_seeds(protocol_interface_info_entry_t *cur)
 static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_t stage, int16_t *result)
 {
     mpl_domain_t *domain = mpl_domain_lookup_with_realm_check(buf->interface, buf->dst_sa.address);
-    if (!domain) {
-        // We need to tunnel
 
-        if (stage != IPV6_EXTHDR_MODIFY) {
-            *result = 0;
+    /* Deal with simpler modify-already-created-header case first. Note that no error returns. */
+    if (stage == IPV6_EXTHDR_MODIFY) {
+        if (!domain) {
+            *result = IPV6_EXTHDR_MODIFY_TUNNEL;
+            memcpy(buf->dst_sa.address, ADDR_ALL_MPL_FORWARDERS, 16);
+            buf->src_sa.addr_type = ADDR_NONE; // force auto-selection
             return buf;
         }
 
-        *result = IPV6_EXTHDR_MODIFY_TUNNEL;
-        memcpy(buf->dst_sa.address, ADDR_ALL_MPL_FORWARDERS, 16);
-        buf->src_sa.addr_type = ADDR_NONE; // force auto-selection
+        if (buf->options.ip_extflags & IPEXT_HBH_MPL_UNFILLED) {
+            /* We assume we created this, therefore our option is in place
+             * in the expected place. Sequence is set now, AFTER
+             * fragmentation.
+             */
+            uint8_t *iphdr = buffer_data_pointer(buf);
+            uint8_t *ext = iphdr + IPV6_HDRLEN;
+            if (iphdr[IPV6_HDROFF_NH] != IPV6_NH_HOP_BY_HOP || ext[2] != IPV6_OPTION_MPL) {
+                tr_err("modify");
+                return buffer_free(buf);
+            }
+            /* We don't bother setting the M flag on these initial packets. Setting to 0 is always acceptable. */
+            ext[5] = domain->sequence++;
+            buf->options.ip_extflags &=~ IPEXT_HBH_MPL_UNFILLED;
+            buf->mpl_option_data_offset = IPV6_HDRLEN + 4;
+            mpl_forwarder_process_message(buf, domain, true);
+        }
+        *result = 0;
+        return buf;
+    }
+
+    /* Rest of code deals with header insertion */
+    if (!domain) {
+        // We will need to tunnel - do nothing on the inner packet
+        *result = 0;
         return buf;
     }
 
@@ -1112,26 +1136,6 @@ static buffer_t *mpl_exthdr_provider(buffer_t *buf, ipv6_exthdr_stage_t stage, i
             buf->options.ip_extflags |= IPEXT_HBH_MPL | IPEXT_HBH_MPL_UNFILLED;
             return buf;
         }
-        case IPV6_EXTHDR_MODIFY:
-            if (buf->options.ip_extflags & IPEXT_HBH_MPL_UNFILLED) {
-                /* We assume we created this, therefore our option is in place
-                 * in the expected place. Sequence is set now, AFTER
-                 * fragmentation.
-                 */
-                uint8_t *iphdr = buffer_data_pointer(buf);
-                uint8_t *ext = iphdr + IPV6_HDRLEN;
-                if (iphdr[IPV6_HDROFF_NH] != IPV6_NH_HOP_BY_HOP || ext[2] != IPV6_OPTION_MPL) {
-                    tr_err("modify");
-                    return buffer_free(buf);
-                }
-                /* We don't bother setting the M flag on these initial packets. Setting to 0 is always acceptable. */
-                ext[5] = domain->sequence++;
-                buf->options.ip_extflags &=~ IPEXT_HBH_MPL_UNFILLED;
-                buf->mpl_option_data_offset = IPV6_HDRLEN + 4;
-                mpl_forwarder_process_message(buf, domain, true);
-            }
-            *result = 0;
-            return buf;
         default:
             return buffer_free(buf);
     }

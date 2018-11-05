@@ -37,7 +37,9 @@ typedef enum mac_event_t {
     MAC_TIMER_ACK,
     MAC_TIMER_CCA,
     MAC_TX_FAIL,
-    MAC_TX_TIMEOUT
+    MAC_TX_TIMEOUT,
+    MAC_UNKNOWN_DESTINATION,
+    MAC_TX_PRECOND_FAIL
 } mac_event_t;
 
 typedef enum mac_tx_status_type_t {
@@ -89,8 +91,12 @@ typedef enum arm_nwk_mlme_event_type {
     ARM_NWK_MAC_MLME_INDIRECT_DATA_POLL_AFTER_DATA = 5,
 } arm_nwk_mlme_event_type_e;
 
+#define ENHANCED_ACK_MAX_LENGTH 255
+
 typedef struct dev_driver_tx_buffer {
     uint8_t *buf;
+    uint8_t *enhanced_ack_buf;
+    uint16_t ack_len;
     uint16_t len;
     unsigned priority:2;
 } dev_driver_tx_buffer_s;
@@ -133,6 +139,11 @@ typedef struct mac_tx_status_t {
     uint8_t cca_cnt;
     uint8_t retry;
 } mac_tx_status_t;
+
+typedef struct mac_mcps_data_conf_fail_s {
+    uint8_t msduHandle;     /**< Handle associated with MSDU */
+    uint8_t status;         /**< Status of the failing MSDU transmission */
+} mac_mcps_data_conf_fail_t;
 
 typedef struct protocol_interface_rf_mac_setup {
     int8_t mac_interface_id;
@@ -229,6 +240,7 @@ typedef struct protocol_interface_rf_mac_setup {
     uint8_t max_ED;
     uint16_t mlme_ED_counter;
     mac_tx_status_t mac_tx_status;
+    mac_mcps_data_conf_fail_t mac_mcps_data_conf_fail;
     struct cca_structure_s *cca_structure;
     /* MAC Security components */
     struct mlme_device_descriptor_s *device_description_table;

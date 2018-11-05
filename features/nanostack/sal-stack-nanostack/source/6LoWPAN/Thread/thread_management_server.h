@@ -99,6 +99,13 @@ int thread_management_server_joiner_router_init(int8_t interface_id);
  *
  */
 void thread_management_server_joiner_router_deinit(int8_t interface_id);
+
+/** Get service id of management service.
+ *
+ * When using Coap Management port service this service is the only instance used to make client transactions.
+ */
+int8_t thread_management_server_service_id_get(int8_t interface_id);
+
 int8_t thread_management_server_interface_id_get(int8_t coap_service_id);
 
 int thread_management_server_commisoner_data_get(int8_t interface_id, thread_management_server_data_t *server_data);

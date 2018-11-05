@@ -44,9 +44,11 @@
 #include "6LoWPAN/Bootstraps/protocol_6lowpan_interface.h"
 #include "6LoWPAN/Thread/thread_common.h"
 #include "6LoWPAN/Thread/thread_beacon.h"
+#include "6LoWPAN/Thread/thread_diagnostic.h"
+#include "6LoWPAN/Thread/thread_extension_bbr.h"
 #include "6LoWPAN/Thread/thread_leader_service.h"
 #include "6LoWPAN/Thread/thread_routing.h"
-#include "6LoWPAN/Thread/thread_dhcpv6_client.h"
+#include "DHCPv6_client/dhcpv6_client_api.h"
 #include "6LoWPAN/Thread/thread_discovery.h"
 #include "6LoWPAN/Thread/thread_bootstrap.h"
 #include "6LoWPAN/Thread/thread_router_bootstrap.h"
@@ -60,6 +62,7 @@
 #include "6LoWPAN/Thread/thread_management_internal.h"
 #include "6LoWPAN/Thread/thread_management_client.h"
 #include "6LoWPAN/Thread/thread_management_server.h"
+#include "6LoWPAN/Thread/thread_resolution_server.h"
 #include "6LoWPAN/Thread/thread_resolution_client.h"
 #include "6LoWPAN/Thread/thread_address_registration_client.h"
 #include "6LoWPAN/Thread/thread_resolution_client.h"
@@ -226,6 +229,7 @@ int8_t thread_bootstrap_up(protocol_interface_info_entry_t *cur)
     ret_val = nwk_6lowpan_up(cur);
 
     cur->nwk_nd_re_scan_count = 0;
+    cur->thread_info->link_sync_allowed = true;
 
     return ret_val;
 }
@@ -258,9 +262,11 @@ int8_t thread_bootstrap_down(protocol_interface_info_entry_t *cur)
         thread_leader_mleid_rloc_map_to_nvm_write(cur);
         thread_bootstrap_stop(cur);
         mle_service_interface_unregister(cur->id);
+        thread_diagnostic_delete(cur->id); // delete before thread_management_server_delete as they share same coap_service id
+        thread_management_client_delete(cur->id); // delete before thread_management_server_delete as they share same coap_service id
+        thread_nd_service_disable(cur->id); // delete before thread_management_server_delete as they share same coap_service id
         thread_management_server_delete(cur->id);
         thread_joiner_application_deinit(cur->id);
-        thread_management_client_delete(cur->id);
         //free network Data
         thread_network_data_free_and_clean(&cur->thread_info->networkDataStorage);
         //free local also here
@@ -451,7 +457,7 @@ void thread_data_base_init(thread_info_t *thread_info, int8_t interfaceId)
     thread_leader_commissioner_create(thread_info);
     thread_info->rfc6775 = false;
     thread_info->threadPrivatePrefixInfo.ulaValid = false;
-    thread_info->routerIdReqCoapID = 0;
+    thread_info->routerIdRequested = false;
     thread_info->networkDataRequested = false;
     thread_info->proactive_an_timer = 0;
 
@@ -905,6 +911,7 @@ static void thread_child_update_req_timer(protocol_interface_info_entry_t *cur, 
     if (cur->thread_info->childUpdateReqTimer == -1) {
         return;
     }
+
     if (cur->thread_info->childUpdateReqTimer > seconds) {
         cur->thread_info->childUpdateReqTimer -= seconds;
     } else {
@@ -943,6 +950,20 @@ static void thread_key_switch_timer(protocol_interface_info_entry_t *cur, uint16
         thread_management_key_sets_calc(cur, linkConfiguration, linkConfiguration->key_sequence + 1);
         thread_key_guard_timer_calculate(cur, linkConfiguration, false);
     }
+}
+
+static void thread_maintenance_timer(protocol_interface_info_entry_t *cur, uint32_t seconds)
+{
+    if (thread_info(cur)->thread_maintenance_timer) {
+        if (thread_info(cur)->thread_maintenance_timer > seconds) {
+            thread_info(cur)->thread_maintenance_timer -= seconds;
+            return;
+        }
+    }
+
+    thread_info(cur)->thread_maintenance_timer = THREAD_MAINTENANCE_TIMER_INTERVAL ;
+
+    thread_bootstrap_network_data_activate(cur);
 }
 
 void thread_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t ticks)
@@ -1003,6 +1024,7 @@ void thread_seconds_timer(protocol_interface_info_entry_t *cur, uint32_t ticks)
     }
 
     thread_router_bootstrap_timer(cur, ticks);
+    thread_maintenance_timer(cur, ticks);
     thread_border_router_seconds_timer(cur->id, ticks);
     thread_bbr_seconds_timer(cur->id, ticks);
     thread_lowpower_timer(cur, ticks);
@@ -1720,9 +1742,105 @@ uint8_t *thread_leader_data_tlv_write(uint8_t *ptr, protocol_interface_info_entr
     return ptr;
 }
 
+bool thread_addresses_needs_to_be_registered(protocol_interface_info_entry_t *cur)
+{
+    lowpan_context_t *ctx;
+    uint8_t thread_realm_local_mcast_addr[16];
+    uint8_t thread_ll_unicast_prefix_based_mcast_addr[16];
+    if (thread_info(cur)->thread_device_mode != THREAD_DEVICE_MODE_SLEEPY_END_DEVICE &&
+            thread_info(cur)->thread_device_mode != THREAD_DEVICE_MODE_END_DEVICE) {
+        // No address registration for others than MED or SED
+        return false;
+    }
+
+    // check for addresses
+    ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
+        if (addr_ipv6_scope(e->address, cur) == IPV6_SCOPE_GLOBAL || (addr_ipv6_scope(e->address, cur) == IPV6_SCOPE_REALM_LOCAL
+                && !thread_addr_is_mesh_local_16(e->address, cur))) {
+            ctx = lowpan_context_get_by_address(&cur->lowpan_contexts, e->address);
+            if (!ctx) {
+                return true;
+            }
+            if (ctx->cid != 0) {
+                return true;
+
+            }
+        }
+    }
+
+    // check for multicast groups
+    thread_bootstrap_all_nodes_address_generate(thread_realm_local_mcast_addr, cur->thread_info->threadPrivatePrefixInfo.ulaPrefix, IPV6_SCOPE_REALM_LOCAL);
+    thread_bootstrap_all_nodes_address_generate(thread_ll_unicast_prefix_based_mcast_addr, cur->thread_info->threadPrivatePrefixInfo.ulaPrefix, IPV6_SCOPE_LINK_LOCAL);
+    ns_list_foreach(if_group_entry_t, entry, &cur->ip_groups)
+    {
+        if (!memcmp((entry->group), ADDR_MULTICAST_SOLICITED, 13)) {
+            /* Skip solicited node multicast address */
+            continue;
+        }
+        if (addr_ipv6_equal(entry->group, thread_realm_local_mcast_addr)) {
+            /* Skip well-known realm-local all Thread nodes multicast address */
+            continue;
+        }
+        if (addr_ipv6_equal(entry->group, thread_ll_unicast_prefix_based_mcast_addr)) {
+            /* Skip well-known link-local all Thread nodes multicast address */
+            continue;
+        }
+        if (addr_ipv6_equal(entry->group, ADDR_ALL_MPL_FORWARDERS)) {
+            /* Skip All MPL Forwarders address */
+            continue;
+        }
+        if (addr_ipv6_equal(entry->group, ADDR_REALM_LOCAL_ALL_NODES)) {
+            /* Skip Mesh local all nodes */
+            continue;
+        }
+        if (addr_ipv6_equal(entry->group, ADDR_REALM_LOCAL_ALL_ROUTERS)) {
+            /* Skip Mesh local all routers */
+            continue;
+        }
+        return true;
+    }
+    return false;
+}
+
+uint8_t *thread_ml_address_tlv_write(uint8_t *ptr, protocol_interface_info_entry_t *cur)
+{
+    lowpan_context_t *ctx;
+    uint8_t *address_len_ptr;
+
+    if (thread_info(cur)->thread_device_mode != THREAD_DEVICE_MODE_SLEEPY_END_DEVICE &&
+        thread_info(cur)->thread_device_mode != THREAD_DEVICE_MODE_END_DEVICE) {
+        // No address registration for others than MED or SED
+        return ptr;
+    }
+    *ptr++ = MLE_TYPE_ADDRESS_REGISTRATION;
+    address_len_ptr = ptr++;
+
+    *address_len_ptr = 0;
+
+    ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
+
+        if (*address_len_ptr > 148 ) {
+            // Maximum length of address registrations
+            continue;
+        }
+        if (!thread_addr_is_mesh_local_16(e->address, cur)) {
+            ctx = lowpan_context_get_by_address(&cur->lowpan_contexts, e->address);
+            if (ctx && ctx->cid == 0) {
+                //Write TLV to list
+                *ptr++ = (ctx->cid | 0x80);
+                memcpy(ptr, e->address + 8, 8);
+                ptr += 8;
+                *address_len_ptr += 9;
+            }
+        }
+    }
+    return ptr;
+}
+
 uint8_t *thread_address_registration_tlv_write(uint8_t *ptr, protocol_interface_info_entry_t *cur)
 {
     uint8_t thread_realm_local_mcast_addr[16];
+    uint8_t thread_ll_unicast_prefix_based_mcast_addr[16];
     lowpan_context_t *ctx;
     uint8_t *address_len_ptr;
 
@@ -1738,7 +1856,6 @@ uint8_t *thread_address_registration_tlv_write(uint8_t *ptr, protocol_interface_
 
     // Register all global addressess
     ns_list_foreach(if_address_entry_t, e, &cur->ip_addresses) {
-
         if (*address_len_ptr > 148 ) {
             // Maximum length of address registrations
             continue;
@@ -1762,21 +1879,25 @@ uint8_t *thread_address_registration_tlv_write(uint8_t *ptr, protocol_interface_
     }
 
     /* Registers multicast addresses to the parent */
-    thread_bootstrap_all_nodes_address_generate(thread_realm_local_mcast_addr, cur->thread_info->threadPrivatePrefixInfo.ulaPrefix, 3);
-
+    thread_bootstrap_all_nodes_address_generate(thread_realm_local_mcast_addr, cur->thread_info->threadPrivatePrefixInfo.ulaPrefix, IPV6_SCOPE_REALM_LOCAL);
+    thread_bootstrap_all_nodes_address_generate(thread_ll_unicast_prefix_based_mcast_addr, cur->thread_info->threadPrivatePrefixInfo.ulaPrefix, IPV6_SCOPE_LINK_LOCAL);
     ns_list_foreach(if_group_entry_t, entry, &cur->ip_groups)
     {
         if (*address_len_ptr > 148) {
             // Maximum length of address registrations
             continue;
         }
-        if (addr_ipv6_multicast_scope(entry->group) < IPV6_SCOPE_REALM_LOCAL) {
-            /* Skip Link Local multicast address */
+
+        if (!memcmp((entry->group), ADDR_MULTICAST_SOLICITED, 13)) {
+            /* Skip solicited node multicast address */
             continue;
         }
-
         if (addr_ipv6_equal(entry->group, thread_realm_local_mcast_addr)) {
             /* Skip well-known realm-local all Thread nodes multicast address */
+            continue;
+        }
+        if (addr_ipv6_equal(entry->group, thread_ll_unicast_prefix_based_mcast_addr)) {
+            /* Skip well-known link-local all Thread nodes multicast address */
             continue;
         }
         if (addr_ipv6_equal(entry->group, ADDR_ALL_MPL_FORWARDERS)) {
@@ -1935,9 +2056,34 @@ static void thread_address_notification_cb(struct protocol_interface_info_entry 
     }
 }
 
+static bool thread_mcast_should_register_address(struct protocol_interface_info_entry *cur, uint8_t *addr)
+{
+    uint8_t thread_realm_local_mcast_addr[16];
+    uint8_t thread_ll_unicast_prefix_based_mcast_addr[16];
+    thread_bootstrap_all_nodes_address_generate(thread_realm_local_mcast_addr, cur->thread_info->threadPrivatePrefixInfo.ulaPrefix, IPV6_SCOPE_REALM_LOCAL);
+    thread_bootstrap_all_nodes_address_generate(thread_ll_unicast_prefix_based_mcast_addr, cur->thread_info->threadPrivatePrefixInfo.ulaPrefix, IPV6_SCOPE_LINK_LOCAL);
+    if (addr_ipv6_multicast_scope(addr) >= IPV6_SCOPE_LINK_LOCAL) {
+        if (memcmp(addr, ADDR_MULTICAST_SOLICITED, 13) == 0) {
+            return false;
+        }
+        if (memcmp(addr, thread_realm_local_mcast_addr, 16) == 0) {
+            return false;
+        }
+        if (memcmp(addr, thread_ll_unicast_prefix_based_mcast_addr, 16) == 0) {
+            return false;
+        }
+        if (memcmp(addr, ADDR_LINK_LOCAL_ALL_NODES, 16) == 0) {
+            return false;
+        }
+        if (memcmp(addr, ADDR_LINK_LOCAL_ALL_ROUTERS, 16) == 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void thread_mcast_group_change(struct protocol_interface_info_entry *interface, if_group_entry_t *group, bool addr_added)
 {
-
     if (thread_attach_ready(interface) != 0) {
         return;
     }
@@ -1946,7 +2092,7 @@ void thread_mcast_group_change(struct protocol_interface_info_entry *interface, 
 
     if (thread_bootstrap_should_register_address(interface)) {
         /* Trigger Child Update Request only if MTD child's multicast address change */
-        if (addr_ipv6_multicast_scope(group->group) > IPV6_SCOPE_LINK_LOCAL) {
+        if (thread_mcast_should_register_address(interface, group->group)) {
             interface->thread_info->childUpdateReqTimer = 1;
         }
     } else {
@@ -1956,16 +2102,25 @@ void thread_mcast_group_change(struct protocol_interface_info_entry *interface, 
     }
 }
 
+static void thread_old_partition_data_clean(int8_t interface_id)
+{
+    thread_management_client_old_partition_data_clean(interface_id);
+    thread_border_router_old_partition_data_clean(interface_id);
+}
+
 void thread_partition_data_purge(protocol_interface_info_entry_t *cur)
 {
     /* Partition has been changed. Wipe out data related to old partition */
-    thread_management_client_pending_coap_request_kill(cur->id);
+    thread_old_partition_data_clean(cur->id);
 
     /* Reset previous routing information */
     thread_routing_reset(&cur->thread_info->routing);
 
     /* Flush address cache */
     ipv6_neighbour_cache_flush(&cur->ipv6_neighbour_cache);
+
+    /* Remove linked neighbours for REEDs and FEDs */
+    thread_reed_fed_neighbour_links_clean(cur);
 
 }
 
@@ -1995,6 +2150,11 @@ void thread_partition_info_update(protocol_interface_info_entry_t *cur, thread_l
 void thread_neighbor_communication_update(protocol_interface_info_entry_t *cur, uint8_t neighbor_attribute_index)
 {
     thread_neighbor_last_communication_time_update(&cur->thread_info->neighbor_class, neighbor_attribute_index);
+}
+
+void thread_maintenance_timer_set(protocol_interface_info_entry_t *cur, uint16_t delay)
+{
+    thread_info(cur)->thread_maintenance_timer = delay;
 }
 
 #endif

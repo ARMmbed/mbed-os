@@ -1589,6 +1589,7 @@ ipv6_route_t *ipv6_route_add_metric(const uint8_t *prefix, uint8_t prefix_len, i
             route->metric = metric;
             changed_info = UPDATED;
         }
+
     }
 
     if (changed_info != UNCHANGED) {

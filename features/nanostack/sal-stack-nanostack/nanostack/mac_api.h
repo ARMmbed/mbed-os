@@ -137,8 +137,9 @@ typedef void mcps_data_request_ext(const mac_api_t* api, const mcps_data_req_t *
  * @brief mcps_purge_request MCPS_PURGE request call
  * @param api API to handle the request
  * @param data MCPS-PURGE.request specific values
+ * @return 0 in case of success, non-zero otherwise
  */
-typedef void mcps_purge_request(const mac_api_t* api, const mcps_purge_t *data);
+typedef uint8_t mcps_purge_request(const mac_api_t* api, const mcps_purge_t *data);
 
 //Upper layer specific callback functions (will also be set by Upper layer after mac_api_t has been created and given to it)
 

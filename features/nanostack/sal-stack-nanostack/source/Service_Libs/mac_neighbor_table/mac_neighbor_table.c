@@ -192,6 +192,9 @@ void mac_neighbor_table_neighbor_connected(mac_neighbor_table_t *table_class, ma
 void mac_neighbor_table_trusted_neighbor(mac_neighbor_table_t *table_class, mac_neighbor_table_entry_t *neighbor_entry, bool trusted_device)
 {
     (void)table_class;
+    if (!neighbor_entry->trusted_device && trusted_device) {
+        neighbor_entry->lifetime = neighbor_entry->link_lifetime;
+    }
     neighbor_entry->trusted_device = trusted_device;
 }
 
@@ -271,4 +274,13 @@ mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_mac64(mac_neighbor_table_t
     return mac_neighbor_table_entry_allocate(table_class, mac64);
 }
 
+mac_neighbor_table_entry_t* mac_neighbor_entry_get_priority(mac_neighbor_table_t *table_class)
+{
 
+    ns_list_foreach(mac_neighbor_table_entry_t, entry, &table_class->neighbour_list) {
+        if (entry->link_role == PRIORITY_PARENT_NEIGHBOUR) {
+            return entry;
+        }
+    }
+    return NULL;
+}

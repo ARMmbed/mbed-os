@@ -38,6 +38,7 @@ typedef struct etx_storage_s {
     unsigned        accumulated_failures: 5;
     unsigned        tmp_etx: 1;
     unsigned        linkIdr: 4;
+    unsigned        etx_samples: 3;
 } etx_storage_t;
 
 /**

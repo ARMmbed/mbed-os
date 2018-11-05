@@ -52,10 +52,12 @@ int8_t thread_extension_bbr_init(int8_t interface_id, int8_t backbone_interface_
 void thread_extension_bbr_delete(int8_t interface_id);
 bool thread_extension_bbr_nd_query_process(protocol_interface_info_entry_t *cur, const uint8_t *target_addr, uint16_t rloc);
 void thread_extension_bbr_seconds_timer(int8_t interface_id, uint32_t seconds);
+int thread_extension_bbr_sequence_number_set(int8_t interface_id, uint8_t seq_number);
 int thread_extension_bbr_timeout_set(int8_t interface_id, uint32_t timeout_a, uint32_t timeout_b, uint32_t delay);
 int thread_extension_bbr_address_set(int8_t interface_id, const uint8_t *addr_ptr, uint16_t port);
 void thread_extension_bbr_route_update(protocol_interface_info_entry_t *cur);
 int thread_extension_bbr_prefix_set(int8_t interface_id, uint8_t *prefix);
+void thread_extension_bbr_old_partition_data_clean(int8_t interface_id);
 
 
 #else
@@ -67,7 +69,9 @@ int thread_extension_bbr_prefix_set(int8_t interface_id, uint8_t *prefix);
 #define thread_extension_bbr_timeout_set(interface_id, timeout_a, timeout_b, delay)
 #define thread_extension_bbr_address_set(interface_id, addr_ptr, port) (-1)
 #define thread_extension_bbr_route_update(cur)
+#define thread_extension_bbr_sequence_number_set(interface_id, seq_number) (-1)
 #define thread_extension_bbr_prefix_set(interface_id, prefix) 0
+#define thread_extension_bbr_old_partition_data_clean(interface_id)
 #endif
 
 #ifdef __cplusplus

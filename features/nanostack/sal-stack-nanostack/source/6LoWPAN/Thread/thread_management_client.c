@@ -45,6 +45,7 @@
 #include "6LoWPAN/Thread/thread_constants.h"
 #include "6LoWPAN/Thread/thread_tmfcop_lib.h"
 #include "6LoWPAN/Thread/thread_management_internal.h"
+#include "6LoWPAN/Thread/thread_management_server.h"
 #include "6LoWPAN/Thread/thread_joiner_application.h"
 #include "6LoWPAN/Thread/thread_network_data_lib.h"
 #include "6LoWPAN/Thread/thread_bootstrap.h"
@@ -58,9 +59,8 @@ typedef struct thread_management {
     thread_management_client_router_id_cb *router_id_release_cb_ptr;
     thread_management_client_network_data_set_cb *network_data_set_cb_ptr;
     thread_management_client_network_data_set_cb *neighbor_discovery_cb_ptr;
-    uint16_t coap_asd_msg_id;   // COAP msg id for a/sd
     int8_t interface_id;
-    int8_t coap_service_id;
+    int8_t coap_service_id; // COAP service ID from Management server
     ns_list_link_t link;
 } thread_management_t;
 
@@ -150,9 +150,12 @@ void thread_management_client_init(int8_t interface_id)
         this->neighbor_discovery_cb_ptr = NULL;
         this->router_id_cb_ptr = NULL;
         this->interface_id = interface_id;
-        this->coap_asd_msg_id = 0;
         //TODO: Check if to use ephemeral port here
-        this->coap_service_id = coap_service_initialize(this->interface_id, THREAD_MANAGEMENT_PORT, COAP_SERVICE_OPTIONS_NONE, NULL, NULL);
+
+        this->coap_service_id = thread_management_server_service_id_get(interface_id);
+        if (this->coap_service_id < 0) {
+            tr_error("Failed to init COAP service");
+        }
         ns_list_add_to_start(&instance_list, this);
     }
     return;
@@ -165,18 +168,9 @@ void thread_management_client_delete(int8_t interface_id)
         return;
     }
 
-    coap_service_delete(this->coap_service_id);
     ns_list_remove(&instance_list, this);
     ns_dyn_mem_free(this);
     return;
-}
-int8_t thread_management_client_service_id_get(int8_t interface_id)
-{
-    thread_management_t *this = thread_management_find(interface_id);
-    if (!this) {
-        return -1;
-    }
-    return this->coap_service_id;
 }
 
 int thread_management_client_router_id_get(int8_t interface_id, uint8_t mac[8], uint16_t router_id, thread_management_client_router_id_cb *id_cb, uint8_t status)
@@ -251,8 +245,6 @@ static int thread_management_client_register_cb(int8_t service_id, uint8_t sourc
         return -1;
     }
 
-    this->coap_asd_msg_id = 0; //clear the coap message id
-
     if (this->network_data_set_cb_ptr) {
         if (response_ptr) {
             // If we get response status is OK
@@ -281,10 +273,8 @@ int thread_management_client_network_data_register(int8_t interface_id, uint8_t 
     this->network_data_set_cb_ptr = set_cb;
     tr_debug("thread network data send to %s", trace_ipv6(destination));
 
-    this->coap_asd_msg_id = coap_service_request_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, destination, THREAD_MANAGEMENT_PORT,
-                              COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_NETWORK_DATA, COAP_CT_OCTET_STREAM, data_ptr, data_len, thread_management_client_register_cb);
-
-    return 0;
+    return coap_service_request_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, destination, THREAD_MANAGEMENT_PORT,
+        COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_NETWORK_DATA, COAP_CT_OCTET_STREAM, data_ptr, data_len, thread_management_client_register_cb);
 }
 
 int thread_management_client_network_data_unregister(int8_t interface_id, uint16_t rloc16)
@@ -306,8 +296,8 @@ int thread_management_client_network_data_unregister(int8_t interface_id, uint16
 
     tr_debug("thread network data unregister");
 
-    this->coap_asd_msg_id = coap_service_request_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, destination, THREAD_MANAGEMENT_PORT,
-                              COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_NETWORK_DATA, COAP_CT_OCTET_STREAM, payload, ptr - payload, thread_management_client_register_cb);
+    coap_service_request_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, destination, THREAD_MANAGEMENT_PORT,
+        COAP_MSG_TYPE_CONFIRMABLE, COAP_MSG_CODE_REQUEST_POST, THREAD_URI_NETWORK_DATA, COAP_CT_OCTET_STREAM, payload, ptr - payload, thread_management_client_register_cb);
     return 0;
 }
 
@@ -616,7 +606,18 @@ void thread_management_client_proactive_an(int8_t interface_id, const uint8_t ad
                               payload, ptr - payload, thread_management_client_proactive_an_cb);
 }
 
-void thread_management_client_pending_coap_request_kill(int8_t interface_id)
+void thread_management_client_coap_message_delete(int8_t interface_id, uint16_t coap_message_id)
+{
+    thread_management_t *this = thread_management_find(interface_id);
+
+    if (!this) {
+        return;
+    }
+
+    coap_service_request_delete(this->coap_service_id, coap_message_id);
+}
+
+void thread_management_client_old_partition_data_clean(int8_t interface_id)
 {
     thread_management_t *this = thread_management_find(interface_id);
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
@@ -625,17 +626,9 @@ void thread_management_client_pending_coap_request_kill(int8_t interface_id)
         return;
     }
 
-    cur->thread_info->localServerDataBase.publish_active = false;
-
-    if (this->coap_asd_msg_id != 0) {
-        coap_service_request_delete(this->coap_service_id, this->coap_asd_msg_id);
-        this->coap_asd_msg_id = 0;
-    }
-
-    if (cur->thread_info->routerIdReqCoapID != 0) {
-        coap_service_request_delete(this->coap_service_id, cur->thread_info->routerIdReqCoapID);
-        cur->thread_info->routerIdReqCoapID = 0;
-    }
+    cur->thread_info->localServerDataBase.publish_coap_req_id = 0;
+    cur->thread_info->routerIdRequested = false;
+    coap_service_request_delete_by_service_id(this->coap_service_id);
 }
 
 #endif

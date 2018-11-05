@@ -326,6 +326,17 @@
  */
 #define THREAD_BBR_ROUTER_ID_REQUEST_STATUS THREAD_COAP_STATUS_TLV_HAVE_CHILD_ID_REQUEST
 
+/*
+ * Number of destination and neighbor cache entries assuming 250 thread devices (worst case) connecting to cloud service.
+ * Six entries reserved for backbone devices.
+ */
+#define THREAD_BBR_IPV6_DESTINATION_CACHE_SIZE  256
+
+/*
+ * Timeout to solicit address from DHCP if previous request fails.
+ */
+#define THREAD_MAINTENANCE_TIMER_INTERVAL 300
+
 /**
  * Build time flag to enable THCI special traces for test harness purposes
  */

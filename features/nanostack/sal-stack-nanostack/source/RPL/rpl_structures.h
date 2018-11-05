@@ -134,6 +134,7 @@ typedef struct rpl_dao_non_root
     uint32_t refresh_timer;             /* Refresh timer (seconds) - 0xFFFFFFFF = infinite, 0 = not yet set */
 } rpl_dao_non_root_t;
 
+
 /* Descriptor for a RPL DAO target */
 struct rpl_dao_target
 {

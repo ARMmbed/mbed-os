@@ -1786,7 +1786,7 @@ int8_t arm_6lowpan_bootstarp_bootstrap_set(int8_t interface_id, net_6lowpan_mode
          */
         if (cur->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) {
             //rpl_control_set_domain_on_interface(cur, protocol_6lowpan_rpl_domain, true);
-            //rpl_control_set_callback(protocol_6lowpan_rpl_domain, protocol_6lowpan_bootstrap_rpl_callback, cur);
+            //rpl_control_set_callback(protocol_6lowpan_rpl_domain, protocol_6lowpan_bootstrap_rpl_callback, NULL, cur);
         }
 #endif
         cur->configure_flags |= INTERFACE_BOOTSTRAP_DEFINED;
@@ -2073,6 +2073,8 @@ static void protocol_6lowpan_bootstrap_rpl_callback(rpl_event_t event, void *han
             tr_error("RPL Local repair fail-->interface to idle");
             nwk_bootsrap_state_update(ARM_NWK_NWK_CONNECTION_DOWN, cur);
             break;
+        default:
+            break;
     }
 }
 
@@ -2179,7 +2181,7 @@ void nwk_6lowpan_nd_address_registartion_ready(protocol_interface_info_entry_t *
             // arm_nwk_6lowpan_rpl_dodag_poison from a previous connection may have left force_leaf set
             rpl_control_force_leaf(protocol_6lowpan_rpl_domain, false);
             rpl_control_set_domain_on_interface(cur, protocol_6lowpan_rpl_domain, true);
-            rpl_control_set_callback(protocol_6lowpan_rpl_domain, protocol_6lowpan_bootstrap_rpl_callback, cur);
+            rpl_control_set_callback(protocol_6lowpan_rpl_domain, protocol_6lowpan_bootstrap_rpl_callback, NULL, cur);
         }
         // Send unicast DIS to coordinator
         nwk_bootstrap_icmp_rpl_dis_coord_msg_tx(cur);

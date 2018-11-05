@@ -67,7 +67,6 @@ void thread_bbr_seconds_timer(int8_t interface_id, uint32_t tics);
  */
 int thread_bbr_commissioner_proxy_service_update(int8_t interface_id);
 
-
 #else
 #define thread_bbr_init(interface_id, external_commisssioner_port)
 #define thread_bbr_delete(interface_id)
@@ -118,12 +117,6 @@ int thread_bbr_dua_entry_add (int8_t interface_id, const uint8_t *addr_data_ptr,
  */
 int thread_bbr_na_send(int8_t interface_id, const uint8_t target[static 16]);
 
-/**
- * \brief Find if bbr has dua entry
- *
- * \param interface_id addr_data_ptr
- */
-struct ipv6_route *thread_bbr_dua_entry_find(int8_t interface_id, const uint8_t *addr_data_ptr);
 
 #else
 #define thread_bbr_proxy_state_update(caller_interface_id , handler_interface_id, status) (NULL)
@@ -131,7 +124,6 @@ struct ipv6_route *thread_bbr_dua_entry_find(int8_t interface_id, const uint8_t 
 #define thread_bbr_network_data_update_notify(cur)
 #define thread_bbr_nd_entry_add(interface_id, addr_data_ptr, lifetime, info) (0)
 #define thread_bbr_dua_entry_add(interface_id, addr_data_ptr, lifetime, mleid_ptr) (0)
-#define thread_bbr_dua_entry_find(interface_id, addr_data_ptr) (NULL)
 #define thread_bbr_na_send(interface_id, target) (0)
 #endif //HAVE_THREAD_BORDER_ROUTER
 

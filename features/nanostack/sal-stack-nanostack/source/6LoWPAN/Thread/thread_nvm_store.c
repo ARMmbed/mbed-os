@@ -292,7 +292,11 @@ int thread_nvm_store_active_configuration_remove(void)
     }
     char ac_data_path[ACTIVE_CONF_STRING_LEN];
     thread_nvm_store_create_path(ac_data_path, THREAD_NVM_ACTIVE_CONF_FILE);
-    return remove(ac_data_path);
+    int status = remove(ac_data_path);
+    if (status != 0) {
+      return THREAD_NVM_FILE_REMOVE_ERROR;
+    }
+    return THREAD_NVM_FILE_SUCCESS;
 }
 
 int thread_nvm_store_pending_configuration_remove(void)
@@ -302,7 +306,11 @@ int thread_nvm_store_pending_configuration_remove(void)
     }
     char ac_data_path[PENDING_CONF_STRING_LEN];
     thread_nvm_store_create_path(ac_data_path, THREAD_NVM_PENDING_CONF_FILE);
-    return remove(ac_data_path);
+    int status = remove(ac_data_path);
+    if (status != 0) {
+      return THREAD_NVM_FILE_REMOVE_ERROR;
+    }
+    return THREAD_NVM_FILE_SUCCESS;
 }
 
 

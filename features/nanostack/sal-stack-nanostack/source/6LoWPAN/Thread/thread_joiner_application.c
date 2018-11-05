@@ -54,6 +54,7 @@
 #include "thread_management_if.h"
 #include "thread_common.h"
 #include "thread_bootstrap.h"
+#include "thread_router_bootstrap.h"
 #include "thread_network_synch.h"
 #include "thread_network_data_lib.h"
 #include "thread_joiner_application.h"
@@ -1140,7 +1141,7 @@ void thread_joiner_pending_config_activate(int8_t interface_id)
     this->active_configuration_ptr->timestamp = pending_active_timestamp;
     // All information is copied from old configuration so if configuration is corrupt we dont change anything.
     this->pending_configuration_ptr = NULL;
-    (void)thread_nvm_store_pending_configuration_remove();
+    thread_nvm_store_pending_configuration_remove();
     configuration_set_copy_mandatory(this->active_configuration_ptr, this->old_active_configuration_ptr);
     link_configuration_update(this->configuration_ptr,this->active_configuration_ptr->data, this->active_configuration_ptr->length);
     link_configuration_trace(this->configuration_ptr);
@@ -1922,6 +1923,8 @@ int thread_joiner_application_update_configuration(uint8_t interface_id, uint8_t
     }
     thread_meshcop_tlv_data_get_uint64(msg_ptr, msg_len, MESHCOP_TLV_ACTIVE_TIME_STAMP, &this->active_configuration_ptr->timestamp);
     link_configuration_update(this->configuration_ptr,msg_ptr,msg_len);
+    // allow 5 seconds delay before state change for data response propagation
+    thread_router_bootstrap_delay_reed_jitter(interface_id, 5);
     ns_dyn_mem_free(configuration_ptr);
     thread_joiner_application_configuration_nvm_save(interface_id);
 
