@@ -30,7 +30,7 @@
 
 // For tracing we need to define flag, have include and define group
 //#define HAVE_DEBUG
-#define TRACE_GROUP  "wisuND"
+#define TRACE_GROUP  "WSND"
 #include "ns_trace.h"
 
 // Tasklet timer events
@@ -53,13 +53,11 @@ typedef enum {
  */
 typedef struct {
     void (*mesh_api_cb)(mesh_connection_status_t nwk_status);
-    channel_list_s channel_list;
     tasklet_state_t tasklet_state;
     int8_t tasklet;
     net_6lowpan_mode_e operating_mode;
     net_6lowpan_mode_extension_e operating_mode_extension;
     int8_t network_interface_id;
-    uint8_t *mac;
 } wisun_tasklet_data_str_t;
 
 
@@ -75,36 +73,6 @@ static void wisun_tasklet_network_state_changed(mesh_connection_status_t status)
 static void wisun_tasklet_parse_network_event(arm_event_s *event);
 static void wisun_tasklet_configure_and_connect_to_network(void);
 
-//#define TRACE_WISUN_TASKLET
-#ifndef TRACE_WISUN_TASKLET
-#define wisun_tasklet_trace_bootstrap_info() ((void) 0)
-#else
-void wisun_tasklet_trace_bootstrap_info(void);
-#endif
-
-static void initialize_channel_list(void)
-{
-    uint32_t channel = MBED_CONF_MBED_MESH_API_WISUN_ND_CHANNEL;
-
-    const int_fast8_t word_index = channel / 32;
-    const int_fast8_t bit_index = channel % 32;
-
-    memset(&wisun_tasklet_data_ptr->channel_list, 0, sizeof(wisun_tasklet_data_ptr->channel_list));
-
-    wisun_tasklet_data_ptr->channel_list.channel_page = (channel_page_e)MBED_CONF_MBED_MESH_API_WISUN_ND_CHANNEL_PAGE;
-    wisun_tasklet_data_ptr->channel_list.channel_mask[0] = MBED_CONF_MBED_MESH_API_WISUN_ND_CHANNEL_MASK;
-
-    if (channel > 0) {
-        memset(&wisun_tasklet_data_ptr->channel_list.channel_mask, 0, sizeof(wisun_tasklet_data_ptr->channel_list.channel_mask));
-        wisun_tasklet_data_ptr->channel_list.channel_mask[word_index] |= ((uint32_t) 1 << bit_index);
-    }
-
-    arm_nwk_set_channel_list(wisun_tasklet_data_ptr->network_interface_id, &wisun_tasklet_data_ptr->channel_list);
-
-    tr_debug("Channel: %ld", channel);
-    tr_debug("Channel page: %d", wisun_tasklet_data_ptr->channel_list.channel_page);
-    tr_debug("Channel mask: 0x%.8lx", wisun_tasklet_data_ptr->channel_list.channel_mask[word_index]);
-}
 /*
  * \brief A function which will be eventually called by NanoStack OS when ever the OS has an event to deliver.
  * @param event, describes the sender, receiver and event type.
@@ -173,7 +141,6 @@ static void wisun_tasklet_parse_network_event(arm_event_s *event)
             if (wisun_tasklet_data_ptr->tasklet_state != TASKLET_STATE_BOOTSTRAP_READY) {
                 tr_info("Wi-SUN bootstrap ready");
                 wisun_tasklet_data_ptr->tasklet_state = TASKLET_STATE_BOOTSTRAP_READY;
-                wisun_tasklet_trace_bootstrap_info();
                 wisun_tasklet_network_state_changed(MESH_CONNECTED);
             }
             break;
@@ -235,29 +202,9 @@ static void wisun_tasklet_configure_and_connect_to_network(void)
         wisun_tasklet_data_ptr->operating_mode_extension);
 
     ws_management_node_init(wisun_tasklet_data_ptr->network_interface_id,
-                            MBED_CONF_MBED_MESH_API_WISUN_REGULATOR_DOMAIN,
+                            MBED_CONF_MBED_MESH_API_WISUN_REGULATORY_DOMAIN,
                             network_name,
                             fhss_timer_ptr);
-
-    // configure scan parameters
-    arm_nwk_6lowpan_link_scan_parameter_set(wisun_tasklet_data_ptr->network_interface_id, 5);
-
-    // configure scan channels
-    initialize_channel_list();
-
-    // Configure scan options (NULL disables filter)
-    arm_nwk_6lowpan_link_nwk_id_filter_for_nwk_scan(wisun_tasklet_data_ptr->network_interface_id, NULL);
-
-    arm_nwk_6lowpan_link_panid_filter_for_nwk_scan(
-        wisun_tasklet_data_ptr->network_interface_id,
-        MBED_CONF_MBED_MESH_API_WISUN_ND_PANID_FILTER);
-
-    // Enable MPL by default
-    const uint8_t all_mpl_forwarders[16] = {0xff, 0x03, [15] = 0xfc};
-    multicast_mpl_domain_subscribe(wisun_tasklet_data_ptr->network_interface_id,
-                                   all_mpl_forwarders,
-                                   MULTICAST_MPL_SEED_ID_DEFAULT,
-                                   NULL);
 
     status = arm_nwk_interface_up(wisun_tasklet_data_ptr->network_interface_id);
     if (status >= 0) {
@@ -280,42 +227,6 @@ static void wisun_tasklet_network_state_changed(mesh_connection_status_t status)
         (wisun_tasklet_data_ptr->mesh_api_cb)(status);
     }
 }
-
-/*
- * Trace bootstrap information.
- */
-#ifdef TRACE_WISUN_TASKLET
-void wisun_tasklet_trace_bootstrap_info()
-{
-    network_layer_address_s app_nd_address_info;
-    link_layer_address_s app_link_address_info;
-    uint8_t temp_ipv6[16];
-    if (arm_nwk_nd_address_read(wisun_tasklet_data_ptr->network_interface_id, &app_nd_address_info) != 0) {
-        tr_error("WS Address read fail");
-    } else {
-        tr_debug("WS Access Point: %s", trace_ipv6(app_nd_address_info.border_router));
-        tr_debug("WS Prefix 64: %s", trace_array(app_nd_address_info.prefix, 8));
-
-        if (arm_net_address_get(wisun_tasklet_data_ptr->network_interface_id, ADDR_IPV6_GP, temp_ipv6) == 0) {
-            tr_debug("GP IPv6: %s", trace_ipv6(temp_ipv6));
-        }
-    }
-
-    if (arm_nwk_mac_address_read(wisun_tasklet_data_ptr->network_interface_id, &app_link_address_info) != 0) {
-        tr_error("MAC Address read fail\n");
-    } else {
-        uint8_t temp[2];
-        common_write_16_bit(app_link_address_info.mac_short, temp);
-        tr_debug("MAC 16-bit: %s", trace_array(temp, 2));
-        common_write_16_bit(app_link_address_info.PANId, temp);
-        tr_debug("PAN ID: %s", trace_array(temp, 2));
-        tr_debug("MAC 64-bit: %s", trace_array(app_link_address_info.mac_long, 8));
-        tr_debug("IID (Based on MAC 64-bit address): %s", trace_array(app_link_address_info.iid_eui64, 8));
-    }
-
-    tr_debug("Channel: %d", arm_net_get_current_channel(wisun_tasklet_data_ptr->network_interface_id));
-}
-#endif /* #define TRACE_WISUN_TASKLET */
 
 /* Public functions */
 int8_t wisun_tasklet_get_router_ip_address(char *address, int8_t len)
@@ -398,7 +309,7 @@ int8_t wisun_tasklet_network_init(int8_t device_id)
     // TODO, read interface name from configuration
     mac_description_storage_size_t storage_sizes;
     storage_sizes.device_decription_table_size = 32;
-    storage_sizes.key_description_table_size = 6;
+    storage_sizes.key_description_table_size = 4;
     storage_sizes.key_lookup_size = 1;
     storage_sizes.key_usage_size = 3;
     if (!mac_api) {

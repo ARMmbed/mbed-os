@@ -22,7 +22,7 @@
 #include "randLIB.h"
 
 #include "ns_trace.h"
-#define TRACE_GROUP "wisuI"
+#define TRACE_GROUP "WSIn"
 
 class Nanostack::WisunInterface : public Nanostack::MeshInterface {
 public:

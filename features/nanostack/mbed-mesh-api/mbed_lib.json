@@ -113,7 +113,7 @@
             "help": "default network name for wisun network",
             "value": "\"NETWORK_NAME\""
         },
-        "wisun-regulator-domain": {
+        "wisun-regulatory-domain": {
             "help": "Regulator domain.",
             "value": "3"
         },
@@ -146,32 +146,12 @@
             "value": 0
         },
         "wisun-bc-dwell-interval": {
-            "help": "Broadcast dwell interval. Range: 15-250 milliseconds",
+            "help": "Broadcast dwell interval. Range: 15-255 milliseconds",
             "value": 0
         },
         "wisun-uc-dwell-interval": {
-            "help": "Unicast dwell interval. Range: 15-250 milliseconds",
+            "help": "Unicast dwell interval. Range: 15-255 milliseconds",
             "value": 0
-        },
-        "wisun-device-type": {
-            "help": "Device mode (NET_6LOWPAN_ROUTER or NET_6LOWPAN_HOST). Router is routing packets from other device, creating a mesh network.",
-            "value": "NET_6LOWPAN_ROUTER"
-        },
-        "wisun-nd-channel-mask": {
-            "help": "Channel mask, bit-mask of channels to use. [0-0x07fff800]",
-            "value": "0x7fff800"
-        },
-        "wisun-nd-channel-page": {
-            "help": "0 for 2.4 GHz and 2 for sub-GHz radios.",
-            "value": 0
-        },
-        "wisun-nd-channel": {
-            "help": "RF channel to use when `channel_mask` is not defined. [0-26].",
-            "value": 0
-        },
-        "wisun-nd-panid-filter": {
-            "help": "Beacon PAN ID filter, 0xffff means no filtering. [0-0xffff]",
-            "value": "0xffff"
         }
     },
     "target_overrides": {
