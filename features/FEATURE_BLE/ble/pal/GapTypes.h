@@ -409,7 +409,6 @@ struct initiator_policy_t : SafeEnum<initiator_policy_t, uint8_t> {
         SafeEnum<initiator_policy_t, uint8_t>(value) { }
 };
 
-
 /**
  * Hold advertising data.
  */
@@ -529,6 +528,419 @@ struct connection_role_t : SafeEnum<connection_role_t, uint8_t> {
     };
 
     connection_role_t(type value) : SafeEnum<connection_role_t, uint8_t>(value) { }
+};
+
+/**
+ * Handle of an advertising set.
+ *
+ * @note Range of valid handle is comprised between 0x00 and 0xEF.
+ */
+typedef uint8_t advertising_handle_t;
+
+/**
+ * Properties of an advertising event.
+ */
+struct advertising_event_properties_t {
+    /**
+     * Default constructor, all fields sets to 0.
+     */
+    advertising_event_properties_t() :
+        connectable(false),
+        scannable(false),
+        directed(false),
+        high_duty_cycle(false),
+        use_legacy_pdu(false),
+        omit_advertisser_address(false),
+        include_tx_power(false)
+    { }
+
+    /**
+     * Construct an advertising_event_properties_t with all fields defined by
+     * user.
+     * @param connectable @see advertising_event_properties_t::connectable
+     * @param scannable @see advertising_event_properties_t::scannable
+     * @param directed @see advertising_event_properties_t::directed
+     * @param high_duty_cycle @see advertising_event_properties_t::high_duty_cycle
+     * @param use_legacy_pdu @see advertising_event_properties_t::use_legacy_pdu
+     * @param omit_advertisser_address @see
+     * advertising_event_properties_t::omit_advertiser_address
+     * @param include_tx_power
+     * @see advertising_event_properties_t::include_tx_power
+     */
+    advertising_event_properties_t(
+        bool connectable,
+        bool scannable,
+        bool directed,
+        bool high_duty_cycle,
+        bool use_legacy_pdu,
+        bool omit_advertisser_address,
+        bool include_tx_power
+    ) :
+        connectable(connectable),
+        scannable(scannable),
+        directed(directed),
+        high_duty_cycle(high_duty_cycle),
+        use_legacy_pdu(use_legacy_pdu),
+        omit_advertisser_address(omit_advertisser_address),
+        include_tx_power(include_tx_power)
+    { }
+
+    /**
+     * Construct an advertising_event_property_t from a legacy advertising_type_t.
+     *
+     * @param adv_type The legacy advertising type to convert into an
+     * advertising_event_properties_t.
+     *
+     * @note Conversion table can be found in table 7.2 of BLUETOOTH
+     * SPECIFICATION Version 5.0 | Vol 2, Part E - 7.8.53 .
+     */
+    advertising_event_properties_t(advertising_type_t adv_type)
+    {
+        switch ((advertising_type_t::type) adv_type.value()) {
+            case advertising_type_t::ADV_IND:
+                connectable = true;
+                scannable = true;
+                use_legacy_pdu = true;
+                break;
+            case advertising_type_t::ADV_DIRECT_IND:
+                connectable = true;
+                directed = true;
+                use_legacy_pdu = true;
+                break;
+            case advertising_type_t::ADV_DIRECT_IND_LOW_DUTY_CYCLE:
+                connectable = true;
+                directed = true;
+                high_duty_cycle = true;
+                use_legacy_pdu = true;
+                break;
+            case advertising_type_t::ADV_SCAN_IND:
+                scannable = true;
+                use_legacy_pdu = true;
+                break;
+            case advertising_type_t::ADV_NONCONN_IND:
+                use_legacy_pdu = true;
+                break;
+        }
+    }
+
+    /**
+     * If set the advertising event is connectable.
+     */
+    bool connectable :1;
+
+    /**
+     * If set the advertising event is scannable.
+     */
+    bool scannable :1;
+
+    /**
+     * If set the advertising event targets a specific device.
+     */
+    bool directed :1;
+
+    /**
+     * If set the directed advertising event operate at a high duty cycle.
+     */
+    bool high_duty_cycle :1;
+
+    /**
+     * If set advertising packets use legacy advertising PDU format and the
+     * members omit_advertisser_address and include_tx_power are ignored.
+     * If not set then:
+     *   - The advertisement can't be both connectable and scannable.
+     *   - High duty cycle directed connectable advertising can't be use.
+     */
+    bool use_legacy_pdu :1;
+
+    /**
+     * If set omit the advertiser address in all PDUs.
+     */
+    bool omit_advertisser_address :1;
+
+    /**
+     * If set include the Tx power in the extended advertising header.
+     */
+    bool include_tx_power :1;
+
+    /**
+     * Construct the value expected by a BT controller.
+     * @return All fields in a uint16_t understandable by BT stacks.
+     */
+    uint16_t value() {
+        uint16_t result = 0;
+        result |= connectable << 0;
+        result |= scannable << 1;
+        result |= directed << 2;
+        result |= high_duty_cycle << 3;
+        result |= use_legacy_pdu << 4;
+        result |= omit_advertisser_address << 5;
+        result |= include_tx_power << 6;
+        return result;
+    }
+};
+
+/**
+ * Describe advertising interval for undirected and low duty cycle directed
+ * advertising.
+ *
+ * The value is not expressed in seconds; one unit is equal to 0.625ms.
+ *
+ * The value range is comprised between 0x20 and 0xFFFFFF which translate into
+ * 20ms to 10,485.759375s .
+ */
+typedef uint32_t advertising_interval_t;
+
+/**
+ * Describe the advertising power.
+ *
+ * Value comprised between -127 and +126 are considered power values in dBm while
+ * the special value 127 can be used as a wildcard to indicates that the host
+ * has no preference or if the power informtion is not available.
+ */
+typedef int8_t advertising_power_t;
+
+/**
+ * Describe advertising interval for periodic advertising
+ *
+ * The value is not expressed in seconds; one unit is equal to 1.25ms.
+ *
+ * The value range is comprised between 0x6 and 0xFFFF which translate into
+ * 7.5ms to 81.91875 s .
+ */
+typedef uint16_t periodic_advertising_interval_t;
+
+
+// Range -127 <= N <= +20
+// Special value: 127
+//      - RSSI not available.
+typedef int8_t rssi_t;
+
+/**
+ * Description of an advertising fragment.
+ */
+struct advertising_fragment_description_t :
+    SafeEnum<advertising_fragment_description_t, uint8_t >{
+
+    enum type {
+        /**
+         * Intermediate fragment of fragmented extended advertising data.
+         */
+        INTERMEDIATE_FRAGMENT = 0x00,
+
+        /**
+         * First fragment of fragmented extended advertising data.
+         *
+         * @note If use, it discard existing fragments.
+         */
+        FIRST_FRAGMENT = 0x01,
+
+        /**
+         * Last fragment of fragmented extended advertising data.
+         */
+        LAST_FRAGMENT = 0x02,
+
+        /**
+         * Complete extended advertising data. This is also used for legacy
+         * advertising data.
+         *
+         * @note If use, it discard existing fragments.
+         */
+        COMPLETE_FRAGMENT = 0x03,
+
+        /**
+         * Used to update the advertising DID.
+         *
+         * @note should not be used if advertising is disabled o
+         */
+        UNCHANGED_DATA = 0x04
+    };
+
+    /**
+     * Construct a new advertising_fragment_description_t value.
+     */
+    advertising_fragment_description_t(type value) :
+        SafeEnum<advertising_fragment_description_t, uint8_t>(value) { }
+};
+
+struct duplicates_filter_t :  SafeEnum<duplicates_filter_t, uint8_t >{
+    enum type {
+        /**
+         * Disable duplicate filtering.
+         */
+        DISABLE,
+
+        /**
+         * Enable duplicate filtering.
+         */
+        ENABLE,
+
+        /**
+         * Enable duplicate filtering, reset the cache periodicaly.
+         */
+        PERIODIC_RESET
+    };
+
+    /**
+     * Construct a new duplicates_filter_t value.
+     */
+    duplicates_filter_t(type value) :
+        SafeEnum<duplicates_filter_t, uint8_t>(value) { }
+};
+
+/**
+ * Identify a periodic advertising sync.
+ */
+typedef uint16_t sync_handle_t;
+
+/**
+ * Identify an advertising SID. Range: [0x00, 0x0F]
+ */
+typedef uint8_t advertising_sid_t;
+
+struct advertising_data_status_t :  SafeEnum<advertising_data_status_t, uint8_t >{
+    enum type {
+        COMPLETE = 0x00,
+        INCOMPLETE_MORE_DATA = 0x01,
+        INCOMPLETE_DATA_TRUNCATED = 0x02
+    };
+
+    /**
+     * Construct a new duplicates_filter_t value.
+     */
+    advertising_data_status_t(type value) :
+        SafeEnum<advertising_data_status_t, uint8_t>(value) { }
+};
+
+struct extended_advertising_report_event_type_t {
+    extended_advertising_report_event_type_t(uint8_t value) : value(value) { }
+
+    bool connectable() {
+        return value & (1 << 0);
+    }
+
+    bool scannable_advertising() {
+        return value & (1 << 1);
+    }
+
+    bool directed_advertising() {
+        return value & (1 << 2);
+    }
+
+    bool scan_response() {
+        return value & (1 << 3);
+    }
+
+    bool legacy_advertising() {
+        return value & (1 << 4);
+    }
+
+    advertising_data_status_t data_status() {
+        return static_cast<advertising_data_status_t::type>((value >> 5) & 0x03);
+    }
+
+    bool complete() {
+        return data_status() == advertising_data_status_t::COMPLETE;
+    }
+
+    bool more_data_to_come() {
+        return data_status() == advertising_data_status_t::INCOMPLETE_MORE_DATA;
+    }
+
+    bool truncated() {
+        return data_status() == advertising_data_status_t::INCOMPLETE_DATA_TRUNCATED;
+    }
+
+private:
+    uint8_t value;
+};
+
+struct direct_address_type_t : SafeEnum<direct_address_type_t, uint8_t> {
+    enum type {
+        /**
+         * Public device address
+         */
+        PUBLIC_ADDRESS = 0x00,
+
+        /**
+         * Random device address
+         */
+        RANDOM_ADDRESS = 0x01,
+
+        /**
+         * Public identity address.
+         * @note remove once privacy mode is supported.
+         */
+        PUBLIC_IDENTITY_ADDRESS = 0x02,
+
+        /**
+         * Random (static) identity address.
+         * @note remove once privacy mode is supported.
+         */
+        RANDOM_IDENTITY_ADDRESS = 0x03,
+
+        /**
+         * Random device address; controller unable to resolve.
+         */
+        RANDOM_DEVICE_ADDRESS = 0xFE
+    };
+
+    /**
+     * Construct a new direct_address_type_t instance.
+     */
+    direct_address_type_t(type value) :
+        SafeEnum<direct_address_type_t, uint8_t>(value) { }
+};
+
+/**
+ * Accuracy of the master clock.
+ */
+struct clock_accuracy_t : SafeEnum<clock_accuracy_t, uint8_t >{
+    enum type {
+        /**
+         * 500 PPM
+         */
+        PPM_500 = 0x00,
+
+        /**
+         * 250 PPM
+         */
+        PPM_250 = 0x01,
+
+        /**
+         * 150 PPM
+         */
+        PPM_150 = 0x02,
+
+        /**
+         * 100 PPM
+         */
+        PPM_100 = 0x03,
+
+        /**
+         * 75 PPM
+         */
+        PPM_75 = 0x04,
+
+        /**
+         * 50 PPM
+         */
+        PPM_50 = 0x05,
+
+        /**
+         * 30 PPM
+         */
+        PPM_30 = 0x06,
+
+        /**
+         * 20 PPM
+         */
+        PPM_20 = 0x07
+    };
+
+    /**
+     * Construct a new clock_accuracy_t value.
+     */
+    clock_accuracy_t(type value) : SafeEnum<clock_accuracy_t, uint8_t>(value) { }
 };
 
 } // namespace pal
