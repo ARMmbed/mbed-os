@@ -214,3 +214,15 @@ void InternetSocket::attach(Callback<void()> callback)
 {
     sigio(callback);
 }
+
+nsapi_error_t InternetSocket::getpeername(SocketAddress *address)
+{
+    if (!_socket) {
+        return NSAPI_ERROR_NO_SOCKET;
+    }
+    if (!_remote_peer) {
+        return NSAPI_ERROR_NO_CONNECTION;
+    }
+    *address = _remote_peer;
+    return NSAPI_ERROR_OK;
+}

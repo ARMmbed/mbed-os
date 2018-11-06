@@ -132,6 +132,7 @@ public:
     virtual nsapi_error_t getsockopt(int level, int optname, void *optval, unsigned *optlen);
     virtual Socket *accept(nsapi_error_t *error = NULL);
     virtual nsapi_error_t listen(int backlog = 1);
+    virtual nsapi_error_t getpeername(SocketAddress *address);
 
 #if defined(MBEDTLS_X509_CRT_PARSE_C) || defined(DOXYGEN)
     /** Get own certificate directly from Mbed TLS
