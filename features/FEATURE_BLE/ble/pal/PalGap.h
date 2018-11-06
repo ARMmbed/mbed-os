@@ -573,7 +573,7 @@ struct Gap {
         bool minimize_fragmentation,
         uint8_t advertising_data_size,
         const uint8_t *advertising_data
-    );
+    ) = 0;
 
     /**
      * Set the data used in periodic advertising PDUs.
@@ -660,7 +660,7 @@ struct Gap {
         bool minimize_fragmentation,
         uint8_t scan_response_data_size,
         const uint8_t *scan_response_data
-    );
+    ) = 0;
 
     /**
      * Start or stop advertising.
@@ -789,7 +789,7 @@ struct Gap {
      * @note: See Bluetooth 5 Vol 2 PartE: 7.8.58 LE number of supported
      * advertising sets command.
      */
-    virtual uint8_t get_max_number_of_advertising_sets();
+    virtual uint8_t get_max_number_of_advertising_sets() = 0;
 
     /**
      * Remove an advertising set from the controller.
