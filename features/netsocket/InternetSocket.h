@@ -32,176 +32,104 @@
  */
 class InternetSocket : public Socket {
 public:
-    /** Destroy a socket
+    /** Destroy the socket.
      *
-     *  Closes socket if the socket is still open
+     *  @note Closes socket if it's still open.
      */
-    virtual ~InternetSocket() {}
+    virtual ~InternetSocket();
 
-    /** Opens a socket
+    /** Open a network socket on the network stack of the given
+     *  network interface.
      *
-     *  Creates a network socket on the network stack of the given
-     *  network interface. Not needed if stack is passed to the
-     *  socket's constructor.
+     *  @note Not needed if stack is passed to the socket's constructor.
      *
-     *  @param stack    Network stack as target for socket
-     *  @return         0 on success, negative error code on failure
+     *  @param stack    Network stack as target for socket.
+     *  @return         0 on success, negative error code on failure (@see nsapi_types.h).
      */
     nsapi_error_t open(NetworkStack *stack);
 
+#if !defined(DOXYGEN_ONLY)
     template <typename S>
     nsapi_error_t open(S *stack)
     {
         return open(nsapi_create_stack(stack));
     }
+#endif //!defined(DOXYGEN_ONLY)
 
-    /** Close the socket
-     *
-     *  Closes any open connection and deallocates any memory associated
+    /** Close any open connection, and deallocate any memory associated
      *  with the socket. Called from destructor if socket is not closed.
      *
-     *  @return         0 on success, negative error code on failure
+     *  @return         0 on success, negative error code on failure (@see nsapi_types.h).
      */
     virtual nsapi_error_t close();
 
-    /** Subscribes to an IP multicast group
+    /** Subscribe to an IP multicast group.
      *
-     * @param address   Multicast group IP address
-     * @return          Negative error code on failure
+     * @param address   Multicast group IP address.
+     *  @return         0 on success, negative error code on failure (@see nsapi_types.h).
      */
     int join_multicast_group(const SocketAddress &address);
 
-    /** Leave an IP multicast group
+    /** Leave an IP multicast group.
      *
-     * @param address   Multicast group IP address
-     * @return          Negative error code on failure
+     * @param address   Multicast group IP address.
+     *  @return         0 on success, negative error code on failure (@see nsapi_types.h).
      */
     int leave_multicast_group(const SocketAddress &address);
 
-
-    /** Bind a specific address to a socket
+    /** Bind the socket to a port on which to receive data.
      *
-     *  Binding a socket specifies the address and port on which to receive
-     *  data.
-     *
-     *  @param port     Local port to bind
-     *  @return         0 on success, negative error code on failure.
+     *  @param port     Local port to bind.
+     *  @return         0 on success, negative error code on failure (@see nsapi_types.h).
      */
     nsapi_error_t bind(uint16_t port);
 
-    /** Bind a specific address to a socket
-     *
-     *  Binding a socket specifies the address and port on which to receive
+    /** Bind the socket to a specific address and port on which to receive
      *  data. If the IP address is zeroed, only the port is bound.
      *
-     *  @param address  Null-terminated local address to bind
-     *  @param port     Local port to bind
-     *  @return         0 on success, negative error code on failure.
+     *  @param address  Null-terminated local address to bind.
+     *  @param port     Local port to bind.
+     *  @return         0 on success, negative error code on failure (@see nsapi_types.h).
      */
     nsapi_error_t bind(const char *address, uint16_t port);
 
-    /** Bind a specific address to a socket
-     *
-     *  Binding a socket specifies the address and port on which to receive
-     *  data. If the IP address is zeroed, only the port is bound.
-     *
-     *  @param address  Local address to bind
-     *  @return         0 on success, negative error code on failure.
+    /** @copydoc Socket::bind
      */
     virtual nsapi_error_t bind(const SocketAddress &address);
 
-    /** Set blocking or non-blocking mode of the socket
-     *
-     *  Initially all sockets are in blocking mode. In non-blocking mode
-     *  blocking operations such as send/recv/accept return
-     *  NSAPI_ERROR_WOULD_BLOCK if they can not continue.
-     *
-     *  set_blocking(false) is equivalent to set_timeout(-1)
-     *  set_blocking(true) is equivalent to set_timeout(0)
-     *
-     *  @param blocking true for blocking mode, false for non-blocking mode.
+    /** @copydoc Socket::set_blocking
      */
     virtual void set_blocking(bool blocking);
 
-    /** Set timeout on blocking socket operations
-     *
-     *  Initially all sockets have unbounded timeouts. NSAPI_ERROR_WOULD_BLOCK
-     *  is returned if a blocking operation takes longer than the specified
-     *  timeout. A timeout of 0 removes the timeout from the socket. A negative
-     *  value give the socket an unbounded timeout.
-     *
-     *  set_timeout(0) is equivalent to set_blocking(false)
-     *  set_timeout(-1) is equivalent to set_blocking(true)
-     *
-     *  @param timeout  Timeout in milliseconds
+    /** @copydoc Socket::set_timeout
      */
     virtual void set_timeout(int timeout);
 
-    /*  Set socket options
-     *
-     *  setsockopt allows an application to pass stack-specific options
-     *  to the underlying stack using stack-specific level and option names,
-     *  or to request generic options using levels from nsapi_socket_level_t.
-     *
-     *  For unsupported options, NSAPI_ERROR_UNSUPPORTED is returned
-     *  and the socket is unmodified.
-     *
-     *  @param level    Stack-specific protocol level or nsapi_socket_level_t
-     *  @param optname  Level-specific option name
-     *  @param optval   Option value
-     *  @param optlen   Length of the option value
-     *  @return         0 on success, negative error code on failure
+    /** @copydoc Socket::setsockopt
      */
     virtual nsapi_error_t setsockopt(int level, int optname, const void *optval, unsigned optlen);
 
-    /*  Get socket options
-     *
-     *  getsockopt allows an application to retrieve stack-specific options
-     *  from the underlying stack using stack-specific level and option names,
-     *  or to request generic options using levels from nsapi_socket_level_t.
-     *
-     *  For unsupported options, NSAPI_ERROR_UNSUPPORTED is returned
-     *  and the socket is unmodified.
-     *
-     *  @param level    Stack-specific protocol level or nsapi_socket_level_t
-     *  @param optname  Level-specific option name
-     *  @param optval   Destination for option value
-     *  @param optlen   Length of the option value
-     *  @return         0 on success, negative error code on failure
+    /** @copydoc Socket::getsockopt
      */
     virtual nsapi_error_t getsockopt(int level, int optname, void *optval, unsigned *optlen);
 
-    /** Register a callback on state change of the socket
-     *
-     *  The specified callback will be called on state changes such as when
-     *  the socket can recv/send/accept successfully and on when an error
-     *  occurs. The callback may also be called spuriously without reason.
-     *
-     *  The callback may be called in an interrupt context and should not
-     *  perform expensive operations such as recv/send calls.
-     *
-     *  Note! This is not intended as a replacement for a poll or attach-like
-     *  asynchronous api, but rather as a building block for constructing
-     *  such functionality. The exact timing of when the registered function
-     *  is called is not guaranteed and susceptible to change.
-     *
-     *  @param func     Function to call on state change
+    /** @copydoc Socket::sigio
      */
     virtual void sigio(mbed::Callback<void()> func);
 
-    /** Register a callback on state change of the socket
+    /** Register a callback on state change of the socket.
      *
      *  @see Socket::sigio
      *  @deprecated
-     *      The behaviour of Socket::attach differs from other attach functions in
-     *      mbed OS and has been known to cause confusion. Replaced by Socket::sigio.
+     *      The behavior of Socket::attach differs from other attach functions in
+     *      Mbed OS and has been known to cause confusion. Replaced by Socket::sigio.
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
-                          "The behaviour of Socket::attach differs from other attach functions in "
-                          "mbed OS and has been known to cause confusion. Replaced by Socket::sigio.")
+                          "The behavior of Socket::attach differs from other attach functions in "
+                          "Mbed OS and has been known to cause confusion. Replaced by Socket::sigio.")
     void attach(mbed::Callback<void()> func);
 
-    /** Register a callback on state change of the socket
+    /** Register a callback on state change of the socket.
      *
      *  @see Socket::sigio
      *  @deprecated
@@ -216,6 +144,8 @@ public:
     {
         attach(mbed::callback(obj, method));
     }
+
+#if !defined(DOXYGEN_ONLY)
 
 protected:
     InternetSocket();
@@ -240,6 +170,8 @@ protected:
     static const int READ_FLAG     = 0x1u;
     static const int WRITE_FLAG    = 0x2u;
     static const int FINISHED_FLAG = 0x3u;
+
+#endif //!defined(DOXYGEN_ONLY)
 };
 
 #endif // INTERNETSOCKET_H

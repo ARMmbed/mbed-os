@@ -926,7 +926,9 @@ bool ATHandler::consume_to_tag(const char *tag, bool consume_tag)
         int c = get_char();
         if (c == -1) {
             break;
-        } else if (c == tag[match_pos]) {
+        // compares c against tag at current position and if this match fails
+        // compares c against tag[0] and also resets match_pos to 0
+        } else if (c == tag[match_pos] || ((match_pos = 1) && (c == tag[--match_pos]))) {
             match_pos++;
             if (match_pos == strlen(tag)) {
                 if (!consume_tag) {
@@ -934,8 +936,6 @@ bool ATHandler::consume_to_tag(const char *tag, bool consume_tag)
                 }
                 return true;
             }
-        } else if (match_pos) {
-            match_pos = 0;
         }
     }
     tr_debug("consume_to_tag not found");

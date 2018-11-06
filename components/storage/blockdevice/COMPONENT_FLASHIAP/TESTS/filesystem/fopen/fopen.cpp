@@ -63,7 +63,7 @@ using namespace utest::v1;
  *        "DEVICE_SPI": 1,
  *        "FSLITTLE_SDCARD_INSTALLED": 1
  *      },
- *  	<<< lines removed >>>
+ *      <<< lines removed >>>
  */
 
 #include "FlashIAPBlockDevice.h"
@@ -123,8 +123,8 @@ static const char *sd_testfile_path = "/sd/test.txt";
 
 /* file data for test_01 */
 static fslittle_kv_data_t fslittle_fopen_test_01_kv_data[] = {
-        { "/sd/fopentst/hello/world/animal/wobbly/dog/foot/frontlft.txt", "missing"},
-        { NULL, NULL},
+    { "/sd/fopentst/hello/world/animal/wobbly/dog/foot/frontlft.txt", "missing"},
+    { NULL, NULL},
 };
 
 
@@ -150,14 +150,14 @@ static fslittle_kv_data_t fslittle_fopen_test_01_kv_data[] = {
  *
  * @return  On success, this returns the number of components in the filepath Returns number of compoee
  */
-static int32_t fslittle_filepath_split(char* filepath, char* parts[], uint32_t num)
+static int32_t fslittle_filepath_split(char *filepath, char *parts[], uint32_t num)
 {
     uint32_t i = 0;
     int32_t ret = -1;
-    char* z = filepath;
+    char *z = filepath;
 
     while (i < num && *z != '\0') {
-        if (*z == '/' ) {
+        if (*z == '/') {
             *z = '\0';
             parts[i] = ++z;
             i++;
@@ -180,7 +180,7 @@ static int32_t fslittle_filepath_split(char* filepath, char* parts[], uint32_t n
  *
  * @return  On success, this returns 0, otherwise < 0 is returned;
  */
-int32_t fslittle_filepath_remove_all(char* filepath)
+int32_t fslittle_filepath_remove_all(char *filepath)
 {
     int32_t ret = -1;
     int32_t len = 0;
@@ -189,12 +189,12 @@ int32_t fslittle_filepath_remove_all(char* filepath)
 
     FSLITTLE_FENTRYLOG("%s:entered\n", __func__);
     len = strlen(filepath);
-    fpathbuf = (char*) malloc(len+1);
+    fpathbuf = (char *) malloc(len + 1);
     if (fpathbuf == NULL) {
         FSLITTLE_DBGLOG("%s: failed to duplicate string (out of memory)\n", __func__);
         return ret;
     }
-    memset(fpathbuf, 0, len+1);
+    memset(fpathbuf, 0, len + 1);
     memcpy(fpathbuf, filepath, len);
 
     /* delete the leaf node first, and then successively parent directories. */
@@ -224,7 +224,7 @@ int32_t fslittle_filepath_remove_all(char* filepath)
  *
  * @return  On success, this returns 0, otherwise < 0 is returned;
  */
-static int32_t fslittle_filepath_make_dirs(char* filepath, bool do_asserts)
+static int32_t fslittle_filepath_make_dirs(char *filepath, bool do_asserts)
 {
     int32_t i = 0;
     int32_t num_parts = 0;
@@ -239,12 +239,12 @@ static int32_t fslittle_filepath_make_dirs(char* filepath, bool do_asserts)
     /* find the dirs to create*/
     memset(parts, 0, sizeof(parts));
     len = strlen(filepath);
-    fpathbuf = (char*) malloc(len+1);
+    fpathbuf = (char *) malloc(len + 1);
     if (fpathbuf == NULL) {
         FSLITTLE_DBGLOG("%s: failed to duplicate string (out of memory)\n", __func__);
         return ret;
     }
-    memset(fpathbuf, 0, len+1);
+    memset(fpathbuf, 0, len + 1);
     memcpy(fpathbuf, filepath, len);
     num_parts = fslittle_filepath_split(fpathbuf, parts, FSLITTLE_FOPEN_TEST_FILEPATH_MAX_DEPTH);
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to split filepath (filename=\"%s\", num_parts=%d)\n", __func__, filepath, (int) num_parts);
@@ -252,11 +252,11 @@ static int32_t fslittle_filepath_make_dirs(char* filepath, bool do_asserts)
 
     /* Now create the directories on the directory path.
      * Skip creating dir for "/sd" which must be present */
-    buf = (char*) malloc(strlen(filepath)+1);
-    memset(buf, 0, strlen(filepath)+1);
+    buf = (char *) malloc(strlen(filepath) + 1);
+    memset(buf, 0, strlen(filepath) + 1);
     pos = sprintf(buf, "/%s", parts[0]);
     for (i = 1; i < num_parts - 1; i++) {
-        pos += sprintf(buf+pos, "/%s", parts[i]);
+        pos += sprintf(buf + pos, "/%s", parts[i]);
         FSLITTLE_DBGLOG("mkdir(%s)\n", buf);
         ret = mkdir(buf, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
         if (do_asserts == true) {
@@ -289,7 +289,7 @@ static int32_t fslittle_filepath_make_dirs(char* filepath, bool do_asserts)
  */
 static control_t fslittle_fopen_test_01(const size_t call_count)
 {
-    char* read_buf;
+    char *read_buf;
     int32_t ret = 0;
     size_t len = 0;
     fslittle_kv_data_t *node;
@@ -300,10 +300,10 @@ static control_t fslittle_fopen_test_01(const size_t call_count)
     node = fslittle_fopen_test_01_kv_data;
 
     /* remove file and directory from a previous failed test run, if present */
-    fslittle_filepath_remove_all((char*) node->filename);
+    fslittle_filepath_remove_all((char *) node->filename);
 
     /* create dirs */
-    ret = fslittle_filepath_make_dirs((char*) node->filename, true);
+    ret = fslittle_filepath_make_dirs((char *) node->filename, true);
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create dirs for filename (filename=\"%s\")(ret=%d)\n", __func__, node->filename, (int) ret);
     TEST_ASSERT_MESSAGE(ret == 0, fslittle_fopen_utest_msg_g);
 
@@ -314,7 +314,7 @@ static control_t fslittle_fopen_test_01(const size_t call_count)
 
     FSLITTLE_DBGLOG("%s:length of file=%d (filename=\"%s\", data=\"%s\")\n", __func__, (int) len, node->filename, node->value);
     len = strlen(node->value);
-    ret = fwrite((const void*) node->value, len, 1, fp);
+    ret = fwrite((const void *) node->value, len, 1, fp);
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to write file (filename=\"%s\", data=\"%s\")(ret=%d)\n", __func__, node->filename, node->value, (int) ret);
     TEST_ASSERT_MESSAGE(ret == 1, fslittle_fopen_utest_msg_g);
 
@@ -330,13 +330,13 @@ static control_t fslittle_fopen_test_01(const size_t call_count)
     TEST_ASSERT_MESSAGE(fp != NULL, fslittle_fopen_utest_msg_g);
 
     len = strlen(node->value) + 1;
-    read_buf = (char*) malloc(len);
+    read_buf = (char *) malloc(len);
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to allocated read buffer \n", __func__);
     TEST_ASSERT_MESSAGE(read_buf != NULL, fslittle_fopen_utest_msg_g);
 
     FSLITTLE_DBGLOG("Opened file successfully (filename=\"%s\", data=\"%s\")\n", node->filename, node->value);
     memset(read_buf, 0, len);
-    ret = fread((void*) read_buf, len, 1, fp);
+    ret = fread((void *) read_buf, len, 1, fp);
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to read file (filename=\"%s\", data=\"%s\", read_buf=\"%s\", ret=%d)\n", __func__, node->filename, node->value, read_buf, (int) ret);
     /* FIX ME: fread should return the number of items read, not 0 when an item is read successfully.
      * This indicates a problem with the implementation, as the correct data is read. The correct assert should be:
@@ -349,7 +349,7 @@ static control_t fslittle_fopen_test_01(const size_t call_count)
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: read value data (%s) != expected value data (filename=\"%s\", data=\"%s\", read_buf=\"%s\", ret=%d)\n", __func__, read_buf, node->filename, node->value, read_buf, (int) ret);
     TEST_ASSERT_MESSAGE(strncmp(read_buf, node->value, strlen(node->value)) == 0, fslittle_fopen_utest_msg_g);
 
-    if(read_buf){
+    if (read_buf) {
         free(read_buf);
     }
     ret = fclose(fp);
@@ -359,8 +359,8 @@ static control_t fslittle_fopen_test_01(const size_t call_count)
 }
 
 static fslittle_kv_data_t fslittle_fopen_test_02_data[] = {
-        FSLITTLE_INIT_1_TABLE_MID_NODE,
-        { NULL, NULL},
+    FSLITTLE_INIT_1_TABLE_MID_NODE,
+    { NULL, NULL},
 };
 
 /**
@@ -385,7 +385,7 @@ control_t fslittle_fopen_test_02(const size_t call_count)
     FSLITTLE_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
     len = strlen(fslittle_fopen_test_02_data[0].value);
-    ret = fslittle_test_create(fslittle_fopen_test_02_data[0].filename, (char*) fslittle_fopen_test_02_data[0].value, len);
+    ret = fslittle_test_create(fslittle_fopen_test_02_data[0].filename, (char *) fslittle_fopen_test_02_data[0].value, len);
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create file (ret=%d).\n", __func__, (int) ret);
     TEST_ASSERT_MESSAGE(ret >= 0, fslittle_fopen_utest_msg_g);
 
@@ -395,7 +395,7 @@ control_t fslittle_fopen_test_02(const size_t call_count)
     TEST_ASSERT_MESSAGE(fp != NULL, fslittle_fopen_utest_msg_g);
 
     len = strlen(fslittle_fopen_test_02_data[0].value);
-    ret = fwrite((const void*) fslittle_fopen_test_02_data[0].value, len, 1, fp);
+    ret = fwrite((const void *) fslittle_fopen_test_02_data[0].value, len, 1, fp);
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: call to fwrite() succeeded when should have failed for read-only file (filename=\"%s\")(ret=%d).\n", __func__, fslittle_fopen_test_02_data[0].filename, (int) ret);
     TEST_ASSERT_MESSAGE(ret <= 0, fslittle_fopen_utest_msg_g);
 
@@ -428,7 +428,7 @@ control_t fslittle_fopen_test_03(const size_t call_count)
     FSLITTLE_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
     len = strlen(fslittle_fopen_test_02_data[0].value);
-    ret = fslittle_test_create(fslittle_fopen_test_02_data[0].filename, (char*) fslittle_fopen_test_02_data[0].value, len);
+    ret = fslittle_test_create(fslittle_fopen_test_02_data[0].filename, (char *) fslittle_fopen_test_02_data[0].value, len);
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create file in store (ret=%d).\n", __func__, (int) ret);
     TEST_ASSERT_MESSAGE(ret >= 0, fslittle_fopen_utest_msg_g);
 
@@ -438,7 +438,7 @@ control_t fslittle_fopen_test_03(const size_t call_count)
     TEST_ASSERT_MESSAGE(ret >= 0, fslittle_fopen_utest_msg_g);
 
     len = strlen(fslittle_fopen_test_02_data[0].value);
-    ret = fwrite((const void*) fslittle_fopen_test_02_data[0].value, len, 1, fp);
+    ret = fwrite((const void *) fslittle_fopen_test_02_data[0].value, len, 1, fp);
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: call to fwrite() failed when should have succeeded (filename=\"%s\", ret=%d).\n", __func__, fslittle_fopen_test_02_data[0].filename, (int) ret);
     TEST_ASSERT_MESSAGE(ret >= 0, fslittle_fopen_utest_msg_g);
 
@@ -461,16 +461,16 @@ control_t fslittle_fopen_test_03(const size_t call_count)
  */
 control_t fslittle_fopen_test_04(const size_t call_count)
 {
-    char filename_good[FSLITTLE_FILENAME_MAX_LENGTH+1];
-    char filename_bad[FSLITTLE_FILENAME_MAX_LENGTH+2];
+    char filename_good[FSLITTLE_FILENAME_MAX_LENGTH + 1];
+    char filename_bad[FSLITTLE_FILENAME_MAX_LENGTH + 2];
     int32_t ret = -1;
     size_t len = 0;
 
     FSLITTLE_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
 
-    memset(filename_good, 0, FSLITTLE_FILENAME_MAX_LENGTH+1);
-    memset(filename_bad, 0, FSLITTLE_FILENAME_MAX_LENGTH+2);
+    memset(filename_good, 0, FSLITTLE_FILENAME_MAX_LENGTH + 1);
+    memset(filename_bad, 0, FSLITTLE_FILENAME_MAX_LENGTH + 2);
     ret = fslittle_test_filename_gen(filename_good, FSLITTLE_FILENAME_MAX_LENGTH);
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: unable to generate filename_good.\n", __func__);
     TEST_ASSERT_MESSAGE(ret >= 0, fslittle_fopen_utest_msg_g);
@@ -478,11 +478,11 @@ control_t fslittle_fopen_test_04(const size_t call_count)
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: filename_good is not the correct length (filename_good=%s, len=%d, expected=%d).\n", __func__, filename_good, (int) strlen(filename_good), (int) FSLITTLE_FILENAME_MAX_LENGTH);
     TEST_ASSERT_MESSAGE(strlen(filename_good) == FSLITTLE_FILENAME_MAX_LENGTH, fslittle_fopen_utest_msg_g);
 
-    ret = fslittle_test_filename_gen(filename_bad, FSLITTLE_FILENAME_MAX_LENGTH+1);
+    ret = fslittle_test_filename_gen(filename_bad, FSLITTLE_FILENAME_MAX_LENGTH + 1);
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: unable to generate filename_bad.\n", __func__);
     TEST_ASSERT_MESSAGE(ret >= 0, fslittle_fopen_utest_msg_g);
-    FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: filename_bad is not the correct length (len=%d, expected=%d).\n", __func__, (int) strlen(filename_bad), (int) FSLITTLE_FILENAME_MAX_LENGTH+1);
-    TEST_ASSERT_MESSAGE(strlen(filename_bad) == FSLITTLE_FILENAME_MAX_LENGTH+1, fslittle_fopen_utest_msg_g);
+    FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: filename_bad is not the correct length (len=%d, expected=%d).\n", __func__, (int) strlen(filename_bad), (int) FSLITTLE_FILENAME_MAX_LENGTH + 1);
+    TEST_ASSERT_MESSAGE(strlen(filename_bad) == FSLITTLE_FILENAME_MAX_LENGTH + 1, fslittle_fopen_utest_msg_g);
 
     len = strlen(filename_good);
     ret = fslittle_test_create(filename_good, filename_good, len);
@@ -505,28 +505,27 @@ typedef struct fslittle_fopen_kv_name_ascii_node {
 static const uint32_t fslittle_fopen_kv_name_ascii_table_code_sentinel_g = 256;
 
 /*@brief    table recording ascii character codes permitted in kv names */
-static fslittle_fopen_kv_name_ascii_node fslittle_fopen_kv_name_ascii_table[] =
-{
-        {0 , true},         /* code 0-33 allowed*/
-        {34, false},        /* '"' not allowed */
-        {35, true},         /* allowed */
-        {42, false},        /* '*' not allowed */
-        {43, true},         /* allowed */
-        {47, false},        /* '/' not allowed */
-        {48, true},         /* allowed */
-        {58, false},        /* ':' not allowed */
-        {59, true},         /* allowed */
-        {60, false},        /* '<' not allowed */
-        {61, true},         /* allowed */
-        {62, false},        /* '?', '>' not allowed */
-        {64, true},         /* allowed */
-        {92, false},        /* '\' not allowed */
-        {93, true},         /* allowed */
-        {124, false},        /* '!' not allowed */
-        {125, true},         /* allowed */
-        {127, false},        /* DEL not allowed */
-        {128, true},         /* allowed */
-        {fslittle_fopen_kv_name_ascii_table_code_sentinel_g, false},       /* sentinel */
+static fslittle_fopen_kv_name_ascii_node fslittle_fopen_kv_name_ascii_table[] = {
+    {0, true},          /* code 0-33 allowed*/
+    {34, false},        /* '"' not allowed */
+    {35, true},         /* allowed */
+    {42, false},        /* '*' not allowed */
+    {43, true},         /* allowed */
+    {47, false},        /* '/' not allowed */
+    {48, true},         /* allowed */
+    {58, false},        /* ':' not allowed */
+    {59, true},         /* allowed */
+    {60, false},        /* '<' not allowed */
+    {61, true},         /* allowed */
+    {62, false},        /* '?', '>' not allowed */
+    {64, true},         /* allowed */
+    {92, false},        /* '\' not allowed */
+    {93, true},         /* allowed */
+    {124, false},        /* '!' not allowed */
+    {125, true},         /* allowed */
+    {127, false},        /* DEL not allowed */
+    {128, true},         /* allowed */
+    {fslittle_fopen_kv_name_ascii_table_code_sentinel_g, false},       /* sentinel */
 };
 
 
@@ -555,12 +554,12 @@ control_t fslittle_fopen_test_05(const size_t call_count)
     const char *basename = "goodfile";
     const char *extname = "txt";
     const size_t basename_len = strlen(basename);
-    const size_t filename_len = strlen(mnt_pt)+strlen(basename)+strlen(extname)+2;  /* extra 2 chars for '/' and '.' in "/sd/goodfile.txt" */
+    const size_t filename_len = strlen(mnt_pt) + strlen(basename) + strlen(extname) + 2; /* extra 2 chars for '/' and '.' in "/sd/goodfile.txt" */
     char filename[FSLITTLE_BUF_MAX_LENGTH];
     size_t len = 0;
     uint32_t j = 0;
     int32_t ret = 0;
-    fslittle_fopen_kv_name_ascii_node* node = NULL;
+    fslittle_fopen_kv_name_ascii_node *node = NULL;
     uint32_t pos;
 
     FSLITTLE_FENTRYLOG("%s:entered\n", __func__);
@@ -568,90 +567,83 @@ control_t fslittle_fopen_test_05(const size_t call_count)
 
 #ifdef FSLITTLE_DEBUG
     /* symbol only used why debug is enabled */
-    const char* pos_str = NULL;
+    const char *pos_str = NULL;
 #endif
 
     /* create bad keyname strings with invalid character code at start of keyname */
     node = fslittle_fopen_kv_name_ascii_table;
     memset(filename, 0, FSLITTLE_BUF_MAX_LENGTH);
-    while(node->code !=  fslittle_fopen_kv_name_ascii_table_code_sentinel_g)
-    {
+    while (node->code !=  fslittle_fopen_kv_name_ascii_table_code_sentinel_g) {
         /* loop over range */
-        for(j = node->code; j < (node+1)->code; j++)
-        {
-            if( (j >= 48 && j <= 57) || (j >= 65 && j <= 90) || (j >= 97 && j <= 122)) {
+        for (j = node->code; j < (node + 1)->code; j++) {
+            if ((j >= 48 && j <= 57) || (j >= 65 && j <= 90) || (j >= 97 && j <= 122)) {
                 FSLITTLE_DBGLOG("%s: skipping alpha-numeric ascii character code %d (%c).\n", __func__, (int) j, (char) j);
                 continue;
             }
 
             /* set the start, mid, last character of the name to the test char code */
-            for(pos = (uint32_t) fslittle_fopen_kv_name_pos_start; pos < (uint32_t) fslittle_fopen_kv_name_pos_max; pos++)
-            {
-                len = snprintf(filename, filename_len+1, "%s/%s.%s", mnt_pt, basename, extname);
+            for (pos = (uint32_t) fslittle_fopen_kv_name_pos_start; pos < (uint32_t) fslittle_fopen_kv_name_pos_max; pos++) {
+                len = snprintf(filename, filename_len + 1, "%s/%s.%s", mnt_pt, basename, extname);
                 /* overwrite a char at the pos start, mid, end of the filename with an ascii char code (both illegal and legal)*/
-                switch(pos)
-                {
-                case fslittle_fopen_kv_name_pos_start:
-                    filename[5] = (char) j; /* 5 so at to write the second basename char (bad chars as first char not accepted)*/
-                    break;
-                case fslittle_fopen_kv_name_pos_mid:
-                    /* create bad keyname strings with invalid character code in the middle of keyname */
-                    filename[5+basename_len/2] = (char) j;
-                    break;
-                case fslittle_fopen_kv_name_pos_end:
-                    /* create bad keyname strings with invalid character code at end of keyname */
-                    filename[5+basename_len-1] = (char) j;
-                    break;
-                default:
-                    FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: unexpected value of pos (pos=%d).\n", __func__, (int) pos);
-                    TEST_ASSERT_MESSAGE(ret >= 0, fslittle_fopen_utest_msg_g);
-                    break;
+                switch (pos) {
+                    case fslittle_fopen_kv_name_pos_start:
+                        filename[5] = (char) j; /* 5 so at to write the second basename char (bad chars as first char not accepted)*/
+                        break;
+                    case fslittle_fopen_kv_name_pos_mid:
+                        /* create bad keyname strings with invalid character code in the middle of keyname */
+                        filename[5 + basename_len / 2] = (char) j;
+                        break;
+                    case fslittle_fopen_kv_name_pos_end:
+                        /* create bad keyname strings with invalid character code at end of keyname */
+                        filename[5 + basename_len - 1] = (char) j;
+                        break;
+                    default:
+                        FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: unexpected value of pos (pos=%d).\n", __func__, (int) pos);
+                        TEST_ASSERT_MESSAGE(ret >= 0, fslittle_fopen_utest_msg_g);
+                        break;
                 }
 
 #ifdef FSLITTLE_DEBUG
                 /* processing only required when debug trace enabled */
-                switch(pos)
-                {
-                case fslittle_fopen_kv_name_pos_start:
-                    pos_str = "start";
-                    break;
-                case fslittle_fopen_kv_name_pos_mid:
-                    pos_str = "middle";
-                    break;
-                case fslittle_fopen_kv_name_pos_end:
-                    pos_str = "end";
-                    break;
-                default:
-                    break;
+                switch (pos) {
+                    case fslittle_fopen_kv_name_pos_start:
+                        pos_str = "start";
+                        break;
+                    case fslittle_fopen_kv_name_pos_mid:
+                        pos_str = "middle";
+                        break;
+                    case fslittle_fopen_kv_name_pos_end:
+                        pos_str = "end";
+                        break;
+                    default:
+                        break;
                 }
 #endif
-                ret = fslittle_test_create(filename, (const char*) filename, len);
+                ret = fslittle_test_create(filename, (const char *) filename, len);
 
                 /* special cases */
-                switch(j)
-                {
-                //case 0 :
-				//case 46 :
-                //    switch(pos)
-                //    {
-                //    /* for code = 0 (null terminator). permitted at mid and end of string */
-                //    /* for code = 46 ('.'). permitted at mid and end of string but not at start */
-                //    case fslittle_fopen_kv_name_pos_start:
-                //        f_allowed = false;
-                //        break;
-                //    case fslittle_fopen_kv_name_pos_mid:
-                //    case fslittle_fopen_kv_name_pos_end:
-                //    default:
-                //        f_allowed = true;
-                //        break;
-                //    }
-                //    break;
-				default:
-					f_allowed = node->f_allowed;
-					break;
+                switch (j) {
+                    //case 0 :
+                    //case 46 :
+                    //    switch(pos)
+                    //    {
+                    //    /* for code = 0 (null terminator). permitted at mid and end of string */
+                    //    /* for code = 46 ('.'). permitted at mid and end of string but not at start */
+                    //    case fslittle_fopen_kv_name_pos_start:
+                    //        f_allowed = false;
+                    //        break;
+                    //    case fslittle_fopen_kv_name_pos_mid:
+                    //    case fslittle_fopen_kv_name_pos_end:
+                    //    default:
+                    //        f_allowed = true;
+                    //        break;
+                    //    }
+                    //    break;
+                    default:
+                        f_allowed = node->f_allowed;
+                        break;
                 }
-                if(f_allowed == true)
-                {
+                if (f_allowed == true) {
                     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create file in store when filename contains valid characters (code=%d, ret=%d).\n", __func__, (int) j, (int) ret);
                     TEST_ASSERT_MESSAGE(ret >= 0, fslittle_fopen_utest_msg_g);
                     /* revert FSLITTLE_LOG for more trace */
@@ -661,9 +653,8 @@ control_t fslittle_fopen_test_05(const size_t call_count)
                     ret = fslittle_test_delete(filename);
                     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to delete file previously created (code=%d, ret=%d).\n", __func__, (int) j, (int) ret);
                     TEST_ASSERT_MESSAGE(ret >= 0, fslittle_fopen_utest_msg_g);
-                }
-                else
-                {   /*node->f_allowed == false => not allowed to create kv name with ascii code */
+                } else {
+                    /*node->f_allowed == false => not allowed to create kv name with ascii code */
                     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: created file in store when filename contains an invalid character (code=%d, ret=%d).\n", __func__, (int) j, (int) ret);
                     TEST_ASSERT_MESSAGE(ret < 0, fslittle_fopen_utest_msg_g);
                     /* revert FSLITTLE_LOG for more trace */
@@ -694,7 +685,7 @@ control_t fslittle_fopen_test_06(const size_t call_count)
 #if 0
     const char *mnt_pt = FSLITTLE_FOPEN_TEST_MOUNT_PT_PATH;
     const char *extname = "txt";
-    const size_t filename_len = strlen(mnt_pt)+FSLITTLE_MAX_FILE_BASENAME+strlen(extname)+2;  /* extra 2 chars for '/' and '.' in "/sd/goodfile.txt" */
+    const size_t filename_len = strlen(mnt_pt) + FSLITTLE_MAX_FILE_BASENAME + strlen(extname) + 2; /* extra 2 chars for '/' and '.' in "/sd/goodfile.txt" */
     char filename[FSLITTLE_BUF_MAX_LENGTH];
     int32_t i = 0;
     int32_t j = 0;
@@ -713,13 +704,13 @@ control_t fslittle_fopen_test_06(const size_t call_count)
     /* generate a number of illegal filenames */
     for (j = 0; i < FSLITTLE_MAX_FILE_BASENAME; j++) {
         /* generate a kv name of illegal chars*/
-        len = snprintf(filename, filename_len+1, "%s/", mnt_pt);
+        len = snprintf(filename, filename_len + 1, "%s/", mnt_pt);
         for (i = 0; i < FSLITTLE_MAX_FILE_BASENAME; i++) {
-            pos = rand() % (buf_data_max+1);
-            len += snprintf(filename+len, filename_len+1, "%c", fslittle_fopen_ascii_illegal_buf_g[pos]);
+            pos = rand() % (buf_data_max + 1);
+            len += snprintf(filename + len, filename_len + 1, "%c", fslittle_fopen_ascii_illegal_buf_g[pos]);
 
         }
-        len += snprintf(filename+len, filename_len+1, ".%s", extname);
+        len += snprintf(filename + len, filename_len + 1, ".%s", extname);
         ret = fslittle_test_create(filename, filename, len);
         FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: created file when filename contains invalid characters (filename=%s, ret=%d).\n", __func__, filename, (int) ret);
         TEST_ASSERT_MESSAGE(ret < 0, fslittle_fopen_utest_msg_g);
@@ -731,10 +722,10 @@ control_t fslittle_fopen_test_06(const size_t call_count)
 
 /** @brief  test for errno reporting on a failed fopen()call
  *
- *	This test does the following:
- *	- tries to open a file that does not exist for reading, and checks that a NULL pointer is returned.
- *	- checks that errno is not 0 as there is an error.
- *	- checks that ferror() returns 1 indicating an error exists.
+ *  This test does the following:
+ *  - tries to open a file that does not exist for reading, and checks that a NULL pointer is returned.
+ *  - checks that errno is not 0 as there is an error.
+ *  - checks that ferror() returns 1 indicating an error exists.
  *
  * Note: see NOTE_1 below.
  *
@@ -742,8 +733,8 @@ control_t fslittle_fopen_test_06(const size_t call_count)
  */
 control_t fslittle_fopen_test_07(const size_t call_count)
 {
-	FILE *f = NULL;
-	int ret = -1;
+    FILE *f = NULL;
+    int ret = -1;
     int errno_val = 0;
     const char *filename = sd_badfile_path;
 
@@ -752,7 +743,7 @@ control_t fslittle_fopen_test_07(const size_t call_count)
 
     errno = 0;
     /* this is expect to fail as the file doesnt exist */
-    f = fopen(filename,"r");
+    f = fopen(filename, "r");
 
     /* Store errno so the current value set  is not changed by new function call */
     errno_val = errno;
@@ -801,7 +792,7 @@ control_t fslittle_fopen_test_08(const size_t call_count)
     (void) call_count;
 
     errno = 0;
-    fp = fopen(filename,"w+");
+    fp = fopen(filename, "w+");
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to open file (filename=%s, f=%p).\n", __func__, filename, fp);
     TEST_ASSERT_MESSAGE(fp != NULL, fslittle_fopen_utest_msg_g);
 
@@ -864,7 +855,7 @@ control_t fslittle_fopen_test_09(const size_t call_count)
 
     /* create a file of a certain length */
     len = strlen(fslittle_fopen_test_02_data[0].value);
-    ret = fslittle_test_create(fslittle_fopen_test_02_data[0].filename, (char*) fslittle_fopen_test_02_data[0].value, len);
+    ret = fslittle_test_create(fslittle_fopen_test_02_data[0].filename, (char *) fslittle_fopen_test_02_data[0].value, len);
 
     errno = 0;
     /* Open the file for reading so the file is not truncated to 0 length. */
@@ -893,8 +884,8 @@ control_t fslittle_fopen_test_09(const size_t call_count)
 
 /* file data for test_10 */
 static fslittle_kv_data_t fslittle_fopen_test_10_kv_data[] = {
-        { "/sd/test_10/testfile.txt", "test_data"},
-        { NULL, NULL},
+    { "/sd/test_10/testfile.txt", "test_data"},
+    { NULL, NULL},
 };
 
 /** @brief  test for operation of remove()
@@ -921,16 +912,16 @@ control_t fslittle_fopen_test_10(const size_t call_count)
     TEST_ASSERT(strlen(node->filename) < FSLITTLE_FOPEN_TEST_WORK_BUF_SIZE_1);
 
     /* start from a known state i.e. directory to be created in not present */
-    fslittle_filepath_remove_all((char*) node->filename);
+    fslittle_filepath_remove_all((char *) node->filename);
 
     /* (1) */
     errno = 0;
-    ret = fslittle_filepath_make_dirs((char*) node->filename, false);
+    ret = fslittle_filepath_make_dirs((char *) node->filename, false);
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create dir (dirname=%s, ret=%d, errno=%d)\n", __func__, node->filename, (int) ret, errno);
     TEST_ASSERT_MESSAGE(ret == 0, fslittle_fopen_utest_msg_g);
 
     len = strlen(node->value);
-    ret = fslittle_test_create(node->filename, (char*) node->value, len);
+    ret = fslittle_test_create(node->filename, (char *) node->value, len);
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create file (ret=%d).\n", __func__, (int) ret);
     TEST_ASSERT_MESSAGE(ret >= 0, fslittle_fopen_utest_msg_g);
 
@@ -963,10 +954,10 @@ control_t fslittle_fopen_test_10(const size_t call_count)
 
 /* file data for test_11 */
 static fslittle_kv_data_t fslittle_fopen_test_11_kv_data[] = {
-        { "/sd/test_11/step0.txt", "test_data"},
-        { "/sd/test_11/step1.txt", "test_data"},
-        { "/sd/test_11/subdir/step3.txt", "test_data"},
-        { NULL, NULL},
+    { "/sd/test_11/step0.txt", "test_data"},
+    { "/sd/test_11/step1.txt", "test_data"},
+    { "/sd/test_11/subdir/step3.txt", "test_data"},
+    { NULL, NULL},
 };
 
 /** @brief  test for operation of rename()
@@ -989,26 +980,26 @@ control_t fslittle_fopen_test_11(const size_t call_count)
     TEST_ASSERT(strlen(node->filename) < FSLITTLE_FOPEN_TEST_WORK_BUF_SIZE_1);
 
     /* start from a known state i.e. directory to be created in not present, files not present */
-    while(node->filename != NULL) {
-        fslittle_filepath_remove_all((char*) node->filename);
+    while (node->filename != NULL) {
+        fslittle_filepath_remove_all((char *) node->filename);
         node++;
     }
 
     /* create file and directories ready for rename() tests */
     errno = 0;
     node = fslittle_fopen_test_11_kv_data;
-    ret = fslittle_filepath_make_dirs((char*) node->filename, false);
+    ret = fslittle_filepath_make_dirs((char *) node->filename, false);
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create dir (dirname=%s, ret=%d, errno=%d)\n", __func__, node->filename, (int) ret, errno);
     TEST_ASSERT_MESSAGE(ret == 0, fslittle_fopen_utest_msg_g);
 
     len = strlen(node->value);
-    ret = fslittle_test_create(node->filename, (char*) node->value, len);
+    ret = fslittle_test_create(node->filename, (char *) node->value, len);
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create file (ret=%d).\n", __func__, (int) ret);
     TEST_ASSERT_MESSAGE(ret >= 0, fslittle_fopen_utest_msg_g);
 
     errno = 0;
     node = &fslittle_fopen_test_11_kv_data[2];
-    ret = fslittle_filepath_make_dirs((char*) node->filename, false);
+    ret = fslittle_filepath_make_dirs((char *) node->filename, false);
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create dir (dirname=%s, ret=%d, errno=%d)\n", __func__, node->filename, (int) ret, errno);
     TEST_ASSERT_MESSAGE(ret == 0, fslittle_fopen_utest_msg_g);
 
@@ -1028,12 +1019,12 @@ control_t fslittle_fopen_test_11(const size_t call_count)
 
 /* file data for test_12 */
 static fslittle_kv_data_t fslittle_fopen_test_12_kv_data[] = {
-        { "/sd/test_12/subdir/testfil1.txt", "testfil1.txt"},
-        { "/sd/test_12/testfil2.txt", "testfil2.txt"},
-        { "/sd/test_12/testfil3.txt", "testfil3.txt"},
-        { "/sd/test_12/testfil4.txt", "testfil4.txt"},
-        { "/sd/test_12/testfil5.txt", "testfil5.txt"},
-        { NULL, NULL},
+    { "/sd/test_12/subdir/testfil1.txt", "testfil1.txt"},
+    { "/sd/test_12/testfil2.txt", "testfil2.txt"},
+    { "/sd/test_12/testfil3.txt", "testfil3.txt"},
+    { "/sd/test_12/testfil4.txt", "testfil4.txt"},
+    { "/sd/test_12/testfil5.txt", "testfil5.txt"},
+    { NULL, NULL},
 };
 
 /** @brief  test for operation of readdir().
@@ -1060,22 +1051,22 @@ control_t fslittle_fopen_test_12(const size_t call_count)
 #if ! defined(__ARMCC_VERSION) && defined(__GNUC__)
 
     /* start from a known state i.e. directory to be created in not present */
-    while(node->filename != NULL) {
-        fslittle_filepath_remove_all((char*) node->filename);
+    while (node->filename != NULL) {
+        fslittle_filepath_remove_all((char *) node->filename);
         node++;
     }
 
     /* create a file */
     node = fslittle_fopen_test_12_kv_data;
     errno = 0;
-    ret = fslittle_filepath_make_dirs((char*) node->filename, false);
+    ret = fslittle_filepath_make_dirs((char *) node->filename, false);
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create dir (dirname=%s, ret=%d, errno=%d)\n", __func__, node->filename, (int) ret, errno);
     TEST_ASSERT_MESSAGE(ret == 0, fslittle_fopen_utest_msg_g);
 
     node = fslittle_fopen_test_12_kv_data;
-    while(node->filename != NULL) {
+    while (node->filename != NULL) {
         len = strlen(node->value);
-        ret = fslittle_test_create(node->filename, (char*) node->value, len);
+        ret = fslittle_test_create(node->filename, (char *) node->value, len);
         FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create file (ret=%d).\n", __func__, (int) ret);
         TEST_ASSERT_MESSAGE(ret >= 0, fslittle_fopen_utest_msg_g);
         node++;
@@ -1108,8 +1099,8 @@ control_t fslittle_fopen_test_12(const size_t call_count)
 
     /* cleanup */
     node = fslittle_fopen_test_12_kv_data;
-    while(node->filename != NULL) {
-        fslittle_filepath_remove_all((char*) node->filename);
+    while (node->filename != NULL) {
+        fslittle_filepath_remove_all((char *) node->filename);
         node++;
     }
 #endif  /* ! defined(__ARMCC_VERSION) && defined(__GNUC__) */
@@ -1119,10 +1110,10 @@ control_t fslittle_fopen_test_12(const size_t call_count)
 
 /* file data for test_13 */
 static fslittle_kv_data_t fslittle_fopen_test_13_kv_data[] = {
-        /* a file is included in the filepath even though its not created by the test,
-         * as the fslittle_filepath_make_dirs() works with it present. */
-        { "/sd/test_13/dummy.txt", "testdir"},
-        { NULL, NULL},
+    /* a file is included in the filepath even though its not created by the test,
+     * as the fslittle_filepath_make_dirs() works with it present. */
+    { "/sd/test_13/dummy.txt", "testdir"},
+    { NULL, NULL},
 };
 /** @brief  test for operation of mkdir()/remove()
  *
@@ -1141,16 +1132,16 @@ control_t fslittle_fopen_test_13(const size_t call_count)
     (void) call_count;
 
     /* start from a known state i.e. directory to be created in not present */
-    fslittle_filepath_remove_all((char*) fslittle_fopen_test_13_kv_data[0].filename);
+    fslittle_filepath_remove_all((char *) fslittle_fopen_test_13_kv_data[0].filename);
 
     errno = 0;
-    ret = fslittle_filepath_make_dirs((char*) fslittle_fopen_test_13_kv_data[0].filename, false);
+    ret = fslittle_filepath_make_dirs((char *) fslittle_fopen_test_13_kv_data[0].filename, false);
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create dir (dirname=%s, ret=%d, errno=%d)\n", __func__, fslittle_fopen_test_13_kv_data[0].filename, (int) ret, errno);
     TEST_ASSERT_MESSAGE(ret == 0, fslittle_fopen_utest_msg_g);
 
     /* check that get a suitable error when try to create it again.*/
     errno = 0;
-    ret = fslittle_filepath_make_dirs((char*) fslittle_fopen_test_13_kv_data[0].filename, false);
+    ret = fslittle_filepath_make_dirs((char *) fslittle_fopen_test_13_kv_data[0].filename, false);
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: permitted to create directory when already exists (dirname=%s, ret=%d, errno=%d)\n", __func__, fslittle_fopen_test_13_kv_data[0].filename, (int) ret, errno);
     TEST_ASSERT_MESSAGE(ret != 0, fslittle_fopen_utest_msg_g);
 
@@ -1158,7 +1149,7 @@ control_t fslittle_fopen_test_13(const size_t call_count)
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: errno != EEXIST (dirname=%s, ret=%d, errno=%d)\n", __func__, fslittle_fopen_test_13_kv_data[0].filename, (int) ret, errno);
     TEST_ASSERT_MESSAGE(errno == EEXIST, fslittle_fopen_utest_msg_g);
 
-    ret = fslittle_filepath_remove_all((char*) fslittle_fopen_test_13_kv_data[0].filename);
+    ret = fslittle_filepath_remove_all((char *) fslittle_fopen_test_13_kv_data[0].filename);
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to remove directory (dirname=%s, ret=%d, errno=%d)\n", __func__, fslittle_fopen_test_13_kv_data[0].filename, (int) ret, errno);
     TEST_ASSERT_MESSAGE(ret == 0, fslittle_fopen_utest_msg_g);
 
@@ -1167,10 +1158,10 @@ control_t fslittle_fopen_test_13(const size_t call_count)
 
 /* file data for test_14 */
 static fslittle_kv_data_t fslittle_fopen_test_14_kv_data[] = {
-        /* a file is included in the filepath even though its not created by the test,
-         * as the fslittle_filepath_make_dirs() works with it present. */
-        { "/sd/test_14/testfile.txt", "testdata"},
-        { NULL, NULL},
+    /* a file is included in the filepath even though its not created by the test,
+     * as the fslittle_filepath_make_dirs() works with it present. */
+    { "/sd/test_14/testfile.txt", "testdata"},
+    { NULL, NULL},
 };
 
 /** @brief  test for operation of stat()
@@ -1183,7 +1174,7 @@ control_t fslittle_fopen_test_14(const size_t call_count)
 {
 #if ! defined(__ARMCC_VERSION) && defined(__GNUC__)
 
-	char buf[FSLITTLE_FOPEN_TEST_WORK_BUF_SIZE_1];
+    char buf[FSLITTLE_FOPEN_TEST_WORK_BUF_SIZE_1];
     char *pos = NULL;
     int32_t ret = -1;
     size_t len = 0;
@@ -1196,16 +1187,16 @@ control_t fslittle_fopen_test_14(const size_t call_count)
     TEST_ASSERT(strlen(node->filename) < FSLITTLE_FOPEN_TEST_WORK_BUF_SIZE_1);
 
     /* start from a known state i.e. directory to be created in not present */
-    fslittle_filepath_remove_all((char*) node->filename);
+    fslittle_filepath_remove_all((char *) node->filename);
 
     /* Create file in a directory. */
     errno = 0;
-    ret = fslittle_filepath_make_dirs((char*) node->filename, false);
+    ret = fslittle_filepath_make_dirs((char *) node->filename, false);
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create dir (dirname=%s, ret=%d, errno=%d)\n", __func__, node->filename, (int) ret, errno);
     TEST_ASSERT_MESSAGE(ret == 0, fslittle_fopen_utest_msg_g);
 
     len = strlen(node->value);
-    ret = fslittle_test_create(node->filename, (char*) node->value, len);
+    ret = fslittle_test_create(node->filename, (char *) node->value, len);
     FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create file (ret=%d).\n", __func__, (int) ret);
     TEST_ASSERT_MESSAGE(ret >= 0, fslittle_fopen_utest_msg_g);
 
@@ -1238,7 +1229,7 @@ control_t fslittle_fopen_test_14(const size_t call_count)
     TEST_ASSERT_MESSAGE((file_stat.st_mode & S_IFDIR) == S_IFDIR, fslittle_fopen_utest_msg_g);
 
     /* clean up after successful test */
-    fslittle_filepath_remove_all((char*) node->filename);
+    fslittle_filepath_remove_all((char *) node->filename);
 
 #endif /* ! defined(__ARMCC_VERSION) && defined(__GNUC__) */
     return CaseNext;
@@ -1288,7 +1279,7 @@ control_t fslittle_fopen_test_00(const size_t call_count)
  * @param   data        data to store in file
  * @param   len         number of bytes of data present in the data buffer.
  */
-int32_t fslittle_test_create_data_file(const char* filename, size_t len)
+int32_t fslittle_test_create_data_file(const char *filename, size_t len)
 {
     int32_t ret = -1;
     FILE *fp = NULL;
@@ -1300,26 +1291,26 @@ int32_t fslittle_test_create_data_file(const char* filename, size_t len)
     FSLITTLE_FENTRYLOG("%s:entered (filename=%s, len=%d).\n", __func__, filename, (int) len);
     TEST_ASSERT(len % FSLITTLE_TEST_BYTE_DATA_TABLE_SIZE == 0);
     fp = fopen(filename, "a");
-    if(fp == NULL){
+    if (fp == NULL) {
         return ret;
     }
 
-    while(written_len < len) {
+    while (written_len < len) {
         /* write fslittle_test_byte_data_table or part thereof, in 9 writes of sizes
          * 1, 2, 4, 8, 16, 32, 64, 128, 1, totalling 256 bytes len permitting. */
-        for(exp = 0; (exp <= exp_max) && (written_len < len); exp++){
+        for (exp = 0; (exp <= exp_max) && (written_len < len); exp++) {
             write_len = 0x1 << (exp % exp_max);
             write_len = len - written_len  > write_len ? write_len : len - written_len;
-            ret = fwrite((const void*) &fslittle_test_byte_data_table[written_len % FSLITTLE_TEST_BYTE_DATA_TABLE_SIZE], write_len, 1, fp);
+            ret = fwrite((const void *) &fslittle_test_byte_data_table[written_len % FSLITTLE_TEST_BYTE_DATA_TABLE_SIZE], write_len, 1, fp);
             written_len += write_len;
-            if(ret != 1){
+            if (ret != 1) {
                 FSLITTLE_DBGLOG("%s:Error: fwrite() failed (ret=%d)\n", __func__, (int) ret);
                 ret = -1;
                 goto out0;
             }
         }
     }
-    if(written_len == len) {
+    if (written_len == len) {
         ret = 0;
     } else {
         ret = -1;
@@ -1339,7 +1330,7 @@ out0:
  * @param   data        data to store in file
  * @param   len         number of bytes of data present in the data buffer.
  */
-int32_t fslittle_test_check_data_file(const char* filename, size_t len)
+int32_t fslittle_test_check_data_file(const char *filename, size_t len)
 {
     int32_t ret = -1;
     FILE *fp = NULL;
@@ -1349,26 +1340,26 @@ int32_t fslittle_test_check_data_file(const char* filename, size_t len)
     FSLITTLE_FENTRYLOG("%s:entered (filename=%s, len=%d).\n", __func__, filename, (int) len);
     TEST_ASSERT(len % FSLITTLE_TEST_BYTE_DATA_TABLE_SIZE == 0);
     fp = fopen(filename, "r");
-    if(fp == NULL){
+    if (fp == NULL) {
         return ret;
     }
 
-    while(read_len < len) {
-        ret = fread((void*) buf, FSLITTLE_TEST_BYTE_DATA_TABLE_SIZE, 1, fp);
+    while (read_len < len) {
+        ret = fread((void *) buf, FSLITTLE_TEST_BYTE_DATA_TABLE_SIZE, 1, fp);
         read_len += FSLITTLE_TEST_BYTE_DATA_TABLE_SIZE;
-        if(ret == 0){
+        if (ret == 0) {
             /* end of read*/
             FSLITTLE_DBGLOG("%s:unable to read data\n", __func__);
             break;
         }
-        if(memcmp(buf, fslittle_test_byte_data_table, FSLITTLE_TEST_BYTE_DATA_TABLE_SIZE) != 0) {
+        if (memcmp(buf, fslittle_test_byte_data_table, FSLITTLE_TEST_BYTE_DATA_TABLE_SIZE) != 0) {
             FSLITTLE_DBGLOG("%s:Error: read data not as expected (0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x, 0x%2x\n", __func__,
-                    buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7], buf[8], buf[9], buf[10], buf[11], buf[12], buf[13], buf[14], buf[15]);
+                            buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7], buf[8], buf[9], buf[10], buf[11], buf[12], buf[13], buf[14], buf[15]);
             ret = -1;
             goto out0;
         }
     }
-    if(read_len == len) {
+    if (read_len == len) {
         ret = 0;
     }
 out0:
@@ -1378,20 +1369,20 @@ out0:
 
 /* file data for test_16 */
 static fslittle_kv_data_t fslittle_fopen_test_15_kv_data[] = {
-        { "/sd/tst16_0/testfil0.txt", "dummy_data"},
-        { "/sd/tst16_1/subdir0/testfil0.txt", "dummy_data"},
-        { "/sd/tst16_2/subdir0/subdir1/testfil0.txt", "dummy_data"},
-        { "/sd/tst16_3/subdir0/subdir1/subdir2/subdir3/testfil0.txt", "dummy_data"},
+    { "/sd/tst16_0/testfil0.txt", "dummy_data"},
+    { "/sd/tst16_1/subdir0/testfil0.txt", "dummy_data"},
+    { "/sd/tst16_2/subdir0/subdir1/testfil0.txt", "dummy_data"},
+    { "/sd/tst16_3/subdir0/subdir1/subdir2/subdir3/testfil0.txt", "dummy_data"},
 
 #if 0
-        { "/sd/tst16_4/subdir0/subdir1/subdir2/subdir3/subdir4/testfil0.txt", "dummy_data"},
-        { "/sd/tst16_5/subdir0/subdir1/subdir2/subdir3/subdir4/subdir5/testfil0.txt", "dummy_data"},
-        { "/sd/tst16_6/subdir0/subdir1/subdir2/subdir3/subdir4/subdir5/subdir6/testfil0.txt", "dummy_data"},
-        { "/sd/tst16_7/subdir0/subdir1/subdir2/subdir3/subdir4/subdir5/subdir6/subdir7/testfil0.txt", "dummy_data"},
-        { "/sd/tst16_8/subdir0/subdir1/subdir2/subdir3/subdir4/subdir5/subdir6/subdir7/subdir8/testfil0.txt", "dummy_data"},
-        { "/sd/tst16_9/subdir0/subdir1/subdir2/subdir3/subdir4/subdir5/subdir6/subdir7/subdir8/subdir9/testfil0.txt", "dummy_data"},
+    { "/sd/tst16_4/subdir0/subdir1/subdir2/subdir3/subdir4/testfil0.txt", "dummy_data"},
+    { "/sd/tst16_5/subdir0/subdir1/subdir2/subdir3/subdir4/subdir5/testfil0.txt", "dummy_data"},
+    { "/sd/tst16_6/subdir0/subdir1/subdir2/subdir3/subdir4/subdir5/subdir6/testfil0.txt", "dummy_data"},
+    { "/sd/tst16_7/subdir0/subdir1/subdir2/subdir3/subdir4/subdir5/subdir6/subdir7/testfil0.txt", "dummy_data"},
+    { "/sd/tst16_8/subdir0/subdir1/subdir2/subdir3/subdir4/subdir5/subdir6/subdir7/subdir8/testfil0.txt", "dummy_data"},
+    { "/sd/tst16_9/subdir0/subdir1/subdir2/subdir3/subdir4/subdir5/subdir6/subdir7/subdir8/subdir9/testfil0.txt", "dummy_data"},
 #endif
-        { NULL, NULL},
+    { NULL, NULL},
 };
 
 
@@ -1409,15 +1400,15 @@ control_t fslittle_fopen_test_15(const size_t call_count)
     (void) call_count;
 
     /* remove file and directory from a previous failed test run, if present */
-    while(node->filename != NULL) {
-        fslittle_filepath_remove_all((char*) node->filename);
+    while (node->filename != NULL) {
+        fslittle_filepath_remove_all((char *) node->filename);
         node++;
     }
 
     /* create dirs */
     node = fslittle_fopen_test_15_kv_data;
-    while(node->filename != NULL) {
-        ret = fslittle_filepath_make_dirs((char*) node->filename, true);
+    while (node->filename != NULL) {
+        ret = fslittle_filepath_make_dirs((char *) node->filename, true);
         FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create dirs for filename (filename=\"%s\")(ret=%d)\n", __func__, node->filename, (int) ret);
         TEST_ASSERT_MESSAGE(ret == 0, fslittle_fopen_utest_msg_g);
         node++;
@@ -1425,7 +1416,7 @@ control_t fslittle_fopen_test_15(const size_t call_count)
 
     /* create the data files */
     node = fslittle_fopen_test_15_kv_data;
-    while(node->filename != NULL) {
+    while (node->filename != NULL) {
         ret = fslittle_test_create_data_file(node->filename, num_blocks * FSLITTLE_TEST_BYTE_DATA_TABLE_SIZE);
         FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create data file (filename=\"%s\")(ret=%d)\n", __func__, node->filename, (int) ret);
         TEST_ASSERT_MESSAGE(ret == 0, fslittle_fopen_utest_msg_g);
@@ -1434,7 +1425,7 @@ control_t fslittle_fopen_test_15(const size_t call_count)
 
     /* read the data back and check its as expected */
     node = fslittle_fopen_test_15_kv_data;
-    while(node->filename != NULL) {
+    while (node->filename != NULL) {
         ret = fslittle_test_check_data_file(node->filename, num_blocks * FSLITTLE_TEST_BYTE_DATA_TABLE_SIZE);
         FSLITTLE_TEST_UTEST_MESSAGE(fslittle_fopen_utest_msg_g, FSLITTLE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to check data file (filename=\"%s\")(ret=%d)\n", __func__, node->filename, (int) ret);
         TEST_ASSERT_MESSAGE(ret == 0, fslittle_fopen_utest_msg_g);
@@ -1443,8 +1434,8 @@ control_t fslittle_fopen_test_15(const size_t call_count)
 
     /* clean up */
     node = fslittle_fopen_test_15_kv_data;
-    while(node->filename != NULL) {
-        fslittle_filepath_remove_all((char*) node->filename);
+    while (node->filename != NULL) {
+        fslittle_filepath_remove_all((char *) node->filename);
         node++;
     }
     return CaseNext;
@@ -1458,26 +1449,26 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-           /*          1         2         3         4         5         6        7  */
-           /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
-        Case("FSLITTLE_FOPEN_TEST_00: format() test.", FSLITTLE_FOPEN_TEST_00),
-        Case("FSLITTLE_FOPEN_TEST_01: fopen()/fwrite()/fclose() directories/file in multi-dir filepath.", FSLITTLE_FOPEN_TEST_01),
-        Case("FSLITTLE_FOPEN_TEST_02: fopen(r) pre-existing file try to write it.", FSLITTLE_FOPEN_TEST_02),
-        Case("FSLITTLE_FOPEN_TEST_03: fopen(w+) pre-existing file try to write it.", FSLITTLE_FOPEN_TEST_03),
-        Case("FSLITTLE_FOPEN_TEST_04: fopen() with a filename exceeding the maximum length.", FSLITTLE_FOPEN_TEST_04),
+    /*          1         2         3         4         5         6        7  */
+    /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
+    Case("FSLITTLE_FOPEN_TEST_00: format() test.", FSLITTLE_FOPEN_TEST_00),
+    Case("FSLITTLE_FOPEN_TEST_01: fopen()/fwrite()/fclose() directories/file in multi-dir filepath.", FSLITTLE_FOPEN_TEST_01),
+    Case("FSLITTLE_FOPEN_TEST_02: fopen(r) pre-existing file try to write it.", FSLITTLE_FOPEN_TEST_02),
+    Case("FSLITTLE_FOPEN_TEST_03: fopen(w+) pre-existing file try to write it.", FSLITTLE_FOPEN_TEST_03),
+    Case("FSLITTLE_FOPEN_TEST_04: fopen() with a filename exceeding the maximum length.", FSLITTLE_FOPEN_TEST_04),
 #ifdef FOPEN_EXTENDED_TESTING
-        Case("FSLITTLE_FOPEN_TEST_05: fopen() with bad filenames (extended).", FSLITTLE_FOPEN_TEST_05),
+    Case("FSLITTLE_FOPEN_TEST_05: fopen() with bad filenames (extended).", FSLITTLE_FOPEN_TEST_05),
 #endif
-        Case("FSLITTLE_FOPEN_TEST_06: fopen() with bad filenames (minimal).", FSLITTLE_FOPEN_TEST_06),
-        Case("FSLITTLE_FOPEN_TEST_07: fopen()/errno handling.", FSLITTLE_FOPEN_TEST_07),
-        Case("FSLITTLE_FOPEN_TEST_08: ferror()/clearerr()/errno handling.", FSLITTLE_FOPEN_TEST_08),
-        Case("FSLITTLE_FOPEN_TEST_09: ftell() handling.", FSLITTLE_FOPEN_TEST_09),
-        Case("FSLITTLE_FOPEN_TEST_10: remove() test.", FSLITTLE_FOPEN_TEST_10),
-        Case("FSLITTLE_FOPEN_TEST_11: rename().", FSLITTLE_FOPEN_TEST_11),
-        Case("FSLITTLE_FOPEN_TEST_12: opendir(), readdir(), closedir() test.", FSLITTLE_FOPEN_TEST_12),
-        Case("FSLITTLE_FOPEN_TEST_13: mkdir() test.", FSLITTLE_FOPEN_TEST_13),
-        Case("FSLITTLE_FOPEN_TEST_14: stat() test.", FSLITTLE_FOPEN_TEST_14),
-        Case("FSLITTLE_FOPEN_TEST_15: write/check n x 25kB data files.", FSLITTLE_FOPEN_TEST_15),
+    Case("FSLITTLE_FOPEN_TEST_06: fopen() with bad filenames (minimal).", FSLITTLE_FOPEN_TEST_06),
+    Case("FSLITTLE_FOPEN_TEST_07: fopen()/errno handling.", FSLITTLE_FOPEN_TEST_07),
+    Case("FSLITTLE_FOPEN_TEST_08: ferror()/clearerr()/errno handling.", FSLITTLE_FOPEN_TEST_08),
+    Case("FSLITTLE_FOPEN_TEST_09: ftell() handling.", FSLITTLE_FOPEN_TEST_09),
+    Case("FSLITTLE_FOPEN_TEST_10: remove() test.", FSLITTLE_FOPEN_TEST_10),
+    Case("FSLITTLE_FOPEN_TEST_11: rename().", FSLITTLE_FOPEN_TEST_11),
+    Case("FSLITTLE_FOPEN_TEST_12: opendir(), readdir(), closedir() test.", FSLITTLE_FOPEN_TEST_12),
+    Case("FSLITTLE_FOPEN_TEST_13: mkdir() test.", FSLITTLE_FOPEN_TEST_13),
+    Case("FSLITTLE_FOPEN_TEST_14: stat() test.", FSLITTLE_FOPEN_TEST_14),
+    Case("FSLITTLE_FOPEN_TEST_15: write/check n x 25kB data files.", FSLITTLE_FOPEN_TEST_15),
 };
 
 

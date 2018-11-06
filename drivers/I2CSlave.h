@@ -25,38 +25,41 @@
 namespace mbed {
 /** \addtogroup drivers */
 
-/** An I2C Slave, used for communicating with an I2C Master device
+/** An I2C Slave, used for communicating with an I2C Master device.
  *
  * @note Synchronization level: Not protected
  *
- * Example:
+ * Example Simple I2C responder:
  * @code
- * // Simple I2C responder
  * #include <mbed.h>
  *
- * I2CSlave slave(p9, p10);
+ * const int SLAVE_ADDRESS = 0xA0;
+ * const char message[] = "Slave!";
+ *
+ * I2CSlave slave(I2C_SDA, I2C_SCL);
  *
  * int main() {
- *     char buf[10];
- *     char msg[] = "Slave!";
- *
- *     slave.address(0xA0);
+ *     slave.address(SLAVE_ADDRESS);
  *     while (1) {
- *         int i = slave.receive();
- *         switch (i) {
+ *         int operation = slave.receive();
+ *         switch (operation) {
  *             case I2CSlave::ReadAddressed:
- *                 slave.write(msg, strlen(msg) + 1); // Includes null char
+ *                 int status = slave.write(message, sizeof(message));
+ *                 if (status == 0) {
+ *                     printf("Written message: %s\n", message);
+ *                 } else {
+ *                     printf("Failed to write message.\n");
+ *                 }
  *                 break;
  *             case I2CSlave::WriteGeneral:
- *                 slave.read(buf, 10);
- *                 printf("Read G: %s\n", buf);
+ *                 int byte_read = slave.read();
+ *                 printf("Read General: %c (%d)\n", byte_read, byte_read);
  *                 break;
  *             case I2CSlave::WriteAddressed:
- *                 slave.read(buf, 10);
- *                 printf("Read A: %s\n", buf);
+ *                 int byte_read = slave.read();
+ *                 printf("Read Addressed: %c (%d)\n", byte_read, byte_read);
  *                 break;
  *         }
- *         for(int i = 0; i < 10; i++) buf[i] = 0;    // Clear buffer
  *     }
  * }
  * @endcode
@@ -74,71 +77,71 @@ public:
 
     /** Create an I2C Slave interface, connected to the specified pins.
      *
-     *  @param sda I2C data line pin
-     *  @param scl I2C clock line pin
+     *  @param sda I2C data line pin.
+     *  @param scl I2C clock line pin.
      */
     I2CSlave(PinName sda, PinName scl);
 
-    /** Set the frequency of the I2C interface
+    /** Set the frequency of the I2C interface.
      *
-     *  @param hz The bus frequency in hertz
+     *  @param hz The bus frequency in Hertz.
      */
     void frequency(int hz);
 
-    /** Checks to see if this I2C Slave has been addressed.
+    /** Check if this I2C Slave has been addressed.
      *
-     *  @returns
-     *  A status indicating if the device has been addressed, and how
-     *  - NoData            - the slave has not been addressed
-     *  - ReadAddressed     - the master has requested a read from this slave
-     *  - WriteAddressed    - the master is writing to this slave
-     *  - WriteGeneral      - the master is writing to all slave
+     *  @return A status indicating if the device has been addressed and how.
+     *  @retval NoData          The slave has not been addressed.
+     *  @retval ReadAddressed   The master has requested a read from this slave.
+     *  @retval WriteAddressed  The master is writing to this slave.
+     *  @retval WriteGeneral    The master is writing to all slave.
      */
     int receive(void);
 
-    /** Read from an I2C master.
+    /** Read specified number of bytes from an I2C master.
      *
-     *  @param data pointer to the byte array to read data in to
-     *  @param length maximum number of bytes to read
+     *  @param data   Pointer to the buffer to read data into.
+     *  @param length Number of bytes to read.
      *
-     *  @returns
-     *       0 on success,
-     *   non-0 otherwise
+     *  @return Result of the operation.
+     *  @retval 0       If the number of bytes read is equal to length requested.
+     *  @retval nonzero On error or if the number of bytes read is less than requested.
      */
     int read(char *data, int length);
 
     /** Read a single byte from an I2C master.
      *
-     *  @returns
-     *    the byte read
+     *  @return The byte read.
      */
     int read(void);
 
     /** Write to an I2C master.
      *
-     *  @param data pointer to the byte array to be transmitted
-     *  @param length the number of bytes to transmite
+     *  @param data   Pointer to the buffer containing the data to be sent.
+     *  @param length Number of bytes to send.
      *
-     *  @returns
-     *       0 on success,
-     *   non-0 otherwise
+     *  @return
+     *  @retval 0       If written all bytes successfully.
+     *  @retval nonzero On error or if the number of bytes written is less than requested.
      */
     int write(const char *data, int length);
 
     /** Write a single byte to an I2C master.
      *
-     *  @param data the byte to write
+     *  @param data Value to write.
      *
-     *  @returns
-     *    '1' if an ACK was received,
-     *    '0' otherwise
+     *  @return Result of the operation.
+     *  @retval 0 If a NACK is received.
+     *  @retval 1 If an ACK is received.
+     *  @retval 2 On timeout.
      */
     int write(int data);
 
-    /** Sets the I2C slave address.
+    /** Set the I2C slave address.
      *
-     *  @param address The address to set for the slave (ignoring the least
-     *  signifcant bit). If set to 0, the slave will only respond to the
+     *  @param address The address to set for the slave (least significant bit is ignored).
+     *
+     *  @note If address is set to 0, the slave will only respond to the
      *  general call address.
      */
     void address(int address);
@@ -147,8 +150,13 @@ public:
      */
     void stop(void);
 
+#if !defined(DOXYGEN_ONLY)
+
 protected:
+    /* Internal i2c object identifying the resources */
     i2c_t _i2c;
+
+#endif //!defined(DOXYGEN_ONLY)
 };
 
 } // namespace mbed

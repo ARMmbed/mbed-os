@@ -220,8 +220,8 @@ nsapi_error_t OdinWiFiInterface::set_credentials(const char *ssid, const char *p
     osStatus res = _mutex.lock();
     MBED_ASSERT(res == osOK);
 
-    _sta.ssid = ssid;
-    _sta.passwd = pass;
+    strncpy(_sta.ssid, ssid, cbWLAN_SSID_MAX_LENGTH);
+    strncpy(_sta.passwd, pass, cbWLAN_MAX_PASSPHRASE_LENGTH);
     _sta.security = security;
 
     res = _mutex.unlock();

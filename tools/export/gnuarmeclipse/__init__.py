@@ -16,7 +16,7 @@ limitations under the License.
 
 Title: GNU ARM Eclipse (http://gnuarmeclipse.github.io) exporter.
 
-Description: Creates a managed build project that can be imported by 
+Description: Creates a managed build project that can be imported by
 the GNU ARM Eclipse plug-ins.
 
 Author: Liviu Ionescu <ilg@livius.net>
@@ -64,7 +64,8 @@ POST_BINARY_WHITELIST = set([
     "TEENSY3_1Code.binary_hook",
     "MCU_NRF51Code.binary_hook",
     "LPCTargetCode.lpc_patch",
-    "LPC4088Code.binary_hook"
+    "LPC4088Code.binary_hook",
+    "PSOC6Code.complete"
 ])
 
 class GNUARMEclipse(Exporter):
@@ -249,9 +250,9 @@ class GNUARMEclipse(Exporter):
         Headless build an Eclipse project.
 
         The following steps are performed:
-        - a temporary workspace is created, 
+        - a temporary workspace is created,
         - the project is imported,
-        - a clean build of all configurations is performed and 
+        - a clean build of all configurations is performed and
         - the temporary workspace is removed.
 
         The build results are in the Debug & Release folders.
@@ -354,16 +355,13 @@ class GNUARMEclipse(Exporter):
         The steps are:
         - get the list of source folders, as dirname(source_file)
         - compute the top folders (subfolders of the project folder)
-        - iterate all subfolders and add them to a tree, with all 
+        - iterate all subfolders and add them to a tree, with all
         nodes markes as 'not used'
         - iterate the source folders and mark them as 'used' in the
         tree, including all intermediate nodes
         - recurse the tree and collect all unused folders; descend
         the hierarchy only for used nodes
         """
-        source_folders = [self.filter_dot(s) for s in set(dirname(
-            src) for src in self.resources.c_sources + self.resources.cpp_sources + self.resources.s_sources)]
-
         self.excluded_folders = set(self.resources.ignored_dirs) - set(self.resources.inc_dirs)
 
 
@@ -404,8 +402,8 @@ class GNUARMEclipse(Exporter):
 
         Once identified, the options are removed from the command lines.
 
-        The options that were not identified are options that do not 
-        have CDT equivalents and will be passed in the 'Other options' 
+        The options that were not identified are options that do not
+        have CDT equivalents and will be passed in the 'Other options'
         categories.
 
         Although this process does not have a very complicated logic,

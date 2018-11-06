@@ -24,6 +24,7 @@ from tools.hooks import hook_tool
 from tools.utils import run_cmd, NotSupportedException
 
 class IAR(mbedToolchain):
+    OFFICIALLY_SUPPORTED = True
     LIBRARY_EXT = '.a'
     LINKER_EXT = '.icf'
     STD_LIB_NAME = "%s.a"

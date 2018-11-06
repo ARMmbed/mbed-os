@@ -62,15 +62,15 @@ class Testcase(Bench):
         self.used_port = 2000
 
         response = self.command("dut1", "socket new TCPServer")
-        server_base_socket_id = int(response.parsed['socket_id'])
+        self.server_base_socket_id = int(response.parsed['socket_id'])
 
-        self.command("dut1", "socket " + str(server_base_socket_id) + " open")
-        self.command("dut1", "socket " + str(server_base_socket_id) + " bind port " + str(self.used_port))
-        self.command("dut1", "socket " + str(server_base_socket_id) + " listen")
+        self.command("dut1", "socket " + str(self.server_base_socket_id) + " open")
+        self.command("dut1", "socket " + str(self.server_base_socket_id) + " bind port " + str(self.used_port))
+        self.command("dut1", "socket " + str(self.server_base_socket_id) + " listen")
 
         response = self.command("dut1", "socket new TCPSocket")
-        server_socket_id = int(response.parsed['socket_id'])
-        self.command("dut1", "socket " + str(server_socket_id) + " open")
+        self.server_socket_id = int(response.parsed['socket_id'])
+        self.command("dut1", "socket " + str(self.server_socket_id) + " open")
 
         response = self.command("dut2", "socket new TCPSocket")
         zero = response.timedelta
@@ -81,7 +81,7 @@ class Testcase(Bench):
         t.start()
 
         wait = 5
-        response = self.command("dut1", "socket " + str(server_base_socket_id) + " accept " + str(server_socket_id))
+        response = self.command("dut1", "socket " + str(self.server_base_socket_id) + " accept " + str(self.server_socket_id))
         response.verify_response_duration(expected=wait, zero=zero, threshold_percent=10, break_in_fail=True)
         socket_id = int(response.parsed['socket_id'])
 
@@ -94,10 +94,10 @@ class Testcase(Bench):
         if data != "hello":
             raise TestStepFail("Received data doesn't match the sent data")
 
-        self.command("dut1", "socket " + str(server_socket_id) + " delete")
-        self.command("dut1", "socket " + str(server_base_socket_id) + " delete")
-        self.command("dut2", "socket " + str(self.client_socket_id) + " delete")
-
     def teardown(self):
+        self.command("dut1", "socket " + str(self.server_socket_id) + " delete")
+        self.command("dut1", "socket " + str(self.server_base_socket_id) + " delete")
+        self.command("dut2", "socket " + str(self.client_socket_id) + " delete")
+        
         interfaceDown(self, ["dut1"])
         interfaceDown(self, ["dut2"])

@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "drivers/UARTSerial.h"
 
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN)
 
-#include <errno.h>
-#include "UARTSerial.h"
 #include "platform/mbed_poll.h"
 
 #if MBED_CONF_RTOS_PRESENT

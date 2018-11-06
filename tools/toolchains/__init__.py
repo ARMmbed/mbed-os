@@ -48,6 +48,8 @@ CPU_COUNT_MIN = 1
 CPU_COEF = 1
 
 class mbedToolchain:
+    OFFICIALLY_SUPPORTED = False
+
     # Verbose logging
     VERBOSE = True
 
@@ -620,12 +622,16 @@ class mbedToolchain:
         objects = sorted(set(r.get_file_paths(FileType.OBJECT)))
         config_file = ([self.config.app_config_location]
                        if self.config.app_config_location else [])
-        linker_script = [path for _, path in r.get_file_refs(FileType.LD_SCRIPT)
-                         if path.endswith(self.LINKER_EXT)][-1]
+        try:
+            linker_script = [path for _, path in r.get_file_refs(FileType.LD_SCRIPT)
+                             if path.endswith(self.LINKER_EXT)][-1]
+        except IndexError:
+            raise NotSupportedException("No linker script found")
         lib_dirs = r.get_file_paths(FileType.LIB_DIR)
         libraries = [l for l in r.get_file_paths(FileType.LIB)
                      if l.endswith(self.LIBRARY_EXT)]
-        dependencies = objects + libraries + [linker_script] + config_file
+        hex_files = r.get_file_paths(FileType.HEX)
+        dependencies = objects + libraries + [linker_script] + config_file + hex_files
         dependencies.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-ld"))
         if self.need_update(elf, dependencies):
             needed_update = True

@@ -1,5 +1,7 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2006-2016 ARM Limited
+/*
+ * mbed Microcontroller Library
+ * Copyright (c) 2017-2018 Future Electronics
+ * Copyright (c) 2016 u-blox
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +16,25 @@
  * limitations under the License.
  */
 
-void mbed_sdk_init()
-{
-    char* debug_date = __DATE__;
-    char* debug_time = __TIME__;	
+#ifndef MBED_MBED_RTX_H
+#define MBED_MBED_RTX_H
 
-}
+#if defined(TARGET_MCU_PSOC6_M0)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x08000000 + 0x00010000)  // Ram origin + length
+#endif
+
+#elif defined(TARGET_MCU_PSOC6_M4)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x08010000 + 0x00037800)  // Ram origin + length
+#endif
+
+#else
+
+#error "Unknown board"
+
+#endif
+
+#endif  // MBED_MBED_RTX_H

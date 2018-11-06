@@ -11,6 +11,11 @@
             "value": "1",
             "macro_name": "NRF_SDH_BLE_PERIPHERAL_LINK_COUNT"
         },
+        "total_link_count": {
+            "help": "How many concurrent connections the system support.",
+            "value": "(NRF_SDH_BLE_CENTRAL_LINK_COUNT + NRF_SDH_BLE_PERIPHERAL_LINK_COUNT)",
+            "macro_name": "NRF_SDH_BLE_TOTAL_LINK_COUNT"
+        },
         "gatt_attr_tab_size": {
             "help": "The size of the table used to hold gatts. Can be adjusted by trial and error",
             "value": "0x600",

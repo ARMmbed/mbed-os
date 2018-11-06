@@ -337,6 +337,7 @@ class ARM(mbedToolchain):
 
 
 class ARM_STD(ARM):
+    OFFICIALLY_SUPPORTED = True
     def __init__(self, target, notify=None, macros=None,
                  build_profile=None, build_dir=None):
         ARM.__init__(self, target, notify, macros, build_dir=build_dir,
@@ -347,6 +348,7 @@ class ARM_STD(ARM):
 
 class ARM_MICRO(ARM):
     PATCHED_LIBRARY = False
+    OFFICIALLY_SUPPORTED = True
     def __init__(self, target, notify=None, macros=None,
                  silent=False, extra_verbose=False, build_profile=None,
                  build_dir=None):
@@ -357,6 +359,7 @@ class ARM_MICRO(ARM):
             raise NotSupportedException("ARM/uARM compiler support is required for ARM build")
 
 class ARMC6(ARM_STD):
+    OFFICIALLY_SUPPORTED = False
     SHEBANG = "#! armclang -E --target=arm-arm-none-eabi -x c"
     SUPPORTED_CORES = ["Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4",
                        "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD",

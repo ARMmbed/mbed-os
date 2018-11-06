@@ -151,7 +151,7 @@ TEST_F(TestInternetSocket, close)
 TEST_F(TestInternetSocket, close_no_open)
 {
     stack.return_value = NSAPI_ERROR_OK;
-    EXPECT_EQ(socket->close(), NSAPI_ERROR_OK);
+    EXPECT_EQ(socket->close(), NSAPI_ERROR_NO_SOCKET);
 }
 
 TEST_F(TestInternetSocket, close_during_read)

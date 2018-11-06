@@ -201,7 +201,7 @@ public:
      */
     int mode(Mode mode);
 
-    /** Filter out incomming messages
+    /** Filter out incoming messages
      *
      *  @param id the id to filter on
      *  @param mask the mask applied to the id

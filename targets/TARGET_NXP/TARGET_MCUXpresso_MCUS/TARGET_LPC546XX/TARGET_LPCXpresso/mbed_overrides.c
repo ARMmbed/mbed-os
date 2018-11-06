@@ -57,10 +57,12 @@ uint32_t FLASHIAP_ReadUid(uint32_t *addr)
 void mbed_sdk_init()
 {
     if (SYSCON->DEVICE_ID0 == 0xFFF54628) {
+        BOARD_BootClockFROHF96M(); /* Boot up FROHF96M for SPIFI to use*/
         /* LPC54628 runs at a higher core speed */
         BOARD_BootClockPLL220M();
     } else {
-        BOARD_BootClockFROHF48M();
+        BOARD_BootClockFROHF96M(); /* Boot up FROHF96M for SPIFI to use*/
+        BOARD_BootClockPLL180M();
     }
 }
 

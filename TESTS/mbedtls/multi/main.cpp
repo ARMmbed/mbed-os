@@ -145,7 +145,7 @@ void test_case_sha256_multi()
     for (i = 0; i < 32; i++) {
         printf("%02X", outsum1[i]);
     }
-    printf("\nawaited result       : 248D6A61D20638B8E5C026930C3E6039A33CE45964FF216F6ECEDD19DB06C1\n"); // for  abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq
+    printf("\nawaited result       : 248D6A61D20638B8E5C026930C3E6039A33CE45964FF2167F6ECEDD419DB06C1\n"); // for  abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq
     printf("\nreceived result ctx2 : ");
     for (i = 0; i < 32; i++) {
         printf("%02X", outsum2[i]);

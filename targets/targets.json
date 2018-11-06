@@ -570,13 +570,14 @@
         "is_disk_virtual": true,
         "inherits": ["Target"],
         "detect_code": ["0218"],
-        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SEMIHOST", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
+        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SEMIHOST", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH", "QSPI"],
         "release_versions": ["2", "5"],
         "device_name": "MKL82Z128xxx7"
     },
     "USENSE": {
         "inherits": ["KL82Z"],
         "extra_labels_remove": ["FRDM"],
+        "device_has_remove": ["QSPI"],
         "supported_form_factors": []
     },
     "KW24D": {
@@ -728,6 +729,7 @@
     },
     "K66F": {
         "supported_form_factors": ["ARDUINO"],
+        "components": ["SD"],
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM", "Freescale_EMAC"],
@@ -753,7 +755,7 @@
         "macros": ["CPU_MK82FN256VDC15", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "detect_code": ["0217"],
-        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
+        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH", "QSPI"],
         "release_versions": ["2", "5"],
         "device_name": "MK82FN256xxx15"
     },
@@ -761,6 +763,7 @@
         "inherits": ["K82F"],
         "extra_labels_remove": ["FRDM"],
         "components_remove": ["SPIF"],
+        "device_has_remove": ["QSPI"],
         "supported_form_factors": []
     },
     "FAMILY_STM32": {
@@ -816,6 +819,7 @@
         "detect_code": ["1054"],
         "device_has": ["USTICKER", "RTC", "ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
         "release_versions": ["2", "5"],
+        "post_binary_hook": {"function": "LPCTargetCode.lpc_patch"},
         "device_name" : "LPC54114J256BD64"
     },
     "MCU_LPC546XX": {
@@ -827,6 +831,7 @@
         "inherits": ["Target"],
         "device_has": ["USTICKER", "RTC", "ANALOGIN", "EMAC", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH", "TRNG"],
         "device_name" : "LPC54628J512ET180",
+        "post_binary_hook": {"function": "LPCTargetCode.lpc_patch"},
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
@@ -1281,6 +1286,7 @@
         "detect_code": ["0743"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH", "QSPI"],
+        "bootloader_supported": true,
         "release_versions": ["2", "5"],
         "device_name": "STM32F413ZH"
     },
@@ -1303,6 +1309,7 @@
         "detect_code": ["0743"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "bootloader_supported": true,
         "release_versions": ["2", "5"],
         "device_name": "STM32F413ZH"
     },
@@ -1793,7 +1800,7 @@
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
         "program_cycle_s": 2,
         "extra_labels_add": ["STM32F4", "STM32F407", "STM32F407xG", "STM32F407VG"],
-        "device_has_add": ["ANALOGOUT"],
+        "device_has_add": ["ANALOGOUT", "TRNG"],
         "release_versions": ["2"],
         "device_name": "STM32F407VG"
     },
@@ -1905,7 +1912,7 @@
         },
         "macros_add": ["USB_STM_HAL"],
         "overrides": {"lse_available": 0},
-        "device_has_add": ["ANALOGOUT"],
+        "device_has_add": ["ANALOGOUT", "TRNG"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F407VG"
     },
@@ -2059,6 +2066,7 @@
         "detect_code": ["0817"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": ["ANALOGOUT", "CAN", "EMAC", "SERIAL_ASYNCH", "TRNG", "FLASH"],
+        "bootloader_supported": true,
         "release_versions": ["2", "5"],
         "device_name": "STM32F769NI",
         "overrides": {
@@ -2186,7 +2194,7 @@
         "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L471QG",
-        "bootloader_supported": true        
+        "bootloader_supported": true
     },
     "MTB_MTS_DRAGONFLY": {
         "inherits": ["FAMILY_STM32"],
@@ -2294,13 +2302,21 @@
     "MODULE_UBLOX_ODIN_W2": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
-        "extra_labels_add": ["STM32F4", "STM32F439", "STM32F439ZI","STM32F439xx", "STM32F439xI", "STM_EMAC"],
+        "extra_labels_add": ["STM32F4", "STM32F439", "STM32F439ZI","STM32F439xx", "STM32F439xI", "STM_EMAC","CORDIO", "CORDIO_ODIN_W2"],
         "macros": ["MBEDTLS_CONFIG_HW_SUPPORT", "HSE_VALUE=24000000", "HSE_STARTUP_TIMEOUT=5000", "CB_INTERFACE_SDIO","CB_CHIP_WL18XX","SUPPORT_80211D_ALWAYS","WLAN_ENABLED","CB_FEATURE_802DOT11W","CB_FEATURE_802DOT11R","MBEDTLS_ARC4_C","MBEDTLS_DES_C","MBEDTLS_MD4_C","MBEDTLS_MD5_C","MBEDTLS_SHA1_C"],
-        "device_has_add": ["CAN", "EMAC", "TRNG", "FLASH", "WIFI"],
+        "device_has_add": ["CAN", "EMAC", "TRNG", "FLASH", "WIFI", "SERIAL_FC", "SERIAL"],
+        "features": ["BLE"],
         "device_has_remove": [],
         "device_name": "STM32F439ZI",
         "public": false,
         "bootloader_supported": true,
+        "config": {
+            "BLE_STACK_UBX": {
+                "help": "It should be set to true to enable ublox ODIN own stack/driver rather than CORDIO",
+                "value": false,
+                "macro_name": "BLE_STACK_UBX"
+            }
+        },
         "overrides": {
             "network-default-interface-type": "WIFI"
         }
@@ -4251,7 +4267,8 @@
         "detect_code": ["0822"],
         "device_has_add": ["ANALOGOUT", "CAN", "CRC", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32L496AG"
+        "device_name": "STM32L496AG",
+        "bootloader_supported": true
     },
     "NUCLEO_L496ZG": {
         "inherits": ["FAMILY_STM32"],
@@ -4272,7 +4289,8 @@
         "detect_code": ["0823"],
         "device_has_add": ["ANALOGOUT", "CAN", "CRC", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32L496ZG"
+        "device_name": "STM32L496ZG",
+        "bootloader_supported": true
     },
     "NUCLEO_L496ZG_P": {
         "inherits": ["NUCLEO_L496ZG"],
@@ -4493,10 +4511,88 @@
         "extra_labels": ["TOSHIBA"],
         "macros": ["__TMPM4G9__"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SPI", "I2C", "I2CSLAVE", "STDIO_MESSAGES", "FLASH", "SLEEP", "USTICKER"], 
+        "device_has": ["ANALOGIN", "ANALOGOUT", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SPI", "I2C", "I2CSLAVE", "STDIO_MESSAGES", "FLASH", "SLEEP", "USTICKER"],
         "device_name": "TMPM4G9F15FG",
         "detect_code": ["7016"],
         "release_versions": ["5"],
         "bootloader_supported": true
+    },
+    "MCU_PSOC6": {
+        "inherits": ["Target"],
+        "default_toolchain": "GCC_ARM",
+        "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
+        "core": "Cortex-M4F",
+        "OUTPUT_EXT": "hex",
+        "device_has": ["USTICKER", "INTERRUPTIN", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "PORTIN", "PORTOUT", "PORTINOUT", "RTC", "PWMOUT", "ANALOGIN", "ANALOGOUT", "I2C", "I2C_ASYNCH", "SPI", "SPI_ASYNCH", "STDIO_MESSAGES", "LPTICKER", "SLEEP", "FLASH" ],
+        "release_versions": ["5"],
+        "extra_labels": ["Cypress", "PSOC6"],
+        "public": false
+    },
+    "MCU_PSOC6_M0": {
+        "inherits": ["MCU_PSOC6"],
+        "core": "Cortex-M0+",
+        "macros": ["MCU_PSOC6_M0"],
+        "public": false
+    },
+    "MCU_PSOC6_M4": {
+        "inherits": ["MCU_PSOC6"],
+        "macros": ["MCU_PSOC6_M4"],
+        "public": false
+    },
+    "FUTURE_SEQUANA_M0": {
+        "inherits": ["MCU_PSOC6_M0"],
+        "supported_form_factors": ["ARDUINO"],
+        "extra_labels_add": ["CY8C63XX", "FUTURE_SEQUANA"],
+        "macros_add": ["CY8C6347BZI_BLD53"],
+        "detect_code": ["6000"],
+        "post_binary_hook": {
+            "function": "PSOC6Code.complete"
+        },
+        "config": {
+            "system-clock": {
+                "help": "Desired frequency of main clock (Hz)",
+                "value": "100000000UL",
+                "macro_name": "CY_CLK_HFCLK0_FREQ_HZ"
+            },
+            "peri-clock": {
+                "help": "Desired frequency of peripheral clock (Hz)",
+                "value": "50000000UL",
+                "macro_name": "CY_CLK_PERICLK_FREQ_HZ"
+            },
+            "m0-clock": {
+                "help": "Desired frequency of M0+ core clock (Hz)",
+                "value": "50000000UL",
+                "macro_name": "CY_CLK_SLOWCLK_FREQ_HZ"
+            }
+        }
+    },
+    "FUTURE_SEQUANA": {
+        "inherits": ["MCU_PSOC6_M4"],
+        "sub_target": "FUTURE_SEQUANA_M0",
+        "supported_form_factors": ["ARDUINO"],
+        "extra_labels_add": ["CY8C63XX", "CORDIO"],
+        "macros_add": ["CY8C6347BZI_BLD53"],
+        "detect_code": ["6000"],
+        "m0_core_img": "psoc63_m0_default_1.01.hex",
+        "post_binary_hook": {
+            "function": "PSOC6Code.complete"
+        },
+        "config": {
+            "system-clock": {
+                "help": "Desired frequency of main clock (Hz)",
+                "value": "100000000UL",
+                "macro_name": "CY_CLK_HFCLK0_FREQ_HZ"
+            },
+            "peri-clock": {
+                "help": "Desired frequency of peripheral clock (Hz)",
+                "value": "50000000UL",
+                "macro_name": "CY_CLK_PERICLK_FREQ_HZ"
+            },
+            "m0-clock": {
+                "help": "Desired frequency of M0+ core clock (Hz)",
+                "value": "50000000UL",
+                "macro_name": "CY_CLK_SLOWCLK_FREQ_HZ"
+            }
+        }
     }
 }

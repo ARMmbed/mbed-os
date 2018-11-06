@@ -36,7 +36,7 @@ namespace mbed {
 /** Class FileHandle
  *
  *  An abstract interface that represents operations on a file-like
- *  object. The core functions are read, write, and seek, but only
+ *  object. The core functions are read, write and seek, but only
  *  a subset of these operations can be provided.
  *
  *  @note to create a file, @see File
@@ -50,7 +50,7 @@ public:
      *
      *  Devices acting as FileHandles should follow POSIX semantics:
      *
-     *  * if no data is available, and non-blocking set return -EAGAIN
+     *  * if no data is available, and nonblocking set, return -EAGAIN
      *  * if no data is available, and blocking set, wait until some data is available
      *  * If any data is available, call returns immediately
      *
@@ -65,8 +65,8 @@ public:
      *  Devices acting as FileHandles should follow POSIX semantics:
      *
      * * if blocking, block until all data is written
-     * * if no data can be written, and non-blocking set, return -EAGAIN
-     * * if some data can be written, and non-blocking set, write partial
+     * * if no data can be written, and nonblocking set, return -EAGAIN
+     * * if some data can be written, and nonblocking set, write partial
      *
      *  @param buffer   The buffer to write from
      *  @param size     The number of bytes to write
@@ -181,11 +181,11 @@ public:
         return size();
     }
 
-    /** Set blocking or non-blocking mode of the file operation like read/write.
-     *  Definition depends upon the subclass implementing FileHandle.
+    /** Set blocking or nonblocking mode of the file operation like read/write.
+     *  Definition depends on the subclass implementing FileHandle.
      *  The default is blocking.
      *
-     *  @param blocking     true for blocking mode, false for non-blocking mode.
+     *  @param blocking     true for blocking mode, false for nonblocking mode.
      *
      *  @return             0 on success
      *  @return             Negative error code on failure
@@ -195,9 +195,9 @@ public:
         return blocking ? 0 : -ENOTTY;
     }
 
-    /** Check current blocking or non-blocking mode for file operations.
+    /** Check current blocking or nonblocking mode for file operations.
      *
-     *  @return             true for blocking mode, false for non-blocking mode.
+     *  @return             true for blocking mode, false for nonblocking mode.
      */
     virtual bool is_blocking() const
     {
@@ -205,9 +205,9 @@ public:
     }
 
     /** Check for poll event flags
-     * The input parameter can be used or ignored - the could always return all events,
-     * or could check just the events listed in events.
-     * Call is non-blocking - returns instantaneous state of events.
+     * You can use or ignore the input parameter. You can return all events
+     * or check just the events listed in events.
+     * Call is nonblocking - returns instantaneous state of events.
      * Whenever an event occurs, the derived class should call the sigio() callback).
      *
      * @param events        bitmask of poll events we're interested in - POLLIN/POLLOUT etc.
@@ -220,7 +220,7 @@ public:
         return POLLIN | POLLOUT;
     }
 
-    /** Definition depends upon the subclass implementing FileHandle.
+    /** Definition depends on the subclass implementing FileHandle.
      *  For example, if the FileHandle is of type Stream, writable() could return
      *  true when there is ample buffer space available for write() calls.
      *
@@ -231,7 +231,7 @@ public:
         return poll(POLLOUT) & POLLOUT;
     }
 
-    /** Definition depends upon the subclass implementing FileHandle.
+    /** Definition depends on the subclass implementing FileHandle.
      *  For example, if the FileHandle is of type Stream, readable() could return
      *  true when there is something available to read.
      *
@@ -250,11 +250,11 @@ public:
      *  The callback may be called in an interrupt context and should not
      *  perform expensive operations.
      *
-     *  Note! This is not intended as an attach-like asynchronous api, but rather
-     *  as a building block for constructing  such functionality.
+     *  Note! This is not intended as an attach-like asynchronous API, but rather
+     *  as a building block for constructing such functionality.
      *
      *  The exact timing of when the registered function
-     *  is called is not guaranteed and susceptible to change. It should be used
+     *  is called is not guaranteed and is susceptible to change. It should be used
      *  as a cue to make read/write/poll calls to find the current state.
      *
      *  @param func     Function to call on state change

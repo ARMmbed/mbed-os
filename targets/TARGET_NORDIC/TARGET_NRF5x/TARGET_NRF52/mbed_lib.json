@@ -101,8 +101,7 @@
                 "NRF52_PAN_62",
                 "NRF52_PAN_63",
                 "NRF52_PAN_64"
-            ],
-            "target.console-uart-flow-control": "RTSCTS"
+            ]
         },
         "RBLAB_BLENANO2": {
             "target.macros_add": [
@@ -186,8 +185,7 @@
             "target.macros_add": [
                 "CONFIG_GPIO_AS_PINRESET",
                 "NRF52_ERRATA_20"
-            ],
-            "target.console-uart-flow-control": "RTSCTS"
+            ]
         },
         "MTB_LAIRD_BL654": {
             "target.macros_add": [
