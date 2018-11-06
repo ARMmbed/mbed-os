@@ -252,7 +252,8 @@ Case cases[] = {
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
-    mbed_mpu_manager_lock_mem_xn();
+    mbed_mpu_manager_lock_ram_xn();
+    mbed_mpu_manager_lock_rom_wn();
 
     GREENTEA_SETUP(20, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
@@ -260,7 +261,8 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 
 void greentea_test_teardown(const size_t passed, const size_t failed, const failure_t failure)
 {
-    mbed_mpu_manager_unlock_mem_xn();
+    mbed_mpu_manager_unlock_ram_xn();
+    mbed_mpu_manager_unlock_rom_wn();
 
     greentea_test_teardown_handler(passed, failed, failure);
 }

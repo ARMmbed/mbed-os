@@ -40,6 +40,7 @@ extern "C" {
  * * Execution from RAM results in a fault when execute never is enabled.
  *      This RAM includes heap, stack, data and zero init - Verified  by ::mpu_fault_test_data,
  *      ::mpu_fault_test_bss, ::mpu_fault_test_stack and ::mpu_fault_test_heap.
+ * * Writing to ROM results in a fault when write never is enabled - Not verified
  *
  * # Undefined behavior
  * * Calling any function other than ::mbed_mpu_init before the initialization of the MPU.
@@ -69,6 +70,16 @@ extern "C" {
 void mbed_mpu_init(void);
 
 /**
+ * Enable or disable ROM MPU protection
+ *
+ * This function is used to mark all of ROM as read and execute only.
+ * When enabled writes to ROM cause a fault.
+ *
+ * @param enable true to disable execution in ram, false otherwise
+ */
+void mbed_mpu_enable_rom_wn(bool enable);
+
+/**
  * Enable or disable ram MPU protection
  *
  * This function is used to mark all of RAM as execute never.
@@ -89,6 +100,8 @@ void mbed_mpu_free(void);
 #else
 
 #define mbed_mpu_init()
+
+#define mbed_mpu_enable_rom_wn(enable) (void)enable
 
 #define mbed_mpu_enable_ram_xn(enable) (void)enable
 

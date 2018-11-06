@@ -26,6 +26,7 @@
 #include "FlashIAP.h"
 #include "platform/mbed_assert.h"
 #include "platform/ScopedMpuXnLock.h"
+#include "platform/ScopedMpuWnLock.h"
 
 
 #ifdef DEVICE_FLASH
@@ -59,6 +60,7 @@ int FlashIAP::init()
     _mutex->lock();
     {
         ScopedMpuXnLock xn;
+        ScopedMpuWnLock wn;
         if (flash_init(&_flash)) {
             ret = -1;
         }
@@ -76,6 +78,7 @@ int FlashIAP::deinit()
     _mutex->lock();
     {
         ScopedMpuXnLock xn;
+        ScopedMpuWnLock wn;
         if (flash_free(&_flash)) {
             ret = -1;
         }
@@ -92,6 +95,7 @@ int FlashIAP::read(void *buffer, uint32_t addr, uint32_t size)
     _mutex->lock();
     {
         ScopedMpuXnLock xn;
+        ScopedMpuWnLock wn;
         ret = flash_read(&_flash, addr, (uint8_t *) buffer, size);
     }
     _mutex->unlock();
@@ -138,6 +142,7 @@ int FlashIAP::program(const void *buffer, uint32_t addr, uint32_t size)
         }
         {
             ScopedMpuXnLock xn;
+            ScopedMpuWnLock wn;
             if (flash_program_page(&_flash, addr, prog_buf, prog_size)) {
                 ret = -1;
                 break;
@@ -185,6 +190,7 @@ int FlashIAP::erase(uint32_t addr, uint32_t size)
     while (size) {
         {
             ScopedMpuXnLock xn;
+            ScopedMpuWnLock wn;
             ret = flash_erase_sector(&_flash, addr);
         }
         if (ret != 0) {

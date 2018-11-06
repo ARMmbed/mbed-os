@@ -95,6 +95,7 @@
 #include "platform/DirHandle.h"
 #include "platform/CriticalSectionLock.h"
 #include "platform/DeepSleepLock.h"
+#include "platform/ScopedMpuWnLock.h"
 #include "platform/ScopedMpuXnLock.h"
 #include "platform/mbed_stats.h"
 
