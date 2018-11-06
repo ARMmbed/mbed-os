@@ -45,16 +45,40 @@ extern "C" {
  * The lock is a counter, can be locked up to USHRT_MAX
  * This function is IRQ and thread safe
  */
-void mbed_mpu_manager_lock_mem_xn(void);
+void mbed_mpu_manager_lock_ram_xn(void);
 
 /** Unlock ram execute never mode
  *
- * Use unlocking in pair with mbed_mpu_manager_lock_mem_xn().
+ * Use unlocking in pair with mbed_mpu_manager_lock_ram_xn().
  *
  * The lock is a counter, should be equally unlocked as locked
  * This function is IRQ and thread safe
  */
-void mbed_mpu_manager_unlock_mem_xn(void);
+void mbed_mpu_manager_unlock_ram_xn(void);
+
+/** Lock rom write never mode off
+ *
+ * This disables the MPU's write never ROM protection and allows
+ * ROM to be written to. Writing to ROM will not result in an MPU
+ * fault if this function is invoked at least once(the internal
+ * counter is non-zero).
+ *
+ * Use this locking mechanism for code which needs to write to
+ * ROM such as flash programming algorithms.
+ *
+ * The lock is a counter, can be locked up to USHRT_MAX
+ * This function is IRQ and thread safe
+ */
+void mbed_mpu_manager_lock_rom_wn(void);
+
+/** Unlock rom write never mode
+ *
+ * Use unlocking in pair with mbed_mpu_manager_lock_rom_wn().
+ *
+ * The lock is a counter, should be equally unlocked as locked
+ * This function is IRQ and thread safe
+ */
+void mbed_mpu_manager_unlock_rom_wn(void);
 
 #ifdef __cplusplus
 }

@@ -21,13 +21,14 @@
 #include <limits.h>
 
 static uint16_t mem_xn_lock;
+static uint16_t mem_wn_lock;
 
-void mbed_mpu_manager_lock_mem_xn()
+void mbed_mpu_manager_lock_ram_xn()
 {
     core_util_critical_section_enter();
     if (mem_xn_lock == USHRT_MAX) {
         core_util_critical_section_exit();
-        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OVERFLOW), "Memory execute never lock overflow (> USHRT_MAX)", mem_xn_lock);
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OVERFLOW), "Ram execute never lock overflow (> USHRT_MAX)", mem_xn_lock);
     }
     if (mem_xn_lock == 0) {
         mbed_mpu_enable_ram_xn(false);
@@ -36,16 +37,44 @@ void mbed_mpu_manager_lock_mem_xn()
     core_util_critical_section_exit();
 }
 
-void mbed_mpu_manager_unlock_mem_xn()
+void mbed_mpu_manager_unlock_ram_xn()
 {
     core_util_critical_section_enter();
     if (mem_xn_lock == 0) {
         core_util_critical_section_exit();
-        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_UNDERFLOW), "Memory execute never lock underflow (< 0)", mem_xn_lock);
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_UNDERFLOW), "Ram execute never lock underflow (< 0)", mem_xn_lock);
     }
     mem_xn_lock--;
     if (mem_xn_lock == 0) {
         mbed_mpu_enable_ram_xn(true);
+    }
+    core_util_critical_section_exit();
+}
+
+void mbed_mpu_manager_lock_rom_wn()
+{
+    core_util_critical_section_enter();
+    if (mem_wn_lock == USHRT_MAX) {
+        core_util_critical_section_exit();
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OVERFLOW), "Rom write never lock overflow (> USHRT_MAX)", mem_wn_lock);
+    }
+    if (mem_wn_lock == 0) {
+        mbed_mpu_enable_rom_wn(false);
+    }
+    mem_wn_lock++;
+    core_util_critical_section_exit();
+}
+
+void mbed_mpu_manager_unlock_rom_wn()
+{
+    core_util_critical_section_enter();
+    if (mem_wn_lock == 0) {
+        core_util_critical_section_exit();
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_UNDERFLOW), "Rom write never lock underflow (< 0)", mem_wn_lock);
+    }
+    mem_wn_lock--;
+    if (mem_wn_lock == 0) {
+        mbed_mpu_enable_rom_wn(true);
     }
     core_util_critical_section_exit();
 }
