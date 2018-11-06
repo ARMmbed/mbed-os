@@ -2328,6 +2328,7 @@ public:
     {
         /* Update Gap state */
         --connectionCount;
+        state.connected = false;
 
         DisconnectionCallbackParams_t callbackParams(handle, reason);
         disconnectionCallChain.call(&callbackParams);
