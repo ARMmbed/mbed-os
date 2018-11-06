@@ -270,7 +270,7 @@ RFBits::RFBits(PinName spi_mosi, PinName spi_miso,
         SLP_TR(spi_slp),
         IRQ(spi_irq)
 #ifdef MBED_CONF_RTOS_PRESENT
-    , irq_thread(osPriorityRealtime, 1024)
+    , irq_thread(osPriorityRealtime, MBED_CONF_ATMEL_RF_IRQ_THREAD_STACK_SIZE, NULL, "atmel_irq_thread")
 #endif
 {
 #ifdef MBED_CONF_RTOS_PRESENT
@@ -1071,13 +1071,10 @@ static void rf_if_irq_task_process_irq(void)
 static void rf_if_interrupt_handler(void)
 #endif
 {
-    static uint8_t last_is, last_ts;
     uint8_t irq_status, full_trx_status;
-    uint8_t orig_xah_ctrl_1 = xah_ctrl_1;
 
     /*Read and clear interrupt flag, and pick up trx_status*/
     irq_status = rf_if_read_register_with_status(IRQ_STATUS, &full_trx_status);
-    uint8_t orig_flags = rf_flags;
 
     /*Frame end interrupt (RX and TX)*/
     if (irq_status & TRX_END) {
@@ -1098,8 +1095,6 @@ static void rf_if_interrupt_handler(void)
         // Here some counter could be used to monitor the underrun occurancy count.
         // Do not print anything here!
     }
-    last_is = irq_status;
-    last_ts = full_trx_status;
 }
 
 /*
@@ -1635,7 +1630,6 @@ static bool rf_start_tx()
     rf_flags_clear(RFF_RX);
     // Check whether we saw any delay in the PLL_ON transition.
     if (poll_count > 0) {
-        tr_warning("PLL_ON delayed, retry count: %d", poll_count);
         // let's get back to the receiving state.
         rf_receive(state);
         return false;
