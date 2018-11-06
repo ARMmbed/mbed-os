@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_MPUXNLOCK_H
-#define MBED_MPUXNLOCK_H
+#ifndef MBED_SCOPEDMPUXNLOCK_H
+#define MBED_SCOPEDMPUXNLOCK_H
 
 #include "platform/mbed_mpu_mgmt.h"
+#include "platform/NonCopyable.h"
 
 namespace mbed {
 
@@ -30,14 +31,14 @@ namespace mbed {
   * void f() {
   *     // some code here
   *     {
-  *         MpuXnLock xn;
+  *         ScopedMpuXnLock xn;
   *         // Code in this block is allowed to call functions in RAM
   *     }
   *     // Execution from RAM is no longer allowed
   * }
   * @endcode
   */
-class MpuXnLock {
+class ScopedMpuXnLock : private mbed::NonCopyable<ScopedMpuXnLock> {
 public:
 
     /**
@@ -47,7 +48,7 @@ public:
      * be executed from RAM. This class uses RAII to allow
      * execution from ram while it is in scope.
      */
-    MpuXnLock()
+    ScopedMpuXnLock()
     {
         mbed_mpu_manager_lock_mem_xn();
     }
@@ -58,7 +59,7 @@ public:
      * Decrement the execute never lock to return execute from RAM
      * to its prior state.
      */
-    ~MpuXnLock()
+    ~ScopedMpuXnLock()
     {
         mbed_mpu_manager_unlock_mem_xn();
     }
