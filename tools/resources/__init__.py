@@ -263,8 +263,8 @@ class Resources(object):
     def _all_parents(self, files):
         for name in files:
             components = name.split(self._sep)
-            start_at = 2 if components[0] in set(['', '.']) else 1
-            for index, directory in reversed(list(enumerate(components))[start_at:]):
+            start_at = 0
+            for index, directory in reversed(list(enumerate(components))):
                 if directory in self._prefixed_labels:
                     start_at = index + 1
                     break
@@ -276,7 +276,6 @@ class Resources(object):
         if file_type is FileType.INC_DIR:
             parents = set(self._all_parents(self._get_from_refs(
                 FileType.HEADER, key)))
-            parents.add(".")
         else:
             parents = set()
         return sorted(
