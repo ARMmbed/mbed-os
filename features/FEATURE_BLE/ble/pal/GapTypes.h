@@ -594,18 +594,23 @@ struct advertising_event_properties_t {
      * @note Conversion table can be found in table 7.2 of BLUETOOTH
      * SPECIFICATION Version 5.0 | Vol 2, Part E - 7.8.53 .
      */
-    advertising_event_properties_t(advertising_type_t adv_type)
+    advertising_event_properties_t(advertising_type_t adv_type) :
+        connectable(false),
+        scannable(false),
+        directed(false),
+        high_duty_cycle(false),
+        use_legacy_pdu(true),
+        omit_advertisser_address(false),
+        include_tx_power(false)
     {
         switch ((advertising_type_t::type) adv_type.value()) {
             case advertising_type_t::ADV_IND:
                 connectable = true;
                 scannable = true;
-                use_legacy_pdu = true;
                 break;
             case advertising_type_t::ADV_DIRECT_IND:
                 connectable = true;
                 directed = true;
-                use_legacy_pdu = true;
                 break;
             case advertising_type_t::ADV_DIRECT_IND_LOW_DUTY_CYCLE:
                 connectable = true;
@@ -615,10 +620,8 @@ struct advertising_event_properties_t {
                 break;
             case advertising_type_t::ADV_SCAN_IND:
                 scannable = true;
-                use_legacy_pdu = true;
                 break;
             case advertising_type_t::ADV_NONCONN_IND:
-                use_legacy_pdu = true;
                 break;
         }
     }
