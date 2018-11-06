@@ -150,7 +150,7 @@
              "SPI_CLK":  "p15",
              "SPI_CS":   "p14"
         },
-        "UBLOX_C030_U201": {
+        "UBLOX_C030": {
              "SPI_MOSI": "D11",
              "SPI_MISO": "D12",
              "SPI_CLK":  "D13",
