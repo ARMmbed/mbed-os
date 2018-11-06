@@ -32,13 +32,13 @@ namespace mbed {
  */
 template
 <osPriority Priority, size_t QueueSize, size_t StackSize>
-EventQueue *do_shared_event_queue_with_thread()
+EventQueue *do_shared_event_queue_with_thread(const char *name)
 {
     static uint64_t queue_buffer[QueueSize / sizeof(uint64_t)];
     static EventQueue queue(sizeof queue_buffer, (unsigned char *) queue_buffer);
 
     static uint64_t stack[StackSize / sizeof(uint64_t)];
-    static Thread thread(Priority, StackSize, (unsigned char *) stack);
+    static Thread thread(Priority, StackSize, (unsigned char *) stack, name);
 
     Thread::State state = thread.get_state();
     if (state == Thread::Inactive || state == Thread::Deleted) {
@@ -62,14 +62,14 @@ EventQueue *mbed_event_queue()
 
     return &queue;
 #else
-    return do_shared_event_queue_with_thread<osPriorityNormal, MBED_CONF_EVENTS_SHARED_EVENTSIZE, MBED_CONF_EVENTS_SHARED_STACKSIZE>();
+    return do_shared_event_queue_with_thread<osPriorityNormal, MBED_CONF_EVENTS_SHARED_EVENTSIZE, MBED_CONF_EVENTS_SHARED_STACKSIZE>("shared_event_queue");
 #endif
 }
 
 #ifdef MBED_CONF_RTOS_PRESENT
 EventQueue *mbed_highprio_event_queue()
 {
-    return do_shared_event_queue_with_thread<osPriorityHigh, MBED_CONF_EVENTS_SHARED_HIGHPRIO_EVENTSIZE, MBED_CONF_EVENTS_SHARED_HIGHPRIO_STACKSIZE>();
+    return do_shared_event_queue_with_thread<osPriorityHigh, MBED_CONF_EVENTS_SHARED_HIGHPRIO_EVENTSIZE, MBED_CONF_EVENTS_SHARED_HIGHPRIO_STACKSIZE>("shared_highprio_event_queue");
 }
 #endif
 
