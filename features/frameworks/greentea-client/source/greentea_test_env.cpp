@@ -213,6 +213,8 @@ void greentea_notify_coverage_end() {
  */
 inline void greentea_write_preamble()
 {
+	greentea_serial->lock_trace();
+
     greentea_serial->putc('{');
     greentea_serial->putc('{');
 }
@@ -235,6 +237,8 @@ inline void greentea_write_postamble()
     greentea_serial->putc('}');
     greentea_serial->putc('\r');
     greentea_serial->putc('\n');
+
+    greentea_serial->unlock_trace();
 }
 
 /**

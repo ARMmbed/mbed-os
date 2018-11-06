@@ -12,7 +12,7 @@
 
 SingletonPtr<GreenteaSerial> greentea_serial;
 
-GreenteaSerial::GreenteaSerial() : mbed::RawSerial(USBTX, USBRX, MBED_CONF_PLATFORM_STDIO_BAUD_RATE) {
+GreenteaSerial::GreenteaSerial() : mbed::RawSerial(USBTX, USBRX, MBED_CONF_PLATFORM_STDIO_BAUD_RATE), _trace_mutex(NULL) {
 #if   CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS
     set_flow_control(SerialBase::RTS, STDIO_UART_RTS, NC);
 #elif CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_CTS
@@ -20,4 +20,20 @@ GreenteaSerial::GreenteaSerial() : mbed::RawSerial(USBTX, USBRX, MBED_CONF_PLATF
 #elif CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTSCTS
     set_flow_control(SerialBase::RTSCTS, STDIO_UART_RTS, STDIO_UART_CTS);
 #endif
+}
+
+void GreenteaSerial::set_trace_mutex(PlatformMutex *trace_mutex) {
+	_trace_mutex = trace_mutex;
+}
+
+void GreenteaSerial::lock_trace() {
+    if (_trace_mutex) {
+    	_trace_mutex->lock();
+    }
+}
+
+void GreenteaSerial::unlock_trace() {
+    if (_trace_mutex) {
+    	_trace_mutex->unlock();
+    }
 }
