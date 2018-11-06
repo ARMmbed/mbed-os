@@ -16,12 +16,12 @@
 [mbed-waffle]: https://waffle.io/ARMmbed/mbed-os
 [mbed-waffle-svg]: https://badge.waffle.io/ARMmbed/mbed-os.svg?columns=all
 
-Arm Mbed OS is an open source embedded operating system designed specifically for the "things" in the Internet of Things. It includes all the features you need to develop a connected product based on an Arm Cortex-M microcontroller, including security, connectivity, an RTOS and drivers for sensors and I/O devices.
+Arm Mbed OS is an open source embedded operating system designed specifically for the "things" in the Internet of Things. It includes all the features you need to develop a connected product based on an Arm Cortex-M microcontroller, including security, connectivity, an RTOS, and drivers for sensors and I/O devices.
 
 Mbed OS provides a platform that includes:
 * Security foundations.
 * Cloud management services.
-* Drivers for sensors, I/O devices and connectivity. 
+* Drivers for sensors, I/O devices, and connectivity. 
 
 ## Release notes
 The [release notes](https://os.mbed.com/releases) detail the current release. You can also find information about previous versions.
@@ -42,7 +42,7 @@ We also have a [contributing and publishing guide](https://os.mbed.com/contribut
 
 ## Documentation
 
-For more information about Mbed OS, please see [our published documentation](https://os.mbed.com/docs/latest). It includes published Doxygen for our APIs, step-by-step tutorials, porting information and background reference materials about our architecture and tools.
+For more information about Mbed OS, please see [our published documentation](https://os.mbed.com/docs/latest). It includes Doxygen for our APIs, step-by-step tutorials, porting information, and background reference materials about our architecture and tools.
 
-To contribute to this documentation, please see the [mbed-os-5-docs repo](https://github.com/ARMmbed/mbed-os-5-docs).
+To contribute to this documentation, please see the [mbed-os-5-docs repository](https://github.com/ARMmbed/mbed-os-5-docs).
 
