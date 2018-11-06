@@ -131,8 +131,8 @@ public:
      *  The event is posted to the underlying queue and is executed in the
      *  context of the event queue's dispatch loop.
      *
-     *  The post function is irq safe and can act as a mechanism for moving
-     *  events out of irq contexts.
+     *  The post function is IRQ safe and can act as a mechanism for moving
+     *  events out of IRQ contexts.
      *
      *  @return         A unique id that represents the posted event and can
      *                  be passed to EventQueue::cancel, or an id of 0 if
@@ -179,7 +179,7 @@ public:
      *  Attempts to cancel the most recently posted event. It is safe to call
      *  cancel after an event has already been dispatched.
      *
-     *  The cancel function is irq safe.
+     *  The cancel function is IRQ safe.
      *
      *  If called while the event queue's dispatch loop is active, the cancel
      *  function does not guarantee that the event will not execute after it
@@ -235,7 +235,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0               Argument to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0, the
      *                          arguments to the underlying callback.
      */
@@ -249,7 +249,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1            Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b1, the
      *                          arguments to the underlying callback.
      */
@@ -263,7 +263,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1,c2         Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b2, the
      *                          arguments to the underlying callback.
      */
@@ -277,7 +277,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1,c2,c3      Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b3, the
      *                          arguments to the underlying callback.
      */
@@ -291,7 +291,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1,c2,c3,c4   Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b4, the
      *                          arguments to the underlying callback.
      */
@@ -583,8 +583,8 @@ public:
      *  The event is posted to the underlying queue and is executed in the
      *  context of the event queue's dispatch loop.
      *
-     *  The post function is irq safe and can act as a mechanism for moving
-     *  events out of irq contexts.
+     *  The post function is IRQ safe and can act as a mechanism for moving
+     *  events out of IRQ contexts.
      *
      *  @param a0       Argument to pass to the event
      *  @return         A unique id that represents the posted event and can
@@ -635,7 +635,7 @@ public:
      *  Attempts to cancel the most recently posted event. It is safe to call
      *  cancel after an event has already been dispatched.
      *
-     *  The cancel function is irq safe.
+     *  The cancel function is IRQ safe.
      *
      *  If called while the event queue's dispatch loop is active, the cancel
      *  function does not guarantee that the event will not execute after it
@@ -691,7 +691,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0               Argument to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0, the
      *                          arguments to the underlying callback.
      */
@@ -705,7 +705,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1            Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b1, the
      *                          arguments to the underlying callback.
      */
@@ -719,7 +719,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1,c2         Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b2, the
      *                          arguments to the underlying callback.
      */
@@ -733,7 +733,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1,c2,c3      Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b3, the
      *                          arguments to the underlying callback.
      */
@@ -747,7 +747,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1,c2,c3,c4   Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b4, the
      *                          arguments to the underlying callback.
      */
@@ -1039,8 +1039,8 @@ public:
      *  The event is posted to the underlying queue and is executed in the
      *  context of the event queue's dispatch loop.
      *
-     *  The post function is irq safe and can act as a mechanism for moving
-     *  events out of irq contexts.
+     *  The post function is IRQ safe and can act as a mechanism for moving
+     *  events out of IRQ contexts.
      *
      *  @param a0,a1    Arguments to pass to the event
      *  @return         A unique id that represents the posted event and can
@@ -1091,7 +1091,7 @@ public:
      *  Attempts to cancel the most recently posted event. It is safe to call
      *  cancel after an event has already been dispatched.
      *
-     *  The cancel function is irq safe.
+     *  The cancel function is IRQ safe.
      *
      *  If called while the event queue's dispatch loop is active, the cancel
      *  function does not guarantee that the event will not execute after it
@@ -1147,7 +1147,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0               Argument to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0, the
      *                          arguments to the underlying callback.
      */
@@ -1161,7 +1161,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1            Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b1, the
      *                          arguments to the underlying callback.
      */
@@ -1175,7 +1175,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1,c2         Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b2, the
      *                          arguments to the underlying callback.
      */
@@ -1189,7 +1189,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1,c2,c3      Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b3, the
      *                          arguments to the underlying callback.
      */
@@ -1203,7 +1203,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1,c2,c3,c4   Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b4, the
      *                          arguments to the underlying callback.
      */
@@ -1495,8 +1495,8 @@ public:
      *  The event is posted to the underlying queue and is executed in the
      *  context of the event queue's dispatch loop.
      *
-     *  The post function is irq safe and can act as a mechanism for moving
-     *  events out of irq contexts.
+     *  The post function is IRQ safe and can act as a mechanism for moving
+     *  events out of IRQ contexts.
      *
      *  @param a0,a1,a2     Arguments to pass to the event
      *  @return             A unique id that represents the posted event and can
@@ -1547,7 +1547,7 @@ public:
      *  Attempts to cancel the most recently posted event. It is safe to call
      *  cancel after an event has already been dispatched.
      *
-     *  The cancel function is irq safe.
+     *  The cancel function is IRQ safe.
      *
      *  If called while the event queue's dispatch loop is active, the cancel
      *  function does not guarantee that the event will not execute after it
@@ -1603,7 +1603,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0               Argument to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0, the
      *                          arguments to the underlying callback.
      */
@@ -1617,7 +1617,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1            Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b1, the
      *                          arguments to the underlying callback.
      */
@@ -1631,7 +1631,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1,c2         Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b2, the
      *                          arguments to the underlying callback.
      */
@@ -1645,7 +1645,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1,c2,c3      Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b3, the
      *                          arguments to the underlying callback.
      */
@@ -1659,7 +1659,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1,c2,c3,c4   Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b4, the
      *                          arguments to the underlying callback.
      */
@@ -1951,8 +1951,8 @@ public:
      *  The event is posted to the underlying queue and is executed in the
      *  context of the event queue's dispatch loop.
      *
-     *  The post function is irq safe and can act as a mechanism for moving
-     *  events out of irq contexts.
+     *  The post function is IRQ safe and can act as a mechanism for moving
+     *  events out of IRQ contexts.
      *
      *  @param a0,a1,a2,a3   Arguments to pass to the event
      *  @return              A unique id that represents the posted event and can
@@ -2003,7 +2003,7 @@ public:
      *  Attempts to cancel the most recently posted event. It is safe to call
      *  cancel after an event has already been dispatched.
      *
-     *  The cancel function is irq safe.
+     *  The cancel function is IRQ safe.
      *
      *  If called while the event queue's dispatch loop is active, the cancel
      *  function does not guarantee that the event will not execute after it
@@ -2060,7 +2060,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0               Argument to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0, the
      *                          arguments to the underlying callback.
      */
@@ -2074,7 +2074,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1            Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b1, the
      *                          arguments to the underlying callback.
      */
@@ -2088,7 +2088,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1,c2         Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b2, the
      *                          arguments to the underlying callback.
      */
@@ -2102,7 +2102,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1,c2,c3      Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b3, the
      *                          arguments to the underlying callback.
      */
@@ -2116,7 +2116,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1,c2,c3,c4   Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b4, the
      *                          arguments to the underlying callback.
      */
@@ -2408,8 +2408,8 @@ public:
      *  The event is posted to the underlying queue and is executed in the
      *  context of the event queue's dispatch loop.
      *
-     *  The post function is irq safe and can act as a mechanism for moving
-     *  events out of irq contexts.
+     *  The post function is IRQ safe and can act as a mechanism for moving
+     *  events out of IRQ contexts.
      *
      *  @param a0,a1,a2,a3,a4   Arguments to pass to the event
      *  @return                 A unique id that represents the posted event and can
@@ -2460,7 +2460,7 @@ public:
      *  Attempts to cancel the most recently posted event. It is safe to call
      *  cancel after an event has already been dispatched.
      *
-     *  The cancel function is irq safe.
+     *  The cancel function is IRQ safe.
      *
      *  If called while the event queue's dispatch loop is active, the cancel
      *  function does not guarantee that the event will not execute after it
@@ -2516,7 +2516,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0               Argument to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0, the
      *                          arguments to the underlying callback.
      */
@@ -2530,7 +2530,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1            Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b1, the
      *                          arguments to the underlying callback.
      */
@@ -2544,7 +2544,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1,c2         Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b2, the
      *                          arguments to the underlying callback.
      */
@@ -2558,7 +2558,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1,c2,c3      Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b3, the
      *                          arguments to the underlying callback.
      */
@@ -2572,7 +2572,7 @@ public:
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1,c2,c3,c4   Arguments to bind to the callback, these arguments are
-     *                          allocated on an irq-safe allocator from the event queue's
+     *                          allocated on an IRQ-safe allocator from the event queue's
      *                          memory pool. Must be type-compatible with b0..b4, the
      *                          arguments to the underlying callback.
      */
