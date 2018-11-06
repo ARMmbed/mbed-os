@@ -818,23 +818,23 @@ struct extended_advertising_report_event_type_t {
     extended_advertising_report_event_type_t(uint8_t value) : value(value) { }
 
     bool connectable() {
-        return value & (1 << 0);
+        return static_cast<bool>(value & (1 << 0));
     }
 
     bool scannable_advertising() {
-        return value & (1 << 1);
+        return static_cast<bool>(value & (1 << 1));
     }
 
     bool directed_advertising() {
-        return value & (1 << 2);
+        return static_cast<bool>(value & (1 << 2));
     }
 
     bool scan_response() {
-        return value & (1 << 3);
+        return static_cast<bool>(value & (1 << 3));
     }
 
     bool legacy_advertising() {
-        return value & (1 << 4);
+        return static_cast<bool>(value & (1 << 4));
     }
 
     advertising_data_status_t data_status() {
