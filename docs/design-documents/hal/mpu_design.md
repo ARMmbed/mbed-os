@@ -27,7 +27,7 @@ This MPU support is intended to increase the security of mbed-os by restricting 
 
 This API is limited to just enabling/disabling execution from RAM. It does not include runtime reconfiguration of the MPU regions.
 - Only standard Arm MPU supported initially
-- Only ARMv6m and ARMv7m devices with an MPU supported initially
+- Only ARMv6-M and ARMv7-M devices with an MPU supported initially
 - Single common memory map used
 
 # System architecture and high-level design
@@ -62,9 +62,9 @@ On supported devices execution from RAM will be enabled and disable automaticall
 
 ### MPU memory map
 
-Below is a table of showing the memory breakdown for ARMv6m and ARMv7m devices, along with the protection added by the default implementation of the MPU API. Regions which were not executable to begin with have no further protection added. The second half of the `Code` region is also protected by the MPU since some MCU families have RAM in this location.
+Below is a table of showing the memory breakdown for ARMv6-M and ARMv7-M devices, along with the protection added by the default implementation of the MPU API. Regions which were not executable to begin with have no further protection added. The second half of the `Code` region is also protected by the MPU since some MCU families have RAM in this location.
 
-ARMv6m and ARMv7m memory map:
+ARMv6-M and ARMv7-M memory map:
 ```
 Start        End            Name            Executable by default        Mbed MPU protection
 0x00000000 - 0x1FFFFFFF     Code            Yes                          Execute disabled for second half
