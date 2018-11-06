@@ -19,6 +19,7 @@
 
 #include "BLETypes.h"
 #include "BLEProtocol.h"
+#include "blecommon.h"
 
 /**
  * @addtogroup ble
