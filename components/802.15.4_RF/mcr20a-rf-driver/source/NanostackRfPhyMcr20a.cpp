@@ -998,19 +998,11 @@ static int8_t rf_extension(phy_extension_type_e extension_type, uint8_t *data_pt
             }
             break;
         }
-        /*Set channel*/
-        case PHY_EXTENSION_SET_CHANNEL:
-            break;
         /*Read energy on the channel*/
         case PHY_EXTENSION_READ_CHANNEL_ENERGY:
             *data_ptr = rf_get_channel_energy();
             break;
-        /*Read status of the link*/
-        case PHY_EXTENSION_READ_LINK_STATUS:
-            break;
-        case PHY_EXTENSION_CONVERT_SIGNAL_INFO:
-            break;
-        case PHY_EXTENSION_ACCEPT_ANY_BEACON:
+        default:
             break;
     }
     return 0;
