@@ -33,7 +33,8 @@ class EMACInterface;
 
 /** Common interface that is shared between network devices.
  *
- *  @addtogroup netsocket
+ *  @\addtogroup netsocket
+ *  @{
  */
 class NetworkInterface: public DNS {
 public:
@@ -331,5 +332,5 @@ protected:
 #endif //!defined(DOXYGEN_ONLY)
 };
 
-
+/** @}*/
 #endif
