@@ -1572,12 +1572,17 @@ uint8_t GenericGap::getMaxAdvertisingDataLength() {
 }
 
 ble_error_t GenericGap::createAdvertisingSet(AdvHandle_t* handle) {
-    uint8_t new_handle = 1;
+    if (_pal_gap.is_feature_supported(pal::Gap::ControllerSupportedFeatures_t::LE_EXTENDED_ADVERTISING)) {
+        return BLE_ERROR_OPERATION_NOT_PERMITTED;
+    }
+
+    uint8_t new_handle = LEGACY_ADVERTISING_HANDLE + 1;
 
     while (get_adv_set_bit(_existing_sets, new_handle)) {
         new_handle++;
     }
 
+    /* if we went over the limit this set will fail safely  */
     if (set_adv_set_bit(_existing_sets, new_handle)) {
         *handle = new_handle;
         return BLE_ERROR_NONE;
