@@ -138,6 +138,16 @@ public:
     }
 
     /** Generate a break condition on the serial line
+     *  NOTE: Clear break needs to run at least one frame after set_break is called
+     */
+    void set_break();
+
+    /** Clear a break condition on the serial line
+     *  NOTE: Should be run at least one frame after set_break is called
+     */
+    void clear_break();
+
+    /** Generate a break condition on the serial line
      */
     void send_break();
 
