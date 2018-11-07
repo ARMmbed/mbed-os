@@ -65,7 +65,7 @@ typedef struct {
     uint32_t thread_id;         /**< Identifier for the thread that owns the stack or 0 if representing accumulated statistics */
     uint32_t max_size;          /**< Maximum number of bytes used on the stack since the thread was started */
     uint32_t reserved_size;     /**< Current number of bytes reserved for the stack */
-    uint32_t stack_cnt;         /**< The number of stacks represented in the accumulated statistics or 1 if repesenting a single stack */
+    uint32_t stack_cnt;         /**< The number of stacks represented in the accumulated statistics or 1 if representing a single stack */
 } mbed_stats_stack_t;
 
 /**

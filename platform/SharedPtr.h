@@ -29,7 +29,7 @@ namespace mbed {
 /** Shared pointer class.
   *
   * A shared pointer is a "smart" pointer that retains ownership of an object using
-  * reference counting accross all smart pointers referencing that object.
+  * reference counting across all smart pointers referencing that object.
   *
   * @code
   * #include "platform/SharedPtr.h"

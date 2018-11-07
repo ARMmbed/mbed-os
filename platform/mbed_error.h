@@ -86,24 +86,24 @@ extern "C" {
  \endverbatim
  *
  * The error status value range for each error type is as follows:\n
- *   Posix Error Status-es  - 0xFFFFFFFF to 0xFFFFFF01(-1 -255) - This corresponds to Posix error codes represented as negative.\n
+ *   POSIX Error Status-es  - 0xFFFFFFFF to 0xFFFFFF01(-1 -255) - This corresponds to POSIX error codes represented as negative.\n
  *   System Error Status-es - 0x80XX0100 to 0x80XX0FFF - This corresponds to System error codes range(all values are negative). Bits 23-16 will be module type(marked with XX)\n
  *   Custom Error Status-es - 0xA0XX1000 to 0xA0XXFFFF - This corresponds to Custom error codes range(all values are negative). Bits 23-16 will be module type(marked with XX)\n\n
  *
  * The ERROR CODE(values encoded into ERROR CODE bit-field in mbed_error_status_t) value range for each error type is also separated as below:\n
- *   Posix Error Codes  - 1 to 255.\n
+ *   POSIX Error Codes  - 1 to 255.\n
  *   System Error Codes - 256 to 4095.\n
  *   Custom Error Codes - 4096 to 65535.\n
  *
- * @note Posix error codes are always encoded as negative of their actual value. For example, EPERM is encoded as -EPERM.
- *       And, the MODULE TYPE for Posix error codes are always encoded as MBED_MODULE_UNKNOWN.\n
- *       This is to enable easy injection of Posix error codes into MbedOS error handling system without altering the actual Posix error values.\n
- *       Accordingly, Posix error codes are represented as -1 to -255 under MbedOS error status representation.
+ * @note POSIX error codes are always encoded as negative of their actual value. For example, EPERM is encoded as -EPERM.
+ *       And, the MODULE TYPE for POSIX error codes are always encoded as MBED_MODULE_UNKNOWN.\n
+ *       This is to enable easy injection of POSIX error codes into MbedOS error handling system without altering the actual POSIX error values.\n
+ *       Accordingly, POSIX error codes are represented as -1 to -255 under MbedOS error status representation.
  */
 typedef int mbed_error_status_t;
 
 /**
- * Macro for defining a Posix error status. This macro is mainly used to define Posix error values in mbed_error_code_t enumeration.
+ * Macro for defining a POSIX error status. This macro is mainly used to define POSIX error values in mbed_error_code_t enumeration.
  * @param  error_name       Name of the error without the ERROR_ prefix
  * @param  error_code       Error code value to be used, must be between 1 and 255(inclusive).
  *
@@ -201,7 +201,7 @@ typedef int mbed_error_status_t;
  *      See mbed_error_status_t description for more info.\n
  *         MBED_ERROR_TYPE_SYSTEM - Used to indicate that the error status is of System defined Error type.\n
  *         MBED_ERROR_TYPE_CUSTOM - Used to indicate that the error status is of Custom defined Error type.\n
- *         MBED_ERROR_TYPE_POSIX  - Used to indicate that the error status is of Posix error type.\n
+ *         MBED_ERROR_TYPE_POSIX  - Used to indicate that the error status is of POSIX error type.\n
  *
  */
 typedef enum _mbed_error_type_t {
@@ -301,23 +301,23 @@ typedef enum _mbed_module_type {
 /** mbed_error_code_t definition
  *
  *  mbed_error_code_t enumeration defines the Error codes and Error status values for MBED_MODULE_UNKNOWN.\n
- *  It defines all of Posix Error Codes/Statuses and Mbed System Error Codes/Statuses.\n\n
+ *  It defines all of POSIX Error Codes/Statuses and Mbed System Error Codes/Statuses.\n\n
  *
  *  @note
- *  Posix Error codes are defined using the macro MBED_DEFINE_POSIX_ERROR\n
+ *  POSIX Error codes are defined using the macro MBED_DEFINE_POSIX_ERROR\n
  *  For example MBED_DEFINE_POSIX_ERROR( EPERM, EPERM ). This effectively defines the following values:\n
  *      ERROR_CODE_EPERM = EPERM\n
  *      ERROR_EPERM = -EPERM\n
  *
- *  Posix Error codes are defined using the macro MBED_DEFINE_POSIX_ERROR\n
+ *  POSIX Error codes are defined using the macro MBED_DEFINE_POSIX_ERROR\n
  *  For example MBED_DEFINE_POSIX_ERROR( EPERM, EPERM ). This macro defines the following values:\n
  *      ERROR_CODE_EPERM = MBED_POSIX_ERROR_BASE+EPERM\n
  *      ERROR_EPERM = -(MBED_POSIX_ERROR_BASE+EPERM)\n
  *  Its effectively equivalent to:\n
  *      ERROR_CODE_EPERM = 1\n
  *      ERROR_EPERM = -1\n
- *  All Posix error codes currently supported by MbedOS(defined in mbed_retarget.h) are defined using the MBED_DEFINE_POSIX_ERROR macro.\n\n
- *  Below are the Posic error codes and the description:\n
+ *  All POSIX error codes currently supported by MbedOS(defined in mbed_retarget.h) are defined using the MBED_DEFINE_POSIX_ERROR macro.\n\n
+ *  Below are the POSIX error codes and the description:\n
  *  \verbatim
     EPERM                      1        Operation not permitted
     ENOENT                     2        No such file or directory
@@ -546,9 +546,9 @@ typedef enum _mbed_module_type {
  *
  *  @note
  *  **Using error codes:** \n
- *  Posix error codes may be used in modules/functions currently using Posix error codes and switching them to Mbed-OS error codes
+ *  POSIX error codes may be used in modules/functions currently using POSIX error codes and switching them to Mbed-OS error codes
  *  may cause interoperability issues. For example, some of the filesystem, network stack implementations may need to use
- *  Posix error codes in order to keep them compatible with other modules interfacing with them, and may continue to use Posix error codes.
+ *  POSIX error codes in order to keep them compatible with other modules interfacing with them, and may continue to use POSIX error codes.
  *
  *  In all other cases, like for any native development of Mbed-OS modules Mbed-OS error codes should be used.
  *  This makes it easy to use Mbed-OS error reporting/logging infrastructure and makes debugging error scenarios
@@ -576,7 +576,7 @@ typedef enum _mbed_module_type {
 
 typedef enum _mbed_error_code {
     //Below are POSIX ERROR CODE definitions, which starts at MBED_POSIX_ERROR_BASE(=0)
-    //POSIX ERROR CODE definitions starts at offset 0(MBED_POSIX_ERROR_BASE) to align them with actual Posix Error Code
+    //POSIX ERROR CODE definitions starts at offset 0(MBED_POSIX_ERROR_BASE) to align them with actual POSIX Error Code
     //defintions in mbed_retarget.h
     //                  Error Name                                    Error Code
     MBED_DEFINE_POSIX_ERROR(EPERM, EPERM),                              /* 1       Operation not permitted */

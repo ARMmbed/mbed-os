@@ -237,8 +237,8 @@
 
 /** MBED_UNREACHABLE
  *  An unreachable statement. If the statement is reached,
- *  behaviour is undefined. Useful in situations where the compiler
- *  cannot deduce the unreachability of code.
+ *  behavior is undefined. Useful in situations where the compiler
+ *  cannot deduce if the code is unreachable.
  *
  *  @code
  *  #include "mbed_toolchain.h"

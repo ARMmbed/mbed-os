@@ -147,7 +147,7 @@ public:
      *  @param method pointer to the member function to be called
      *
      *  @returns
-     *  The function object created for 'tptr' and 'mptr'
+     *  The function object created for the object and method pointers
      *
      *  @deprecated
      *  The add_front function does not support cv-qualifiers. Replaced by
