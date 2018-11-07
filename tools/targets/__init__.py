@@ -49,7 +49,9 @@ CORE_LABELS = {
     "Cortex-M23": ["M23", "CORTEX_M", "LIKE_CORTEX_M23", "CORTEX"],
     "Cortex-M23-NS": ["M23", "M23_NS", "CORTEX_M", "LIKE_CORTEX_M23", "CORTEX"],
     "Cortex-M33": ["M33", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"],
-    "Cortex-M33-NS": ["M33", "M33_NS", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"]
+    "Cortex-M33-NS": ["M33", "M33_NS", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"],
+    "Cortex-M33F": ["M33", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"],
+    "Cortex-M33F-NS": ["M33", "M33_NS", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"]
 }
 
 CORE_ARCH = {
@@ -66,7 +68,9 @@ CORE_ARCH = {
     "Cortex-M23": 8,
     "Cortex-M23-NS": 8,
     "Cortex-M33": 8,
+    "Cortex-M33F": 8,
     "Cortex-M33-NS": 8,
+    "Cortex-M33F-NS": 8,
 }
 
 ################################################################################
