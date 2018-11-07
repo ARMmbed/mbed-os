@@ -40,7 +40,7 @@ from .. import hooks
 from ..notifier.term import TerminalNotifier
 from ..resources import FileType
 from ..memap import MemapParser
-from ..config import ConfigException
+from ..config import (ConfigException, RAM_ALL_MEMORIES, ROM_ALL_MEMORIES)
 
 
 #Disables multiprocessing if set to higher number than the host machine CPUs
@@ -738,13 +738,29 @@ class mbedToolchain:
                 ", ".join(r.name for r in regions)
             ))
             self._add_all_regions(regions, "MBED_RAM")
+
+        Region = namedtuple("Region", "name start size")
+
         try:
-            rom_start, rom_size = self.config.rom
-            Region = namedtuple("Region", "name start size")
-            self._add_defines_from_region(
-                Region("MBED_ROM", rom_start, rom_size),
-                suffixes=["_START", "_SIZE"]
-            )
+            # Add all available ROM regions to build profile
+            rom_available_regions = self.config.get_all_active_memories(ROM_ALL_MEMORIES)
+            for key, value in rom_available_regions.items():
+                rom_start, rom_size = value
+                self._add_defines_from_region(
+                    Region("MBED_" + key, rom_start, rom_size),
+                    suffixes=["_START", "_SIZE"]
+                )
+        except ConfigException:
+            pass
+        try:
+            # Add all available RAM regions to build profile
+            ram_available_regions = self.config.get_all_active_memories(RAM_ALL_MEMORIES)
+            for key, value in ram_available_regions.items():
+                ram_start, ram_size = value
+                self._add_defines_from_region(
+                    Region("MBED_" + key, ram_start, ram_size),
+                    suffixes=["_START", "_SIZE"]
+                )
         except ConfigException:
             pass
 
