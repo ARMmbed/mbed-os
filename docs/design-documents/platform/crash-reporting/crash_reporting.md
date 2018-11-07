@@ -133,10 +133,17 @@ mbed_error_status_t mbed_get_reboot_fault_context (mbed_fault_context_t *fault_c
 ```
 
 The below API can be called by application to reset the error context captured in the Crash-Report RAM.
-The function should MBED_ERROR_NOT_FOUND if there is no error context currently stored.
+The function should return MBED_ERROR_NOT_FOUND if there is no error context currently stored.
 ```C
 //Reset the reboot error context
 mbed_error_status_t mbed_reset_reboot_error_info()
+```
+
+The below API can be called by application to reset(to be set to 0) the error reboot count captured in the Crash-Report RAM.
+The function should return MBED_ERROR_NOT_FOUND if there is no error context currently stored.
+```C
+//Reset the reboot error context
+mbed_error_status_t mbed_reset_reboot_count()
 ```
 
 ### Mechanism to report the error data after reboot
