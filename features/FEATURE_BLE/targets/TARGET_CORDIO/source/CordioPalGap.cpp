@@ -16,6 +16,7 @@
 
 #include "CordioPalGap.h"
 #include "hci_api.h"
+#include "dm_api.h"
 
 namespace ble {
 namespace pal {
@@ -458,6 +459,418 @@ bool Gap::event_handler(const wsfMsgHdr_t* msg) {
     return false;
 }
 
+ble_error_t Gap::set_advertising_set_random_address(
+    advertising_handle_t advertising_handle,
+    const address_t &address
+)
+{
+    DmAdvSetRandAddr(advertising_handle, address.data());
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t Gap::set_extended_advertising_parameters(
+    advertising_handle_t advertising_handle,
+    advertising_event_properties_t event_properties,
+    advertising_interval_t primary_advertising_interval_min,
+    advertising_interval_t primary_advertising_interval_max,
+    advertising_channel_map_t primary_advertising_channel_map,
+    own_address_type_t own_address_type,
+    advertising_peer_address_type_t peer_address_type,
+    const address_t &peer_address,
+    advertising_filter_policy_t advertising_filter_policy,
+    advertising_power_t advertising_power,
+    phy_t primary_advertising_phy,
+    uint8_t secondary_advertising_max_skip,
+    phy_t secondary_phy,
+    uint8_t advertising_sid,
+    bool scan_request_notification
+)
+{
+    DmAdvSetInterval(
+        advertising_handle,
+        primary_advertising_interval_min,
+        primary_advertising_interval_max
+    );
+
+    DmAdvSetAddrType(own_address_type.value());
+
+    DmAdvSetChannelMap(
+        advertising_handle,
+        primary_advertising_channel_map.value()
+    );
+
+    DmDevSetExtFilterPolicy(
+        advertising_handle,
+        DM_FILT_POLICY_MODE_ADV,
+        advertising_filter_policy.value()
+    );
+
+    DmAdvScanReqNotifEnable(advertising_handle, scan_request_notification);
+
+    DmAdvSetPhyParam(
+        advertising_handle,
+        primary_advertising_phy.value(),
+        secondary_advertising_max_skip,
+        secondary_phy.value()
+    );
+
+    DmAdvIncTxPwr(
+        advertising_handle,
+        event_properties.include_tx_power,
+        advertising_power
+    );
+
+    DmAdvUseLegacyPdu(advertising_handle, event_properties.use_legacy_pdu);
+    DmAdvOmitAdvAddr(advertising_handle, event_properties.omit_advertisser_address);
+
+    DmAdvConfig(
+        advertising_handle,
+        event_properties.value(), // TODO: use the raw value here ???
+        peer_address_type.value(),
+        const_cast<uint8_t *>(peer_address.data())
+    );
+
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t Gap::set_periodic_advertising_parameters(
+    advertising_handle_t advertising_handle,
+    periodic_advertising_interval_t periodic_advertising_min,
+    periodic_advertising_interval_t periodic_advertising_max,
+    bool advertise_power
+)
+{
+    DmPerAdvIncTxPwr(advertising_handle, advertise_power);
+    DmPerAdvSetInterval(
+        advertising_handle,
+        periodic_advertising_min,
+        periodic_advertising_max
+    );
+    DmPerAdvConfig(advertising_handle);
+
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t Gap::set_extended_advertising_data(
+    advertising_handle_t advertising_handle,
+    advertising_fragment_description_t operation,
+    bool minimize_fragmentation,
+    uint8_t advertising_data_size,
+    const uint8_t *advertising_data
+)
+{
+    uint8_t frag_pref = minimize_fragmentation ?
+        HCI_ADV_DATA_FRAG_PREF_NO_FRAG :
+        HCI_ADV_DATA_FRAG_PREF_FRAG;
+
+    DmAdvSetFragPref(advertising_handle, frag_pref);
+
+    DmAdvSetData(
+        advertising_handle,
+        operation.value(),
+        DM_DATA_LOC_ADV,
+        advertising_data_size,
+        const_cast<uint8_t *>(advertising_data)
+    );
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t Gap::set_periodic_advertising_data(
+    advertising_handle_t advertising_handle,
+    advertising_fragment_description_t fragment_description,
+    uint8_t advertising_data_size,
+    const uint8_t *advertising_data
+)
+{
+    DmPerAdvSetData(
+        advertising_handle,
+        fragment_description.value(),
+        advertising_data_size,
+        const_cast<uint8_t *>(advertising_data)
+    );
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t Gap::set_extended_scan_response_data(
+    advertising_handle_t advertising_handle,
+    advertising_fragment_description_t operation,
+    bool minimize_fragmentation,
+    uint8_t scan_response_data_size,
+    const uint8_t *scan_response_data
+)
+{
+    uint8_t frag_pref = minimize_fragmentation ?
+        HCI_ADV_DATA_FRAG_PREF_NO_FRAG :
+        HCI_ADV_DATA_FRAG_PREF_FRAG;
+
+    DmAdvSetFragPref(advertising_handle, frag_pref);
+
+    DmAdvSetData(
+        advertising_handle,
+        operation.value(),
+        DM_DATA_LOC_SCAN,
+        scan_response_data_size,
+        const_cast<uint8_t *>(scan_response_data)
+    );
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t Gap::extended_advertising_enable(
+    bool enable,
+    uint8_t number_of_sets,
+    const advertising_handle_t *handles,
+    const uint16_t *durations,
+    const uint8_t *max_extended_advertising_events
+)
+{
+    if (enable) {
+        uint16_t* durations_ms = new uint16_t[number_of_sets];
+        for (size_t i = 0; i < number_of_sets; ++i) {
+            uint32_t r = durations[i] * 10;
+            durations_ms[i] = r > 0xFFFF ? 0xFFFF : r;
+        }
+
+        DmAdvStart(
+            number_of_sets,
+            const_cast<uint8_t *>(handles),
+            durations_ms,
+            const_cast<uint8_t *>(max_extended_advertising_events)
+        );
+
+        delete[] durations_ms;
+    } else {
+        DmAdvStop(
+            number_of_sets,
+            const_cast<uint8_t *>(handles)
+        );
+    }
+
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t Gap::periodic_advertising_enable(
+    bool enable,
+    advertising_handle_t advertising_handle
+)
+{
+    if (enable) {
+        DmPerAdvStart(advertising_handle);
+    } else {
+        DmPerAdvStop(advertising_handle);
+    }
+
+    return BLE_ERROR_NONE;
+}
+
+uint16_t Gap::get_maximum_advertising_data_length()
+{
+    return HciGetMaxAdvDataLen();
+}
+
+uint8_t Gap::get_max_number_of_advertising_sets()
+{
+    return HciGetNumSupAdvSets();
+}
+
+ble_error_t Gap::remove_advertising_set(advertising_handle_t advertising_handle)
+{
+    DmAdvRemoveAdvSet(advertising_handle);
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t Gap::clear_advertising_sets()
+{
+    DmAdvClearAdvSets();
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t Gap::set_extended_scan_parameters(
+    own_address_type_t own_address_type,
+    scanning_filter_policy_t filter_policy,
+    phy_set_t scanning_phys,
+    const bool *active_scanning,
+    const uint16_t *scan_interval,
+    const uint16_t *scan_window
+)
+{
+    DmScanSetAddrType(own_address_type.value());
+
+    // TODO: use/store filter policy
+    // TODO: use/store active scanning
+    // TODO: store scanning_phys
+
+    DmScanSetInterval(
+        scanning_phys.value(),
+        const_cast<uint16_t *>(scan_interval),
+        const_cast<uint16_t *>(scan_window)
+    );
+
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t Gap::extended_scan_enable(
+    bool enable,
+    duplicates_filter_t filter_duplicates,
+    uint16_t duration,
+    uint16_t period
+)
+{
+    if (enable) {
+        // TODO retrieve scanning phys
+        phy_set_t scanning_phys;
+
+        // TODO: retrieve scan type
+        uint8_t* scan_type /*= use_active_scanning ? DM_SCAN_TYPE_ACTIVE : DM_SCAN_TYPE_PASSIVE */;
+
+        uint32_t duration_ms = duration * 10;
+
+        DmScanModeExt();
+        DmScanStart(
+            scanning_phys.value(),
+            DM_DISC_MODE_NONE, // TODO: What todo with this ????
+            scan_type,
+            filter_duplicates.value(), // TODO: cordio API incomplete ???
+            duration_ms > 0xFFFF ? 0xFFFF : duration_ms,
+            period
+        );
+    } else {
+        DmScanStop();
+    }
+
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t Gap::periodic_advertising_create_sync(
+    bool use_periodic_advertiser_list,
+    uint8_t advertising_sid,
+    peer_address_type_t peer_address_type,
+    const address_t &peer_address,
+    uint16_t allowed_skip,
+    uint16_t sync_timeout
+)
+{
+    if (use_periodic_advertiser_list) {
+        DmDevSetExtFilterPolicy(
+            DM_ADV_HANDLE_DEFAULT,
+            DM_FILT_POLICY_MODE_SYNC,
+            HCI_FILT_PER_ADV_LIST
+        );
+    }
+
+    DmSyncStart(
+        advertising_sid,
+        peer_address_type.value(),
+        peer_address.data(),
+        allowed_skip,
+        sync_timeout
+    );
+
+    return BLE_ERROR_INVALID_PARAM;
+}
+
+ble_error_t Gap::cancel_periodic_advertising_create_sync()
+{
+    // FIXME: Find a way to use it!
+    // Function not directly exposed by the cordio stack.
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t Gap::periodic_advertising_terminate_sync(sync_handle_t sync_handle)
+{
+    DmSyncStop(sync_handle);
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t Gap::add_device_to_periodic_advertiser_list(
+    advertising_peer_address_type_t advertiser_address_type,
+    const address_t &advertiser_address,
+    uint8_t advertising_sid
+)
+{
+    DmAddDeviceToPerAdvList(
+        advertiser_address_type.value(),
+        const_cast<uint8_t *>(advertiser_address.data()),
+        advertising_sid
+    );
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t Gap::remove_device_from_periodic_advertiser_list(
+    advertising_peer_address_type_t advertiser_address_type,
+    const address_t &advertiser_address,
+    uint8_t advertising_sid
+)
+{
+    DmRemoveDeviceFromPerAdvList(
+        advertiser_address_type.value(),
+        const_cast<uint8_t *>(advertiser_address.data()),
+        advertising_sid
+    );
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t Gap::clear_periodic_advertiser_list()
+{
+    DmClearPerAdvList();
+    return BLE_ERROR_NONE;
+}
+
+uint8_t Gap::read_periodic_advertiser_list_size()
+{
+    return HciGetPerAdvListSize();
+}
+
+ble_error_t Gap::extended_create_connection(
+    initiator_policy_t initiator_policy,
+    own_address_type_t own_address_type,
+    peer_address_type_t peer_address_type,
+    const address_t &peer_address,
+    phy_set_t initiating_phys,
+    const uint16_t *scan_intervals,
+    const uint16_t *scan_windows,
+    const uint16_t *connection_intervals_min,
+    const uint16_t *connection_intervals_max,
+    const uint16_t *connection_latencies,
+    const uint16_t *supervision_timeouts,
+    const uint16_t *minimum_connection_event_lengths,
+    const uint16_t *maximum_connection_event_lengths
+)
+{
+    DmExtConnSetScanInterval(
+        initiating_phys.value(),
+        const_cast<uint16_t *>(scan_intervals),
+        const_cast<uint16_t *>(scan_windows)
+    );
+
+    DmDevSetFilterPolicy(DM_FILT_POLICY_MODE_INIT, initiator_policy.value());
+    DmConnSetAddrType(own_address_type.value());
+
+    // At most 3 phys are in used
+    hciConnSpec_t conn_specs[3];
+    for (size_t i = 0, count = initiating_phys.count(); i < count; ++i) {
+        conn_specs[i].connIntervalMin = connection_intervals_min[i];
+        conn_specs[i].connIntervalMax = connection_intervals_max[i];
+        conn_specs[i].connLatency = connection_latencies[i];
+        conn_specs[i].supTimeout = supervision_timeouts[i];
+        conn_specs[i].minCeLen = minimum_connection_event_lengths[i];
+        conn_specs[i].maxCeLen = maximum_connection_event_lengths[i];
+    }
+
+    DmExtConnSetConnSpec(initiating_phys.value(), conn_specs);
+
+    dmConnId_t connection_id = DmConnOpen(
+        DM_CLIENT_ID_APP,
+        initiating_phys.value(),
+        peer_address_type.value(),
+        const_cast<uint8_t *>(peer_address.data())
+    );
+
+    if (connection_id == DM_CONN_ID_NONE) {
+        return BLE_ERROR_INTERNAL_STACK_FAILURE;
+    }
+
+    return BLE_ERROR_NONE;
+}
 
 } // cordio
 } // vendor
