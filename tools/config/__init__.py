@@ -71,6 +71,13 @@ ALLOWED_FEATURES = [
     "ETHERNET_HOST",
 ]
 
+# List of all possible ram memories that can be available for a target
+RAM_ALL_MEMORIES = ['IRAM1', 'IRAM2', 'IRAM3', 'IRAM4', 'SRAM_OC', \
+                    'SRAM_ITC', 'SRAM_DTC', 'SRAM_UPPER', 'SRAM_LOWER']
+
+# List of all possible rom memories that can be available for a target
+ROM_ALL_MEMORIES = ['IROM1', 'PROGRAM_FLASH', 'IROM2']
+
 # Base class for all configuration exceptions
 class ConfigException(Exception):
     """Config system only exception. Makes it easier to distinguish config
@@ -610,24 +617,50 @@ class Config(object):
                 continue
         raise ConfigException(exception_text)
 
-    @property
-    def rom(self):
-        """Get rom information as a pair of start_addr, size"""
+    def get_all_active_memories(self, memory_list):
+        """Get information of all available rom/ram memories in the form of dictionary 
+        {Memory: [start_addr, size]}. Takes in the argument, a list of all available 
+        regions within the ram/rom memory"""
         # Override rom_start/rom_size
         #
         # This is usually done for a target which:
         # 1. Doesn't support CMSIS pack, or
         # 2. Supports TrustZone and user needs to change its flash partition
+        
+        available_memories = {}
+        # Counter to keep track of ROM/RAM memories supported by target
+        active_memory_counter = 0
+        # Find which memory we are dealing with, RAM/ROM
+        active_memory = 'RAM' if any('RAM' in mem_list for mem_list in memory_list) else 'ROM'
         cmsis_part = self._get_cmsis_part()
-        rom_start, rom_size = self._get_mem_specs(
-            ["IROM1", "PROGRAM_FLASH"],
-            cmsis_part,
-            "Not enough information in CMSIS packs to build a bootloader "
-            "project"
-        )
-        rom_start = int(getattr(self.target, "mbed_rom_start", False) or rom_start, 0)
-        rom_size = int(getattr(self.target, "mbed_rom_size", False) or rom_size, 0)
-        return (rom_start, rom_size)
+        present_memories = set(cmsis_part['memory'].keys())
+        valid_memories = set(memory_list).intersection(present_memories)
+
+        for memory in valid_memories:
+            mem_start, mem_size = self._get_mem_specs(
+                [memory],
+                cmsis_part,
+                "Not enough information in CMSIS packs to build a bootloader "
+                "project"
+            )
+            if memory=='IROM1' or memory=='PROGRAM_FLASH':
+                mem_start = getattr(self.target, "mbed_rom_start", False) or mem_start
+                mem_size = getattr(self.target, "mbed_rom_size", False) or mem_size
+                memory = 'ROM'
+            elif (memory == 'IRAM1' or memory == 'SRAM_OC' or \
+                memory == 'SRAM_UPPER') and (not self.has_ram_regions):
+                mem_start = getattr(self.target, "mbed_ram_start", False) or mem_start
+                mem_size = getattr(self.target, "mbed_ram_size", False) or mem_size
+                memory = 'RAM'
+            else:
+                active_memory_counter += 1
+                memory = active_memory + str(active_memory_counter)
+
+            mem_start = int(mem_start, 0)
+            mem_size = int(mem_size, 0)
+            available_memories[memory] = [mem_start, mem_size]
+        
+        return available_memories
 
     @property
     def ram_regions(self):
@@ -653,13 +686,13 @@ class Config(object):
         if  ((self.target.bootloader_img or self.target.restrict_size) and
              (self.target.mbed_app_start or self.target.mbed_app_size)):
             raise ConfigException(
-                "target.bootloader_img and target.restirct_size are "
+                "target.bootloader_img and target.restrict_size are "
                 "incompatible with target.mbed_app_start and "
                 "target.mbed_app_size")
         if self.target.bootloader_img or self.target.restrict_size:
-            return self._generate_bootloader_build(*self.rom)
+            return self._generate_bootloader_build(self.get_all_active_memories(ROM_ALL_MEMORIES))
         else:
-            return self._generate_linker_overrides(*self.rom)
+            return self._generate_linker_overrides(self.get_all_active_memories(ROM_ALL_MEMORIES))
 
     @staticmethod
     def header_member_size(member):
@@ -696,7 +729,8 @@ class Config(object):
                 "Can not place % region inside previous region" % region_name)
         return newstart
 
-    def _generate_bootloader_build(self, rom_start, rom_size):
+    def _generate_bootloader_build(self, rom_memories):
+        rom_start, rom_size = rom_memories.get('ROM')
         start = rom_start
         rom_end = rom_start + rom_size
         if self.target.bootloader_img:
@@ -780,7 +814,8 @@ class Config(object):
         return {'app_config': self.app_config_location,
                 'library_configs': map(relpath, self.processed_configs.keys())}
 
-    def _generate_linker_overrides(self, rom_start, rom_size):
+    def _generate_linker_overrides(self, rom_memories):
+        rom_start, rom_size = rom_memories.get('ROM')
         if self.target.mbed_app_start is not None:
             start = int(self.target.mbed_app_start, 0)
         else:
