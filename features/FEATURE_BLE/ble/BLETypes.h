@@ -816,6 +816,10 @@ public:
         return _value;
     }
 
+    uint8_t count() const {
+        return (get_1m() ? 1 : 0) + (get_2m() ? 1 : 0) + (get_coded() ? 1 : 0);
+    }
+
 private:
     uint8_t _value;
 };
