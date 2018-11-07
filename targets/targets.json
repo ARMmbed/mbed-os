@@ -2849,7 +2849,7 @@
         "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "detect_code": ["0467"],
         "release_versions": ["5"],
-        "device_name": "STM32F429VI",
+        "device_name": "STM32F429ZI",
         "bootloader_supported": true
     },
     "NUCLEO_F439ZI": {
