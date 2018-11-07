@@ -33,26 +33,26 @@ namespace rtos {
 namespace Kernel {
 
 /** Read the current RTOS kernel millisecond tick count.
-     The tick count corresponds to the tick count used by the RTOS for timing
-     purposes. It increments monotonically from 0 at boot, hence effectively
+     The tick count corresponds to the tick count the RTOS uses for timing
+     purposes. It increments monotonically from 0 at boot, so it effectively
      never wraps. If the underlying RTOS only provides a 32-bit tick count,
      this method expands it to 64 bits.
      @return  RTOS kernel current tick count
-     @note mbed OS always uses millisecond RTOS ticks, and this could only wrap
-           after half a billion years
+     @note Mbed OS always uses millisecond RTOS ticks, and this could only wrap
+           after half a billion years.
      @note You cannot call this function from ISR context.
  */
 uint64_t get_ms_count();
 
-/** Attach a function to be called by the RTOS idle task
-  @param   fptr  pointer to the function to be called
+/** Attach a function to be called by the RTOS idle task.
+  @param   fptr pointer to the function to be called
 
   @note You may call this function from ISR context.
 */
 void attach_idle_hook(void (*fptr)(void));
 
-/** Attach a function to be called when a task is killed
-  @param   fptr  pointer to the function to be called
+/** Attach a function to be called when a thread terminates.
+  @param   fptr pointer to the function to be called
 
   @note You may call this function from ISR context.
 */
