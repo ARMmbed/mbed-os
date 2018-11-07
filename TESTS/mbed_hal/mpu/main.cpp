@@ -41,6 +41,21 @@ uint32_t real_hard_fault_handler;
 static volatile uint16_t data_function = ASM_BX_LR;
 static volatile uint16_t bss_function;
 
+static void clear_caches()
+{
+#if defined(__CORTEX_M7)
+        /* Data cache clean and invalid */
+        SCB_CleanInvalidateDCache();
+
+        /* Instruction cache invalid */
+        SCB_InvalidateICache();
+#endif
+
+    __ISB();
+    __DSB();
+
+}
+
 static void call_mem(const volatile uint16_t *mem_function)
 {
     // or the address with 1 to ensure the thumb bit is set
@@ -112,6 +127,7 @@ void mpu_fault_test_data()
 void mpu_fault_test_bss()
 {
     bss_function = ASM_BX_LR;
+    clear_caches();
     mpu_fault_test(&bss_function);
 }
 
@@ -120,6 +136,7 @@ void mpu_fault_test_stack()
     uint16_t stack_function;
 
     stack_function = ASM_BX_LR;
+    clear_caches();
     mpu_fault_test(&stack_function);
 }
 
@@ -129,6 +146,7 @@ void mpu_fault_test_heap()
 
     TEST_ASSERT_NOT_EQUAL(NULL, heap_function);
     *heap_function = ASM_BX_LR;
+    clear_caches();
     mpu_fault_test(heap_function);
 
     free(heap_function);
