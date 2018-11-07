@@ -22,11 +22,19 @@
 #include "LockGuard.h"
 
 #if defined(MBED_RTOS_SINGLE_THREAD)
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
+#endif
+
+#if !DEVICE_USTICKER
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 #define THREAD_STACK_SIZE 512
 #if defined(__CORTEX_A9)
+#define PARALLEL_THREAD_STACK_SIZE 512
+#elif defined(__CORTEX_M23) || defined(__CORTEX_M33)
+#define PARALLEL_THREAD_STACK_SIZE 512
+#elif defined(__ARM_FM)
 #define PARALLEL_THREAD_STACK_SIZE 512
 #else
 #define PARALLEL_THREAD_STACK_SIZE 384
@@ -46,42 +54,66 @@ public:
 };
 
 // Tasks with different functions to test on threads
-void increment(counter_t* counter) {
+void increment(counter_t *counter)
+{
     (*counter)++;
 }
 
-void increment_with_yield(counter_t* counter) {
-    Thread::yield();
+void increment_with_yield(counter_t *counter)
+{
+    ThisThread::yield();
     (*counter)++;
 }
 
-void increment_with_wait(counter_t* counter) {
-    Thread::wait(100);
+void increment_with_wait(counter_t *counter)
+{
+    ThisThread::sleep_for(100);
     (*counter)++;
 }
 
-void increment_with_child(counter_t* counter) {
-    Thread *child = new Thread(osPriorityNormal, CHILD_THREAD_STACK_SIZE);
+void increment_with_child(counter_t *counter)
+{
+    Thread *child = new (std::nothrow) Thread(osPriorityNormal, CHILD_THREAD_STACK_SIZE);
+    char *dummy = new (std::nothrow) char[CHILD_THREAD_STACK_SIZE];
+    delete[] dummy;
+
+    // Don't fail test due to lack of memory. Call function directly instead
+    if (!child || !dummy) {
+        increment(counter);
+        delete child;
+        return;
+    }
     child->start(callback(increment, counter));
     child->join();
     delete child;
 }
 
-void increment_with_murder(counter_t* counter) {
+void increment_with_murder(counter_t *counter)
+{
     {
         // take ownership of the counter mutex so it prevent the child to
         // modify counter.
         LockGuard lock(counter->internal_mutex());
-        Thread *child = new Thread(osPriorityNormal, CHILD_THREAD_STACK_SIZE);
+        Thread *child = new (std::nothrow) Thread(osPriorityNormal, CHILD_THREAD_STACK_SIZE);
+        char *dummy = new (std::nothrow) char[CHILD_THREAD_STACK_SIZE];
+        delete[] dummy;
+
+        // Don't fail test due to lack of memory.
+        if (!child || !dummy) {
+            delete child;
+            goto end;
+        }
         child->start(callback(increment, counter));
         child->terminate();
         delete child;
     }
 
+end:
     (*counter)++;
 }
 
-void self_terminate(Thread *self) {
+void self_terminate(Thread *self)
+{
     self->terminate();
     // Code should not get here
     TEST_ASSERT(0);
@@ -120,7 +152,12 @@ void self_terminate(Thread *self) {
     then the final value of the counter is equal to 1
 */
 template <void (*F)(counter_t *)>
-void test_single_thread() {
+void test_single_thread()
+{
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     counter_t counter(0);
     Thread thread(osPriorityNormal, THREAD_STACK_SIZE);
     thread.start(callback(F, &counter));
@@ -159,7 +196,12 @@ void test_single_thread() {
     then the final value of the counter is equal to number of parallel threads
 */
 template <int N, void (*F)(counter_t *)>
-void test_parallel_threads() {
+void test_parallel_threads()
+{
+    char *dummy = new (std::nothrow) char[PARALLEL_THREAD_STACK_SIZE * N];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     counter_t counter(0);
     ParallelThread<osPriorityNormal, PARALLEL_THREAD_STACK_SIZE> threads[N];
 
@@ -205,8 +247,12 @@ void test_parallel_threads() {
     then the final value of the counter is equal to number of serial threads
 */
 template <int N, void (*F)(counter_t *)>
-void test_serial_threads() {
+void test_serial_threads()
+{
     counter_t counter(0);
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
 
     for (int i = 0; i < N; i++) {
         Thread thread(osPriorityNormal, THREAD_STACK_SIZE);
@@ -223,123 +269,153 @@ void test_serial_threads() {
     when the thread calls @a terminate on its self
     then the thread terminates execution cleanly
  */
-void test_self_terminate() {
-    Thread *thread = new Thread(osPriorityNormal, THREAD_STACK_SIZE);
+void test_self_terminate()
+{
+    Thread *thread = new (std::nothrow) Thread(osPriorityNormal, THREAD_STACK_SIZE);
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+
+    // Don't fail test due to lack of memory.
+    if (!thread || !dummy) {
+        goto end;
+    }
     thread->start(callback(self_terminate, thread));
     thread->join();
+
+end:
     delete thread;
 }
 
-void signal_wait()
+void flags_wait()
 {
-    osEvent evt = Thread::signal_wait(0x1);
-    TEST_ASSERT_EQUAL(osEventSignal, evt.status);
-    TEST_ASSERT_EQUAL(0x1, evt.value.signals);
+    uint32_t flags = ThisThread::flags_wait_all(0x1);
+    TEST_ASSERT_EQUAL(0x1, flags);
 }
 
-void signal_wait_tout()
+void flags_wait_tout()
 {
-    osEvent evt = Thread::signal_wait(0x2, 50);
-    TEST_ASSERT_EQUAL(osEventTimeout, evt.status);
+    uint32_t flags = ThisThread::flags_wait_all_for(0x2, 50);
+    TEST_ASSERT_EQUAL(0x1, flags);
 }
 
-void signal_wait_multibit()
+void flags_wait_multibit()
 {
-    osEvent evt = Thread::signal_wait(0x1 | 0x2, 50);
-    TEST_ASSERT_EQUAL(osEventSignal, evt.status);
-    TEST_ASSERT_EQUAL(0x3, evt.value.signals);
+    uint32_t flags = ThisThread::flags_wait_all(0x1 | 0x2);
+    TEST_ASSERT_EQUAL(0x3, flags);
 }
 
-void signal_wait_multibit_tout()
+void flags_wait_multibit_any()
 {
-    osEvent evt = Thread::signal_wait(0x1 | 0x2, 50);
-    TEST_ASSERT_EQUAL(osEventTimeout, evt.status);
+    uint32_t flags = ThisThread::flags_wait_any(0x1 | 0x2);
+    TEST_ASSERT_NOT_EQUAL(0x0, flags);
+}
+
+void flags_wait_multibit_tout()
+{
+    uint32_t flags = ThisThread::flags_wait_all_for(0x1 | 0x2, 50);
+    TEST_ASSERT_NOT_EQUAL(0x3, flags);
 }
 
 /**
-    Testing thread signal: wait
+    Testing thread flags: wait
     Given two threads (A & B) are started
-    when thread A executes @a signal_wait(0x1)
-        and thread B execute @a signal_set(0x1)
+    when thread A executes @a flags_wait_all(0x1)
+        and thread B execute @a flags_set(0x1)
     then thread A exits the wait and continues execution
 
-    Testing thread signal: timeout
+    Testing thread flags: timeout
     Given two threads (A & B) are started
-    when thread A executes @a signal_wait(0x1 | 0x2, 50) with a timeout of 50ms
-        and thread B execute @a signal_set(0x2)
-    then thread A keeps waiting for correct signal until it timeouts
+    when thread A executes @a flags_wait_all_for(0x1 | 0x2, 50) with a timeout of 50ms
+        and thread B execute @a flags_set(0x2)
+    then thread A keeps waiting for correct flags until it timeouts
 
-    Testing thread signal: multi-bit
+    Testing thread flags: multi-bit
     Given two threads (A & B) are started
-    when thread A executes @a signal_wait(0x1 | 0x2)
-        and thread B execute @a signal_set(0x1 | 0x2)
+    when thread A executes @a flags_wait_all(0x1 | 0x2)
+        and thread B execute @a flags_set(0x1 | 0x2)
     then thread A exits the wait and continues execution
 
-    Testing thread signal: multi-bit timeout
+    Testing thread flags: multi-bit any
     Given two threads (A & B) are started
-    when thread A executes @a signal_wait(0x1, 50) with a timeout of 50ms
-        and thread B execute @a signal_set(0x2)
-    then thread A keeps waiting for correct signal until it timeouts
+    when thread A executes @a flags_wait_any(0x1 | 0x2)
+        and thread B execute @a flags_set(0x1)
+    then thread A exits the wait and continues execution
+
+    Testing thread flags: multi-bit timeout
+    Given two threads (A & B) are started
+    when thread A executes @a flags_wait_all_for(0x1, 50) with a timeout of 50ms
+        and thread B execute @a flags_set(0x2)
+    then thread A keeps waiting for correct flags until it timeouts
 */
 template <int S, void (*F)()>
-void test_thread_signal()
+void test_thread_flags_set()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t_wait(osPriorityNormal, THREAD_STACK_SIZE);
 
     t_wait.start(callback(F));
 
-    Thread::yield();
+    ThisThread::yield();
 
     Thread::State state = t_wait.get_state();
     TEST_ASSERT_EQUAL(Thread::WaitingThreadFlag, state);
 
-    int32_t res = t_wait.signal_set(S);
+    int32_t res = t_wait.flags_set(S);
 
     t_wait.join();
 }
 
-void signal_clr()
+void flags_clear()
 {
-    Thread::yield();
+    ThisThread::yield();
 
-    int32_t sig = Thread::signal_clr(0x1);
+    int32_t sig = ThisThread::flags_clear(0x1);
     TEST_ASSERT_EQUAL(0x1, sig);
 
-    /* Signal cleared we should get timeout */
-    osEvent evt = Thread::signal_wait(0x1, 0);
-    TEST_ASSERT_EQUAL(osOK, evt.status);
+    /* Flags cleared we should get timeout */
+    uint32_t flags = ThisThread::flags_wait_all_for(0x1, 0);
+    TEST_ASSERT_EQUAL(0, flags);
 }
 
-/** Testing thread signals: signal clear
+/** Testing thread flags: flags clear
 
     Given two threads (A & B) are started
-    when thread A executes @a signal_set(0x1)
-        and thread B execute @a signal_clr(0x1)
-        and thread B execute @a signal_wait(0x1, 0)
-    then thread B @a signal_wait status should be osOK indicating a timeout
+    when thread A executes @a flags_set(0x1)
+        and thread B execute @a flags_clear(0x1)
+        and thread B execute @a flags_wait_all_for(0x1, 0)
+    then thread B @a flags_wait_all_for return should be 0 indicating no flags set
  */
-void test_thread_signal_clr()
+void test_thread_flags_clear()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t_wait(osPriorityNormal, THREAD_STACK_SIZE);
 
-    t_wait.start(callback(signal_clr));
+    t_wait.start(callback(flags_clear));
 
-    int32_t res = t_wait.signal_set(0x1);
+    int32_t res = t_wait.flags_set(0x1);
     TEST_ASSERT_EQUAL(0x1, res);
 
     t_wait.join();
 }
 
-void thread_wait_signal() {
-    Thread::signal_wait(0x1);
+void thread_wait_flags()
+{
+    ThisThread::flags_wait_all(0x1);
 }
 
-void stack_info() {
-    Thread::signal_wait(0x1);
+void stack_info()
+{
+    ThisThread::flags_wait_all(0x1);
 
-    thread_wait_signal();
+    thread_wait_flags();
 
-    Thread::signal_wait(0x1);
+    ThisThread::flags_wait_all(0x1);
 }
 
 /** Testing thread stack info
@@ -354,30 +430,35 @@ void stack_info() {
         and the reported stack size is as requested in the constructor
         and the sum of free and used stack sizes is equal to the total stack size
  */
-void test_thread_stack_info() {
+void test_thread_stack_info()
+{
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     t.start(callback(stack_info));
 
-    Thread::yield();
+    ThisThread::yield();
 
     TEST_ASSERT_EQUAL(THREAD_STACK_SIZE, t.stack_size());
     TEST_ASSERT_EQUAL(THREAD_STACK_SIZE, t.free_stack() + t.used_stack());
     uint32_t last_stack = t.used_stack();
 
-    t.signal_set(0x1);
-    Thread::yield();
+    t.flags_set(0x1);
+    ThisThread::yield();
 
     TEST_ASSERT_EQUAL(THREAD_STACK_SIZE, t.free_stack() + t.used_stack());
     TEST_ASSERT(last_stack <= t.used_stack());
     last_stack = t.used_stack();
 
-    t.signal_set(0x1);
-    Thread::yield();
+    t.flags_set(0x1);
+    ThisThread::yield();
 
     TEST_ASSERT_EQUAL(THREAD_STACK_SIZE, t.free_stack() + t.used_stack());
     TEST_ASSERT(last_stack >= t.used_stack());
 
-    t.signal_set(0x1);
+    t.flags_set(0x1);
 
     t.join();
 }
@@ -388,11 +469,12 @@ void test_thread_stack_info() {
     when the @a wait function is called
     then the thread sleeps for given amount of time
  */
-void test_thread_wait() {
+void test_thread_wait()
+{
     Timer timer;
     timer.start();
 
-    Thread::wait(150);
+    ThisThread::sleep_for(150);
 
     TEST_ASSERT_UINT32_WITHIN(50000, 150000, timer.read_us());
 }
@@ -403,12 +485,17 @@ void test_thread_wait() {
     when the name is queried using @a get_name
     then the returned name is as set
 */
-void test_thread_name() {
+void test_thread_name()
+{
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     const char tname[] = "Amazing thread";
     Thread t(osPriorityNormal, THREAD_STACK_SIZE, NULL, tname);
-    t.start(callback(thread_wait_signal));
+    t.start(callback(thread_wait_flags));
     TEST_ASSERT_EQUAL(strcmp(tname, t.get_name()), 0);
-    t.signal_set(0x1);
+    t.flags_set(0x1);
     t.join();
 }
 
@@ -425,6 +512,10 @@ void test_deleted_thread()
  */
 void test_deleted()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
 
     TEST_ASSERT_EQUAL(Thread::Deleted, t.get_state());
@@ -437,7 +528,7 @@ void test_deleted()
 
 void test_delay_thread()
 {
-    Thread::wait(50);
+    ThisThread::sleep_for(50);
 }
 
 /** Testing thread states: wait delay
@@ -448,11 +539,15 @@ void test_delay_thread()
  */
 void test_delay()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
 
     t.start(callback(test_delay_thread));
 
-    Thread::yield();
+    ThisThread::yield();
 
     TEST_ASSERT_EQUAL(Thread::WaitingDelay, t.get_state());
 
@@ -460,33 +555,37 @@ void test_delay()
     TEST_ASSERT_EQUAL(Thread::Deleted, t.get_state());
 }
 
-void test_signal_thread()
+void test_thread_flags_thread()
 {
-    Thread::signal_wait(0x1);
+    ThisThread::flags_wait_all(0x1);
 }
 
-/** Testing thread states: wait signal
+/** Testing thread states: wait flags
 
     Given the thread is running
-    when thread waits for a signal
-    then its state, as reported by @a get_state, is @a WaitingSignal
+    when thread waits for flags
+    then its state, as reported by @a get_state, is @a WaitingThreadFlag
  */
-void test_signal()
+void test_thread_flags()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
 
-    t.start(callback(test_signal_thread));
+    t.start(callback(test_thread_flags_thread));
 
-    Thread::yield();
+    ThisThread::yield();
 
     TEST_ASSERT_EQUAL(Thread::WaitingThreadFlag, t.get_state());
 
-    t.signal_set(0x1);
+    t.flags_set(0x1);
 }
 
-void test_evt_flag_thread(osEventFlagsId_t evtflg)
+void test_evt_flag_thread(EventFlags *evtflg)
 {
-    osEventFlagsWait(evtflg, 0x1, osFlagsWaitAny, osWaitForever);
+    evtflg->wait_any(0x1);
 }
 
 /** Testing thread states: wait evt flag
@@ -497,23 +596,20 @@ void test_evt_flag_thread(osEventFlagsId_t evtflg)
  */
 void test_evt_flag()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
-    mbed_rtos_storage_event_flags_t evtflg_mem;
-    osEventFlagsAttr_t evtflg_attr;
-    osEventFlagsId_t evtflg;
+    EventFlags evtflg;
 
-    evtflg_attr.cb_mem = &evtflg_mem;
-    evtflg_attr.cb_size = sizeof(evtflg_mem);
-    evtflg = osEventFlagsNew(&evtflg_attr);
-    TEST_ASSERT_NOT_EQUAL(NULL, evtflg);
+    t.start(callback(test_evt_flag_thread, &evtflg));
 
-    t.start(callback(test_evt_flag_thread, evtflg));
-
-    Thread::yield();
+    ThisThread::yield();
 
     TEST_ASSERT_EQUAL(Thread::WaitingEventFlag, t.get_state());
 
-    osEventFlagsSet(evtflg, 0x1);
+    evtflg.set(0x1);
 }
 
 void test_mutex_thread(Mutex *mutex)
@@ -529,6 +625,10 @@ void test_mutex_thread(Mutex *mutex)
  */
 void test_mutex()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     Mutex mutex;
 
@@ -536,7 +636,7 @@ void test_mutex()
 
     t.start(callback(test_mutex_thread, &mutex));
 
-    Thread::yield();
+    ThisThread::yield();
 
     TEST_ASSERT_EQUAL(Thread::WaitingMutex, t.get_state());
 
@@ -556,12 +656,16 @@ void test_semaphore_thread(Semaphore *sem)
  */
 void test_semaphore()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     Semaphore sem;
 
     t.start(callback(test_semaphore_thread, &sem));
 
-    Thread::yield();
+    ThisThread::yield();
 
     TEST_ASSERT_EQUAL(Thread::WaitingSemaphore, t.get_state());
 
@@ -581,12 +685,16 @@ void test_msg_get_thread(Queue<int32_t, 1> *queue)
  */
 void test_msg_get()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     Queue<int32_t, 1> queue;
 
     t.start(callback(test_msg_get_thread, &queue));
 
-    Thread::yield();
+    ThisThread::yield();
 
     TEST_ASSERT_EQUAL(Thread::WaitingMessageGet, t.get_state());
 
@@ -607,6 +715,10 @@ void test_msg_put_thread(Queue<int32_t, 1> *queue)
  */
 void test_msg_put()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     Queue<int32_t, 1> queue;
 
@@ -614,14 +726,15 @@ void test_msg_put()
 
     t.start(callback(test_msg_put_thread, &queue));
 
-    Thread::yield();
+    ThisThread::yield();
 
     TEST_ASSERT_EQUAL(Thread::WaitingMessagePut, t.get_state());
     queue.get();
 }
 
 /** Utility function that places some date on the stack */
-void use_some_stack () {
+void use_some_stack()
+{
     volatile uint32_t stack_filler[10] = {0xDEADBEEF};
 }
 
@@ -631,18 +744,20 @@ void use_some_stack () {
     when the thread executes
     then the supplies buffer is used as a stack
  */
-void test_thread_ext_stack() {
+void test_thread_ext_stack()
+{
     char stack[512];
-    Thread t(osPriorityNormal, sizeof(stack), (unsigned char*)stack);
+    Thread t(osPriorityNormal, sizeof(stack), (unsigned char *)stack);
 
     memset(&stack, 0, sizeof(stack));
     t.start(callback(use_some_stack));
     t.join();
 
     /* If buffer was used as a stack it was cleared with pattern and some data were placed in it */
-    for(unsigned i = 0; i < sizeof(stack); i++) {
-        if (stack[i] != 0)
+    for (unsigned i = 0; i < sizeof(stack); i++) {
+        if (stack[i] != 0) {
             return;
+        }
     }
 
     TEST_FAIL_MESSAGE("External stack was not used.");
@@ -654,9 +769,14 @@ void test_thread_ext_stack() {
     when new priority is set using @a set_priority
     then priority is changed and can be retrieved using @a get_priority
  */
-void test_thread_prio() {
+void test_thread_prio()
+{
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
-    t.start(callback(thread_wait_signal));
+    t.start(callback(thread_wait_flags));
 
     TEST_ASSERT_EQUAL(osPriorityNormal, t.get_priority());
 
@@ -664,11 +784,12 @@ void test_thread_prio() {
 
     TEST_ASSERT_EQUAL(osPriorityHigh, t.get_priority());
 
-    t.signal_set(0x1);
+    t.flags_set(0x1);
     t.join();
 }
 
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(20, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
@@ -679,8 +800,8 @@ utest::v1::status_t test_setup(const size_t number_of_cases) {
 // macros don't play nicely with the templates (extra comma).
 static const case_t cases[] = {
     {"Testing single thread", test_single_thread<increment>, DEFAULT_HANDLERS},
-    {"Testing parallel threads", test_parallel_threads<3, increment> , DEFAULT_HANDLERS},
-    {"Testing serial threads", test_serial_threads<10, increment> , DEFAULT_HANDLERS},
+    {"Testing parallel threads", test_parallel_threads<3, increment>, DEFAULT_HANDLERS},
+    {"Testing serial threads", test_serial_threads<10, increment>, DEFAULT_HANDLERS},
 
     {"Testing single thread with yield", test_single_thread<increment_with_yield>, DEFAULT_HANDLERS},
     {"Testing parallel threads with yield", test_parallel_threads<3, increment_with_yield>, DEFAULT_HANDLERS},
@@ -700,12 +821,12 @@ static const case_t cases[] = {
 
     {"Testing thread self terminate", test_self_terminate, DEFAULT_HANDLERS},
 
-    {"Testing thread signals: wait", test_thread_signal<0x1, signal_wait>, DEFAULT_HANDLERS},
-    {"Testing thread signals: timeout", test_thread_signal<0x1, signal_wait_tout>, DEFAULT_HANDLERS},
-    {"Testing thread signals: multi-bit", test_thread_signal<0x3, signal_wait_multibit>, DEFAULT_HANDLERS},
-    {"Testing thread signals: multi-bit timeout", test_thread_signal<0x1, signal_wait_multibit_tout>, DEFAULT_HANDLERS},
-    {"Testing thread signals: signal clear", test_thread_signal_clr, DEFAULT_HANDLERS},
-
+    {"Testing thread flags: wait", test_thread_flags_set<0x1, flags_wait>, DEFAULT_HANDLERS},
+    {"Testing thread flags: timeout", test_thread_flags_set<0x1, flags_wait_tout>, DEFAULT_HANDLERS},
+    {"Testing thread flags: multi-bit all", test_thread_flags_set<0x3, flags_wait_multibit>, DEFAULT_HANDLERS},
+    {"Testing thread flags: multi-bit all timeout", test_thread_flags_set<0x1, flags_wait_multibit_tout>, DEFAULT_HANDLERS},
+    {"Testing thread flags: multi-bit any", test_thread_flags_set<0x1, flags_wait_multibit_any>, DEFAULT_HANDLERS},
+    {"Testing thread flags: flags clear", test_thread_flags_clear, DEFAULT_HANDLERS},
 
     {"Testing thread stack info", test_thread_stack_info, DEFAULT_HANDLERS},
     {"Testing thread wait", test_thread_wait, DEFAULT_HANDLERS},
@@ -713,7 +834,7 @@ static const case_t cases[] = {
 
     {"Testing thread states: deleted", test_deleted, DEFAULT_HANDLERS},
     {"Testing thread states: wait delay", test_delay, DEFAULT_HANDLERS},
-    {"Testing thread states: wait signal", test_signal, DEFAULT_HANDLERS},
+    {"Testing thread states: wait thread flags", test_thread_flags, DEFAULT_HANDLERS},
     {"Testing thread states: wait event flag", test_evt_flag, DEFAULT_HANDLERS},
     {"Testing thread states: wait mutex", test_mutex, DEFAULT_HANDLERS},
     {"Testing thread states: wait semaphore", test_semaphore, DEFAULT_HANDLERS},
@@ -727,6 +848,7 @@ static const case_t cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }
