@@ -31,12 +31,14 @@
 using namespace utest::v1;
 
 #define HARDFAULT_IRQn   ((IRQn_Type)-13)
+#define MEMFAULT_IRQn    ((IRQn_Type)-12)
 
 // Assembly return instruction: bx lr
 #define ASM_BX_LR 0x4770
 
 volatile uint32_t fault_count;
 uint32_t real_hard_fault_handler;
+uint32_t real_mem_fault_handler;
 
 static volatile uint16_t data_function = ASM_BX_LR;
 static volatile uint16_t bss_function;
@@ -154,9 +156,11 @@ void mpu_fault_test_heap()
 
 utest::v1::status_t fault_override_setup(const Case *const source, const size_t index_of_case)
 {
-    // Save old hard fault handler and replace it with a new one
+    // Save old fault handlers and replace it with a new one
     real_hard_fault_handler = NVIC_GetVector(HARDFAULT_IRQn);
+    real_mem_fault_handler = NVIC_GetVector(MEMFAULT_IRQn);
     NVIC_SetVector(HARDFAULT_IRQn, (uint32_t)&hard_fault_handler_test);
+    NVIC_SetVector(MEMFAULT_IRQn, (uint32_t)&hard_fault_handler_test);
 
     return greentea_case_setup_handler(source, index_of_case);
 }
@@ -164,8 +168,9 @@ utest::v1::status_t fault_override_setup(const Case *const source, const size_t 
 utest::v1::status_t fault_override_teardown(const Case *const source, const size_t passed, const size_t failed,
                                        const failure_t reason)
 {
-    // Restore real hard fault handler
+    // Restore real fault handlers
     NVIC_SetVector(HARDFAULT_IRQn, real_hard_fault_handler);
+    NVIC_SetVector(MEMFAULT_IRQn, real_mem_fault_handler);
 
     return greentea_case_teardown_handler(source, passed, failed, reason);
 }
