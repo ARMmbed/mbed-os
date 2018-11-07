@@ -218,7 +218,8 @@ typedef enum {
 	RGBLED1_RT	= LED_RED,
 	LED1        = PE_13,
 	RGBLED1_GN	= LED1,
-	RGBLED2_BL	= PE_14,
+    LED2        = PE_14,
+	RGBLED2_BL	= LED2,
 	RGBLED2_RT	= PE_15,
 	RGBLED2_GN	= PE_9,
 	
