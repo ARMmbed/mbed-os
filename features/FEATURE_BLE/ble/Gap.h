@@ -1017,6 +1017,7 @@ public:
     typedef uint8_t AdvHandle_t;
 
     static const AdvHandle_t LEGACY_ADVERTISING_HANDLE = 0x00;
+    static const AdvHandle_t INVALID_ADVERTISING_HANDLE = 0xFF;
 
     struct AdvReportOptionalInformation {
         PeerAddressType_t directAddressType;

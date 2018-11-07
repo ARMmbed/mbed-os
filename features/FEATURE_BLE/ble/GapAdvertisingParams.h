@@ -285,7 +285,7 @@ class GapExtendedAdvertisingParams {
      *
      * @param[in] newAdvType The new advertising type.
      */
-    void setAdvertisingType(ble::advertising_type_t newAdvType) {
+    void setType(ble::advertising_type_t newAdvType) {
         _advType = newAdvType;
     }
 
@@ -294,7 +294,7 @@ class GapExtendedAdvertisingParams {
      *
      * @return Advertising type.
      */
-    ble::advertising_type_t setAdvertisingType() {
+    ble::advertising_type_t getType() {
         return _advType;
     }
 
@@ -308,7 +308,7 @@ class GapExtendedAdvertisingParams {
         _anonymous = enable;
     }
 
-    ble_error_t getPrimaryAdvertisingInterval(
+    ble_error_t getPrimaryInterval(
         uint32_t *min /* ms */,
         uint32_t *max /* ms */
     ) {
@@ -320,7 +320,7 @@ class GapExtendedAdvertisingParams {
         return BLE_ERROR_NONE;
     }
 
-    void setPrimaryAdvertisingInterval(
+    void setPrimaryInterval(
         uint32_t min /* ms */,
         uint32_t max /* ms */
     ) {
@@ -328,7 +328,7 @@ class GapExtendedAdvertisingParams {
         _maxInterval = max;
     }
 
-    ble_error_t getPrimaryAdvertisingChannels(
+    ble_error_t getPrimaryChannels(
         bool *channel37,
         bool *channel38,
         bool *channel39
@@ -342,7 +342,7 @@ class GapExtendedAdvertisingParams {
         return BLE_ERROR_NONE;
     }
 
-    void setPrimaryAdvertisingChannels(
+    void setPrimaryChannels(
         bool channel37,
         bool channel38,
         bool channel39
@@ -382,27 +382,27 @@ class GapExtendedAdvertisingParams {
         _peerAddressType = addressType;
     };
 
-    ble::advertising_policy_mode_t getAdvertisingPolicyMode() {
+    ble::advertising_policy_mode_t getPolicyMode() {
         return _policy;
     }
 
-    void setAdvertisingPolicyMode(
+    void setPolicyMode(
         ble::advertising_policy_mode_t mode
     ) {
         _policy = mode;
     }
 
-    int8_t getAdvertisingTxPower() {
+    int8_t getTxPower() {
         return _txPower;
     }
 
-    void setAdvertisingTxPower(
+    void setTxPower(
         int8_t txPower
     ) {
         _txPower = txPower;
     }
 
-    ble_error_t getAdvertisingPhy(
+    ble_error_t getPhy(
         ble::phy_t *primaryPhy,
         ble::phy_t *secondaryPhy
     ) {
@@ -414,7 +414,7 @@ class GapExtendedAdvertisingParams {
         return BLE_ERROR_NONE;
     }
 
-    void setAdvertisingPhy(
+    void setPhy(
         ble::phy_t primaryPhy,
         ble::phy_t secondaryPhy
     ) {
@@ -422,29 +422,33 @@ class GapExtendedAdvertisingParams {
         _secondaryPhy = secondaryPhy;
     }
 
-    uint8_t getSecondaryAdvertisingMaxSkip() {
+    uint8_t getSecondaryMaxSkip() {
         return _eventNumber;
     }
 
-    void setSecondaryAdvertisingMaxSkip(
+    void setSecondaryMaxSkip(
         uint8_t eventNumber
     ) {
         _eventNumber = eventNumber;
     }
 
-    void enableScanRequestNotification(
-        bool enable
+    void setScanRequestNotification(
+        bool enable = true
     ) {
         _notifyOnScan = enable;
     }
 
+    bool getScanRequestNotification() {
+        return _notifyOnScan;
+    }
+
     /**/
 
-    uint32_t getMinPrimaryAdvertisingInterval() const {
+    uint32_t getMinPrimaryInterval() const {
         return _minInterval;
     }
 
-    uint32_t getMinPrimaryAdvertisingInterval() const {
+    uint32_t getMaxPrimaryInterval() const {
         return _maxInterval;
     }
 
@@ -455,6 +459,14 @@ class GapExtendedAdvertisingParams {
     ble::peer_address_type_t getPeerAddressType() {
         return _peerAddressType;
     };
+
+    ble::phy_t getPrimaryPhy() {
+        return _primaryPhy;
+    }
+
+    ble::phy_t getSecondaryPhy() {
+        return _secondaryPhy;
+    }
 
 private:
     ble::advertising_type_t _advType;

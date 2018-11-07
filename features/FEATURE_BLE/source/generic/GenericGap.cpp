@@ -427,6 +427,11 @@ GenericGap::GenericGap(
     _random_static_identity_address = _pal_gap.get_random_address();
 
     _pal_gap.set_event_handler(this);
+
+    memset(_active_sets, 0, MAX_ADVERTISING_SETS);
+    memset(_existing_sets, 0, MAX_ADVERTISING_SETS);
+    /* legacy advertising always exists */
+    *_existing_sets = 0x01;
 }
 
 GenericGap::~GenericGap()
@@ -1109,6 +1114,7 @@ ble_error_t GenericGap::reset(void)
     Gap::reset();
     _advertising_timeout.detach();
     _scan_timeout.detach();
+    _pal_gap.clear_advertising_sets();
 
     return BLE_ERROR_NONE;
 }
@@ -1553,6 +1559,190 @@ void GenericGap::on_address_rotation_timeout()
 void GenericGap::set_connection_event_handler(pal::ConnectionEventMonitor::EventHandler *connection_event_handler)
 {
     _connection_event_handler = connection_event_handler;
+}
+
+uint8_t GenericGap::getMaxAdvertisingSetNumber() {
+    uint8_t set_number = _pal_gap.get_max_number_of_advertising_sets();
+    set_number = MAX_ADVERTISING_SETS < set_number ? MAX_ADVERTISING_SETS : set_number;
+    return set_number;
+}
+
+uint8_t GenericGap::getMaxAdvertisingDataLength() {
+    return _pal_gap.get_maximum_advertising_data_length();
+}
+
+ble_error_t GenericGap::createAdvertisingSet(AdvHandle_t* handle) {
+    uint8_t new_handle = 1;
+
+    while (get_adv_set_bit(_existing_sets, new_handle)) {
+        new_handle++;
+    }
+
+    if (set_adv_set_bit(_existing_sets, new_handle)) {
+        *handle = new_handle;
+        return BLE_ERROR_NONE;
+    }
+
+    *handle = INVALID_ADVERTISING_HANDLE;
+
+    return BLE_ERROR_OPERATION_NOT_PERMITTED;
+}
+
+ble_error_t GenericGap::destroyAdvertisingSet(AdvHandle_t handle) {
+    if (get_adv_set_bit(_existing_sets, handle)) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    if (get_adv_set_bit(_active_sets, handle)) {
+        return BLE_ERROR_OPERATION_NOT_PERMITTED;
+    }
+
+    if (set_adv_set_bit(_existing_sets, handle)) {
+        return _pal_gap.remove_advertising_set(handle);
+    }
+
+    return BLE_ERROR_INVALID_PARAM;
+}
+
+ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapAdvertisingParams* params) {
+    if (handle != Gap::LEGACY_ADVERTISING_HANDLE || !params) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    pal::advertising_event_properties_t event_properties;//TODO
+    ble::advertising_type_t adv_type = params->getAdvertisingType();
+
+    AddressUseType_t use_type;
+    switch(adv_type) {
+        case ADV_SCANNABLE_UNDIRECTED:
+        case ADV_NON_CONNECTABLE_UNDIRECTED:
+        case EXT_ADV_NON_CONNECTABLE_DIRECTED:
+        case EXT_ADV_SCANNABLE_DIRECTED:
+            use_type = AddressUseType_t::PERIPHERAL_NON_CONNECTABLE
+            break;
+        default:
+            use_type = AddressUseType_t::PERIPHERAL_CONNECTABLE;
+    }
+
+    return _pal_gap.set_extended_advertising_parameters(
+        (pal::advertising_handle_t)Gap::LEGACY_ADVERTISING_HANDLE,
+        event_properties,
+        (pal::advertising_interval_t)params->getIntervalInADVUnits(),
+        (pal::advertising_interval_t)params->getIntervalInADVUnits(),
+        pal::advertising_channel_map_t::ALL_ADVERTISING_CHANNELS,
+        (pal::own_address_type_t)get_own_address_type(use_type),
+        pal::advertising_peer_address_type_t::PUBLIC_ADDRESS,
+        params->getPeerAddress(),
+        (pal::advertising_filter_policy_t)_advertising_filter_policy,
+        (pal::advertising_power_t)params->getTxPower(),
+        params->getPrimaryPhy(),
+        params->getSecondaryMaxSkip(),
+        params->getSecondaryPhy(),
+        0,
+        params->getScanRequestNotification()
+    );
+}
+
+ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapExtendedAdvertisingParams* params) {
+    if (!get_adv_set_bit(_existing_sets, handle) || !params) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    pal::advertising_channel_map_t channel_map; /*TODO translate*/
+    uint8_t sid;//TODO
+    pal::advertising_event_properties_t event_properties;//TODO
+    //params->getAdvertisingType()
+
+    return _pal_gap.set_extended_advertising_parameters(
+        (pal::advertising_handle_t)handle,
+        event_properties,
+        (pal::advertising_interval_t)params->getMinPrimaryInterval(),
+        (pal::advertising_interval_t)params->getMaxPrimaryInterval(),
+        channel_map,
+        (pal::own_address_type_t)params->getOwnAddressType(),
+        (pal::advertising_peer_address_type_t)params->getPeerAddressType(),
+        params->getPeerAddress(),
+        (pal::advertising_filter_policy_t)params->getPolicyMode(),
+        (pal::advertising_power_t)params->getTxPower(),
+        params->getPrimaryPhy(),
+        params->getSecondaryMaxSkip(),
+        params->getSecondaryPhy(),
+        sid,
+        params->getScanRequestNotification()
+    );
+}
+
+ble_error_t GenericGap::setAdvertisingPayload(AdvHandle_t handle, const GapAdvertisingData* payload) {
+    if (!get_adv_set_bit(_existing_sets, handle) || !payload) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    return _pal_gap.set_extended_advertising_data(
+        handle,
+        /*TODO fragment*/ pal::advertising_fragment_description_t::FIRST_FRAGMENT,
+        payload->setMinimiseFragmentation,
+        payload->getPayloadLen(),
+        payload->getPayload()
+    );
+}
+
+ble_error_t GenericGap::setAdvertisingScanResponse(AdvHandle_t handle, const GapAdvertisingData* response) {
+    if (!get_adv_set_bit(_existing_sets, handle) || !response) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    return _pal_gap.set_extended_scan_response_data(
+        handle,
+        /*TODO fragment*/ pal::advertising_fragment_description_t::FIRST_FRAGMENT,
+        response->setMinimiseFragmentation,
+        response->getPayloadLen(),
+        response->getPayload()
+    );
+}
+
+ble_error_t GenericGap::startAdvertising(
+    AdvHandle_t handle,
+    uint8_t maxEvents,
+    uint32_t maxDuration
+) {
+    if (!get_adv_set_bit(_existing_sets, handle)) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    /* round up */
+    uint16_t duration_10ms = maxDuration ? (maxDuration - 1) / 10 + 1 : 0 ;
+
+    ble_error_t status = _pal_gap.extended_advertising_enable(
+        true,
+        1,
+        &handle,
+        &duration_10ms,
+        &maxEvents
+    );
+
+    if (status == BLE_ERROR_NONE) {
+        set_adv_set_bit(_active_sets, handle);
+    }
+
+    return status;
+}
+
+ble_error_t GenericGap::stopAdvertising(AdvHandle_t handle) {
+    if (get_adv_set_bit(_existing_sets, handle)) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    return _pal_gap.extended_advertising_enable(
+        true,
+        1,
+        &handle,
+        NULL,
+        NULL
+    );
+}
+
+bool GenericGap::isAdvertisingActive(AdvHandle_t handle) const {
+    return get_adv_set_bit(_active_sets, handle);
 }
 
 } // namespace generic

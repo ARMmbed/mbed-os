@@ -47,6 +47,8 @@ class GenericGap : public ::Gap,
                    public pal::Gap::EventHandler {
 
 public:
+    /* TODO: move to config */
+    static const size_t MAX_ADVERTISING_SETS = 64;
     /**
      * Construct a GenericGap instance for a given BLE instance ID.
      *
@@ -72,6 +74,30 @@ public:
      * @see Gap::~Gap
      */
     virtual ~GenericGap();
+
+    uint8_t getMaxAdvertisingSetNumber();
+
+    uint8_t getMaxAdvertisingDataLength();
+
+    ble_error_t createAdvertisingSet(AdvHandle_t* handle);
+
+    ble_error_t destroyAdvertisingSet(AdvHandle_t handle);
+
+    ble_error_t setAdvertisingParams(AdvHandle_t handle, const GapAdvertisingParams* params);
+
+    ble_error_t setAdvertisingParams(AdvHandle_t handle, const GapExtendedAdvertisingParams* params);
+
+    ble_error_t setAdvertisingPayload(AdvHandle_t handle, const GapAdvertisingData* payload);
+
+    ble_error_t setAdvertisingScanResponse(AdvHandle_t handle, const GapAdvertisingData* response);
+
+    ble_error_t startAdvertising(AdvHandle_t handle, uint8_t maxEvents = 0, uint32_t maxDuration = 0);
+
+    ble_error_t stopAdvertising(AdvHandle_t handle);
+
+    bool isAdvertisingActive(AdvHandle_t handle) const;
+
+    void init_extended_advertising();
 
     /**
      * @see Gap::setAddress
@@ -316,7 +342,9 @@ public:
     /**
      * @see Gap::startAdvertising
      */
-    virtual ble_error_t startAdvertising(const GapAdvertisingParams &params);
+    virtual ble_error_t startAdvertising(
+        const GapAdvertisingParams &params
+    );
 
     /**
      * @see Gap::reset
@@ -433,6 +461,42 @@ private:
     mbed::Timeout _scan_timeout;
     mbed::Ticker _address_rotation_ticker;
     pal::ConnectionEventMonitor::EventHandler *_connection_event_handler;
+    uint8_t _existing_sets[(MAX_ADVERTISING_SETS / 8) + 1];
+    uint8_t _active_sets[(MAX_ADVERTISING_SETS / 8) + 1];
+
+private:
+    static bool get_adv_set_bit(const uint8_t *bytes, uint8_t bit_number) {
+        if (bit_number > MAX_ADVERTISING_SETS) {
+            return false;
+        }
+        uint8_t byte = bit_number / 8;
+        uint8_t bit = bit_number - byte;
+        bytes += byte;
+        bool value = ((*bytes) >> bit) & 0x01;
+        return value;
+    }
+
+    static bool set_adv_set_bit(uint8_t *bytes, uint8_t bit_number) {
+        if (bit_number > MAX_ADVERTISING_SETS) {
+            return false;
+        }
+        uint8_t byte = bit_number / 8;
+        uint8_t bit = bit_number - byte;
+        bytes += byte;
+        *bytes |= 0x01 >> bit;
+        return true;
+    }
+
+    static bool clear_adv_set_bit(uint8_t *bytes, uint8_t bit_number) {
+        if (bit_number > MAX_ADVERTISING_SETS) {
+            return false;
+        }
+        uint8_t byte = bit_number / 8;
+        uint8_t bit = bit_number - byte;
+        bytes += byte
+        *bytes &= 0x00 >> bit;
+        return true;
+    }
 };
 
 }

@@ -537,7 +537,8 @@ public:
     GapAdvertisingData(void) :
         _payload(),
         _payloadLen(0),
-        _appearance(GENERIC_TAG) {
+        _appearance(GENERIC_TAG),
+        _minimiseFragmentation(false) {
     }
 
     /**
@@ -722,6 +723,14 @@ public:
 
         /* Field not found */
         return NULL;
+    }
+
+    void setMinimiseFragmentation(bool enable = true) {
+        _minimiseFragmentation = enable;
+    }
+
+    bool getMinimiseFragmentation() {
+        return _minimiseFragmentation;
     }
 
 private:
@@ -913,6 +922,8 @@ private:
      * Appearance value.
      */
     uint16_t _appearance;
+
+    bool _minimiseFragmentation;
 };
 
 /**
