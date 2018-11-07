@@ -465,6 +465,10 @@ private:
     uint8_t _active_sets[(MAX_ADVERTISING_SETS / 8) + 1];
 
 private:
+    bool is_extended_advertising_enabled() {
+        return _pal_gap.is_feature_supported(pal::Gap::ControllerSupportedFeatures_t::LE_EXTENDED_ADVERTISING);
+    }
+
     static bool get_adv_set_bit(const uint8_t *bytes, uint8_t bit_number) {
         if (bit_number > MAX_ADVERTISING_SETS) {
             return false;

@@ -1614,9 +1614,9 @@ ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapAdvert
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    if (_pal_gap.is_feature_supported(pal::Gap::ControllerSupportedFeatures_t::LE_EXTENDED_ADVERTISING)) {
-        // do legacy stuff
-        return BLE_ERROR_OPERATION_NOT_PERMITTED;
+    if (!is_extended_advertising_enabled()) {
+        memcpy(&getLegacyAdvertisingParams(), params, sizeof(GapAdvertisingParams));
+        return BLE_ERROR_NONE;
     }
 
     pal::advertising_event_properties_t event_properties;//TODO
@@ -1686,6 +1686,13 @@ ble_error_t GenericGap::setAdvertisingPayload(AdvHandle_t handle, const GapAdver
         return BLE_ERROR_INVALID_PARAM;
     }
 
+    if (!is_extended_advertising_enabled()) {
+        if (handle == Gap::LEGACY_ADVERTISING_HANDLE) {
+            memcpy(&getLegacyAdvertisingPayload(), payload, sizeof(GapAdvertisingData));
+        }
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
     return _pal_gap.set_extended_advertising_data(
         handle,
         /*TODO fragment*/ pal::advertising_fragment_description_t::FIRST_FRAGMENT,
@@ -1698,6 +1705,13 @@ ble_error_t GenericGap::setAdvertisingPayload(AdvHandle_t handle, const GapAdver
 ble_error_t GenericGap::setAdvertisingScanResponse(AdvHandle_t handle, const GapAdvertisingData* response) {
     if (!get_adv_set_bit(_existing_sets, handle) || !response) {
         return BLE_ERROR_INVALID_PARAM;
+    }
+
+    if (!is_extended_advertising_enabled()) {
+        if (handle == Gap::LEGACY_ADVERTISING_HANDLE) {
+            memcpy(&getLegacyAdvertisingScanResponse(), response, sizeof(GapAdvertisingData));
+        }
+        return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     return _pal_gap.set_extended_scan_response_data(
@@ -1716,6 +1730,13 @@ ble_error_t GenericGap::startAdvertising(
 ) {
     if (!get_adv_set_bit(_existing_sets, handle)) {
         return BLE_ERROR_INVALID_PARAM;
+    }
+
+    if (!is_extended_advertising_enabled()) {
+        if (handle == Gap::LEGACY_ADVERTISING_HANDLE) {
+            return startAdvertising(getLegacyAdvertisingParams());
+        }
+        return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     /* round up */
@@ -1739,6 +1760,13 @@ ble_error_t GenericGap::startAdvertising(
 ble_error_t GenericGap::stopAdvertising(AdvHandle_t handle) {
     if (get_adv_set_bit(_existing_sets, handle)) {
         return BLE_ERROR_INVALID_PARAM;
+    }
+
+    if (!is_extended_advertising_enabled()) {
+        if (handle == Gap::LEGACY_ADVERTISING_HANDLE) {
+            return stopAdvertising();
+        }
+        return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     return _pal_gap.extended_advertising_enable(
