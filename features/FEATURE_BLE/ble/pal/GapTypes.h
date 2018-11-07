@@ -161,6 +161,10 @@ struct connection_peer_address_type_t :
      */
     connection_peer_address_type_t(type value) :
         SafeEnum<connection_peer_address_type_t, uint8_t>(value) { }
+
+    explicit connection_peer_address_type_t(uint8_t raw_value) :
+        SafeEnum<connection_peer_address_type_t, uint8_t>(raw_value)
+    { }
 };
 
 
@@ -296,6 +300,12 @@ struct hci_error_code_t : SafeEnum<hci_error_code_t, uint8_t> {
      */
     hci_error_code_t(type value) :
         SafeEnum<hci_error_code_t, uint8_t>(value) { }
+
+    /**
+     * Construct a new hci_error_code_t from a raw value.
+     */
+    explicit hci_error_code_t(uint8_t raw_value) :
+        SafeEnum<hci_error_code_t, uint8_t>(static_cast<type>(raw_value)) { }
 };
 
 
@@ -528,6 +538,9 @@ struct connection_role_t : SafeEnum<connection_role_t, uint8_t> {
     };
 
     connection_role_t(type value) : SafeEnum<connection_role_t, uint8_t>(value) { }
+
+    explicit connection_role_t(uint8_t raw_value) :
+        SafeEnum<connection_role_t, uint8_t>(raw_value) { }
 };
 
 /**
@@ -808,10 +821,19 @@ struct advertising_data_status_t :  SafeEnum<advertising_data_status_t, uint8_t 
     };
 
     /**
-     * Construct a new duplicates_filter_t value.
+     * Construct a new advertising_data_status_t value.
      */
     advertising_data_status_t(type value) :
         SafeEnum<advertising_data_status_t, uint8_t>(value) { }
+
+    /**
+     * Explicit constructor from a raw value.
+     */
+    explicit advertising_data_status_t(uint8_t raw_value) :
+        SafeEnum<advertising_data_status_t, uint8_t>(
+            static_cast<advertising_data_status_t>(value)
+        )
+    { }
 };
 
 struct extended_advertising_report_event_type_t {
@@ -892,6 +914,8 @@ struct direct_address_type_t : SafeEnum<direct_address_type_t, uint8_t> {
      */
     direct_address_type_t(type value) :
         SafeEnum<direct_address_type_t, uint8_t>(value) { }
+
+    explicit direct_address_type_t(uint8_t raw_value) : SafeEnum(raw_value) { }
 };
 
 /**
@@ -944,6 +968,9 @@ struct clock_accuracy_t : SafeEnum<clock_accuracy_t, uint8_t >{
      * Construct a new clock_accuracy_t value.
      */
     clock_accuracy_t(type value) : SafeEnum<clock_accuracy_t, uint8_t>(value) { }
+
+    explicit clock_accuracy_t(uint8_t raw_value) :
+        SafeEnum<clock_accuracy_t, uint8_t>(static_cast<type>(raw_value)) { }
 };
 
 } // namespace pal

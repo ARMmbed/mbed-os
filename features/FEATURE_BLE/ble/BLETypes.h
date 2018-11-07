@@ -726,6 +726,8 @@ struct phy_t : SafeEnum<phy_t, uint8_t> {
      */
     phy_t(type value) :
         SafeEnum<phy_t, uint8_t>(value) { }
+
+    explicit phy_t(uint8_t raw_value) : SafeEnum(raw_value) { }
 };
 
 /**

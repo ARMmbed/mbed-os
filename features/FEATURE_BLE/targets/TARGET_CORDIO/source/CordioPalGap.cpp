@@ -399,32 +399,166 @@ void Gap::gap_handler(const wsfMsgHdr_t* msg) {
     }
 
     connection_handle_t handle = (connection_handle_t)msg->param;
+    EventHandler *handler = get_gap()._pal_event_handler;
+
 
     switch(msg->event) {
-        case DM_PHY_READ_IND:
-            if (get_gap()._pal_event_handler) {
-                const hciLeReadPhyCmdCmplEvt_t* evt = (const hciLeReadPhyCmdCmplEvt_t*)msg;
-
-                get_gap()._pal_event_handler->on_read_phy(
-                    (hci_error_code_t::type)msg->status,
-                    handle,
-                    (ble::phy_t::type)evt->txPhy,
-                    (ble::phy_t::type)evt->rxPhy
-                );
+        case DM_PHY_READ_IND: {
+            if (!handler) {
+                break;
             }
-            break;
-        case DM_PHY_UPDATE_IND:
-            if (get_gap()._pal_event_handler) {
-                const hciLePhyUpdateEvt_t* evt = (const hciLePhyUpdateEvt_t*)msg;
+            const hciLeReadPhyCmdCmplEvt_t* evt = (const hciLeReadPhyCmdCmplEvt_t*)msg;
 
-                get_gap()._pal_event_handler->on_phy_update_complete(
-                    (hci_error_code_t::type)msg->status,
-                    handle,
-                    (ble::phy_t::type)evt->txPhy,
-                    (ble::phy_t::type)evt->rxPhy
-                );
+            handler->on_read_phy(
+                (hci_error_code_t::type)msg->status,
+                handle,
+                (ble::phy_t::type)evt->txPhy,
+                (ble::phy_t::type)evt->rxPhy
+            );
+        } break;
+
+        case DM_PHY_UPDATE_IND: {
+            if (!handler) {
+                break;
             }
-            break;
+
+            const hciLePhyUpdateEvt_t* evt = (const hciLePhyUpdateEvt_t*)msg;
+
+            handler->on_phy_update_complete(
+                (hci_error_code_t::type)msg->status,
+                handle,
+                (ble::phy_t::type)evt->txPhy,
+                (ble::phy_t::type)evt->rxPhy
+            );
+        } break;
+
+        case DM_PER_ADV_SYNC_EST_IND: {
+            if (!handler) {
+                break;
+            }
+
+            const hciLePerAdvSyncEstEvt_t* evt = (const hciLePerAdvSyncEstEvt_t*) msg;
+
+            handler->on_periodic_advertising_sync_established(
+                hci_error_code_t(evt->status),
+                evt->syncHandle,
+                evt->advSid,
+                connection_peer_address_type_t(evt->advAddrType),
+                evt->advAddr,
+                evt->perAdvInterval,
+                clock_accuracy_t(evt->clockAccuracy)
+            );
+        } break;
+
+        case DM_PER_ADV_REPORT_IND: {
+            if (!handler) {
+                break;
+            }
+
+            const hciLePerAdvReportEvt_t* evt = (const hciLePerAdvReportEvt_t*) msg;
+
+            handler->on_periodic_advertising_report(
+                evt->syncHandle,
+                evt->txPower,
+                evt->rssi,
+                advertising_data_status_t(evt->status),
+                evt->len,
+                evt->pData
+            );
+        } break;
+
+        case DM_PER_ADV_SYNC_LOST_IND: {
+            if (!handler) {
+                break;
+            }
+
+            const hciLePerAdvSyncLostEvt_t* evt = (const hciLePerAdvSyncLostEvt_t*) msg;
+            handler->on_periodic_advertising_sync_loss(evt->syncHandle);
+        }  break;
+
+        case DM_CONN_OPEN_IND: {
+            if (!handler) {
+                break;
+            }
+
+            // TODO: filter with old event ...
+            const hciLeConnCmplEvt_t* evt = (const hciLeConnCmplEvt_t*) msg;
+            handler->on_enhanced_connection_complete(
+                hci_error_code_t(evt->status),
+                evt->handle,
+                connection_role_t(evt->role),
+                connection_peer_address_type_t(evt->addrType),
+                evt->peerAddr,
+                evt->localRpa,
+                evt->peerRpa,
+                evt->connInterval,
+                evt->connLatency,
+                evt->supTimeout,
+                clock_accuracy_t(evt->clockAccuracy)
+            );
+        } break;
+
+        case DM_SCAN_REQ_RCVD_IND: {
+            if (!handler) {
+                break;
+            }
+
+            const hciLeScanReqRcvdEvt_t* evt = (const hciLeScanReqRcvdEvt_t*) msg;
+            handler->on_scan_request_received(
+                evt->advHandle,
+                connection_peer_address_type_t(evt->scanAddrType),
+                evt->scanAddr
+            );
+        } break;
+
+        case DM_ADV_SET_STOP_IND: {
+            if (!handler) {
+                break;
+            }
+
+            const hciLeAdvSetTermEvt_t* evt = (const hciLeAdvSetTermEvt_t*) msg;
+            handler->on_advertising_set_terminated(
+                hci_error_code_t(evt->status),
+                evt->advHandle,
+                evt->handle,
+                evt->numComplEvts
+            );
+        } break;
+
+        case DM_EXT_SCAN_STOP_IND: {
+            if (!handler) {
+                break;
+            }
+
+            const hciLeScanTimeoutEvt_t* evt = (const hciLeScanTimeoutEvt_t*) msg;
+            handler->on_scan_timeout();
+        } break;
+
+        case DM_EXT_SCAN_REPORT_IND: {
+            if (!handler) {
+                break;
+            }
+
+            const hciLeExtAdvReportEvt_t* evt = (const hciLeExtAdvReportEvt_t*) msg;
+            connection_peer_address_type_t addr_type(evt->addrType);
+            phy_t sec_phy(evt->secPhy);
+
+            handler->on_extended_advertising_report(
+                evt->eventType,
+                (evt->addrType == HCI_ADDR_TYPE_ANONYMOUS) ?  NULL : &addr_type,
+                evt->addr,
+                phy_t(evt->priPhy),
+                evt->secPhy == HCI_ADV_RPT_PHY_SEC_NONE ? NULL : &sec_phy,
+                evt->advSid,
+                evt->txPower,
+                evt->rssi,
+                evt->perAdvInter,
+                direct_address_type_t(evt->directAddrType),
+                evt->directAddr,
+                evt->len,
+                evt->pData
+            );
+        } break;
     }
 
     // all handlers are stored in a static array
@@ -695,14 +829,23 @@ ble_error_t Gap::set_extended_scan_parameters(
 {
     DmScanSetAddrType(own_address_type.value());
 
-    // TODO: use/store filter policy
-    // TODO: use/store active scanning
-    // TODO: store scanning_phys
+    for (size_t i = 0, count = scanning_phys.count(); i < count; ++i) {
+        extended_scan_type[i] = active_scanning[i] ?
+            DM_SCAN_TYPE_ACTIVE :
+            DM_SCAN_TYPE_PASSIVE;
+    }
+
+    this->scanning_phys = scanning_phys;
 
     DmScanSetInterval(
         scanning_phys.value(),
         const_cast<uint16_t *>(scan_interval),
         const_cast<uint16_t *>(scan_window)
+    );
+
+    DmDevSetFilterPolicy(
+        DM_FILT_POLICY_MODE_SCAN,
+        filter_policy.value()
     );
 
     return BLE_ERROR_NONE;
@@ -716,18 +859,12 @@ ble_error_t Gap::extended_scan_enable(
 )
 {
     if (enable) {
-        // TODO retrieve scanning phys
-        phy_set_t scanning_phys;
-
-        // TODO: retrieve scan type
-        uint8_t* scan_type /*= use_active_scanning ? DM_SCAN_TYPE_ACTIVE : DM_SCAN_TYPE_PASSIVE */;
-
         uint32_t duration_ms = duration * 10;
 
         DmScanModeExt();
         DmScanStart(
             scanning_phys.value(),
-            DM_DISC_MODE_NONE, // TODO: What todo with this ????
+            DM_DISC_MODE_NONE,
             scan_type,
             filter_duplicates.value(), // TODO: cordio API incomplete ???
             duration_ms > 0xFFFF ? 0xFFFF : duration_ms,

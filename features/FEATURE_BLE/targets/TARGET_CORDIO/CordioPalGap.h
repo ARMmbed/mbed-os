@@ -409,6 +409,8 @@ private:
 private:
     address_t device_random_address;
     bool use_active_scanning;
+    uint8_t extended_scan_type[3];
+    phy_set_t scanning_phys;
 };
 
 } // cordio
