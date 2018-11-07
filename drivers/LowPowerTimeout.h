@@ -33,12 +33,13 @@ namespace mbed {
  * @ingroup drivers
  */
 class LowPowerTimeout : public LowPowerTicker, private NonCopyable<LowPowerTimeout> {
-
+#if !defined(DOXYGEN_ONLY)
 private:
     virtual void handler(void)
     {
         _function.call();
     }
+#endif
 };
 
 }

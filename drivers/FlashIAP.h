@@ -138,6 +138,7 @@ public:
      */
     uint8_t get_erase_value() const;
 
+#if !defined(DOXYGEN_ONLY)
 private:
 
     /* Check if address and size are aligned to a sector
@@ -151,6 +152,7 @@ private:
     flash_t _flash;
     uint8_t *_page_buf;
     static SingletonPtr<PlatformMutex> _mutex;
+#endif
 };
 
 } /* namespace mbed */

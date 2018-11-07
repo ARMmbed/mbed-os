@@ -166,6 +166,7 @@ public:
                           "public API of mbed-os and is being removed in the future.")
     bool remove_handler(pFunctionPointer_t handler, IRQn_Type irq);
 
+#if !defined(DOXYGEN_ONLY)
 private:
     InterruptManager();
     ~InterruptManager();
@@ -198,6 +199,7 @@ private:
     CallChain *_chains[NVIC_NUM_VECTORS];
     static InterruptManager *_instance;
     PlatformMutex _mutex;
+#endif
 };
 
 } // namespace mbed

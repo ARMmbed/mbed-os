@@ -108,7 +108,7 @@ public:
      * \sa BusOut::read()
      */
     operator int();
-
+#if !defined(DOXYGEN_ONLY)
 protected:
     virtual void lock();
     virtual void unlock();
@@ -121,6 +121,7 @@ protected:
     int _nc_mask;
 
     PlatformMutex _mutex;
+#endif
 };
 
 } // namespace mbed
