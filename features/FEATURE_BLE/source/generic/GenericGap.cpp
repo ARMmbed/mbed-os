@@ -1614,6 +1614,11 @@ ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapAdvert
         return BLE_ERROR_INVALID_PARAM;
     }
 
+    if (_pal_gap.is_feature_supported(pal::Gap::ControllerSupportedFeatures_t::LE_EXTENDED_ADVERTISING)) {
+        // do legacy stuff
+        return BLE_ERROR_OPERATION_NOT_PERMITTED;
+    }
+
     pal::advertising_event_properties_t event_properties;//TODO
     ble::advertising_type_t adv_type = params->getAdvertisingType();
 
@@ -1643,7 +1648,7 @@ ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapAdvert
         params->getPrimaryPhy(),
         params->getSecondaryMaxSkip(),
         params->getSecondaryPhy(),
-        0,
+        0xFF,
         params->getScanRequestNotification()
     );
 }
@@ -1654,7 +1659,6 @@ ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapExtend
     }
 
     pal::advertising_channel_map_t channel_map; /*TODO translate*/
-    uint8_t sid;//TODO
     pal::advertising_event_properties_t event_properties;//TODO
     //params->getAdvertisingType()
 
@@ -1672,7 +1676,7 @@ ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapExtend
         params->getPrimaryPhy(),
         params->getSecondaryMaxSkip(),
         params->getSecondaryPhy(),
-        sid,
+        (handle % 0x10),
         params->getScanRequestNotification()
     );
 }
