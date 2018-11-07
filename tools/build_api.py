@@ -432,13 +432,9 @@ def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
 
             # make same assumption as in region builder; first segment must fit.
             # this is only to get a neat ToolException anyway, since IntelHex.merge will
-            # throw intelhex.AddressOverlapError if there's overlapping
+            # throw IntelHex.AddressOverlapError if there's overlapping
             part_size = 0
             for es in part.segments():
-                # Add padding in between segments starting from end of first segment
-                if (len(part.segments()) > 1 and (merged.maxaddr() != None)):
-                    pad_size = es[0] - (merged.maxaddr() + 1)
-                    merged.puts(merged.maxaddr()+1, padding * pad_size)
                 part_size += es[1] - es[0]
                 merged.merge(part[es[0]:_end_addr_inclusive(es[1])])
 
@@ -446,16 +442,15 @@ def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
                 raise ToolException("Contents of region %s does not fit"
                                     % region.name)
 
-            # This padding applies for only files with one segment
-            if (len(part.segments()) == 1):
-                pad_size = region.size - part_size
-            else:
-                pad_size = 0
-
-            if pad_size > 0 and region != region_list[-1] and format != ".hex":
-                notify.info("  Padding region %s with 0x%x bytes" %
-                            (region.name, pad_size))
-                merged.puts(merged.maxaddr() + 1, padding * pad_size)
+    # Hex file can have gaps, so no padding needed. While other formats may
+    # need padding. Iterate through segments and pad the gaps.
+    if (format != ".hex"):
+        begin = 0
+        for es in merged.segments():
+            if (begin < es[0]):
+                pad_size = es[0] - begin
+                merged.puts(begin, padding * pad_size)
+            begin = es[1] + 1
 
     if not exists(dirname(destination)):
         makedirs(dirname(destination))
