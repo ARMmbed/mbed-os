@@ -257,27 +257,45 @@ private:
     uint16_t _timeout;
 };
 
-class GapExtendedAdvertisingParams : public GapAdvertisingParams {
-    GapExtendedAdvertisingParams()
-    : GapAdvertisingParams(),
-      _minInterval(0),
-    _maxInterval(0),
-    _maxDuration(0),
-    _peerAddressType(),
-    _ownAddressType(),
-    _policy(ble::ADV_POLICY_IGNORE_WHITELIST),
-    _primaryPhy(ble::phy_t::LE_1M),
-    _secondaryPhy(ble::phy_t::LE_1M),
-    _peerAddress(),
-    _maxEvents(0),
-    _txPower(0),
-    _eventNumber(0),
-    _channel37(1),
-    _channel38(1),
-    _channel39(1),
-    _anonymous(0),
-    _notifyOnScan(1) {
+class GapExtendedAdvertisingParams {
+    GapExtendedAdvertisingParams() :
+        _advType(ble::EXT_ADV_CONNECTABLE_UNDIRECTED),
+        _minInterval(0),
+        _maxInterval(0),
+        _maxDuration(0),
+        _peerAddressType(),
+        _ownAddressType(),
+        _policy(ble::ADV_POLICY_IGNORE_WHITELIST),
+        _primaryPhy(ble::phy_t::LE_1M),
+        _secondaryPhy(ble::phy_t::LE_1M),
+        _peerAddress(),
+        _maxEvents(0),
+        _txPower(0),
+        _eventNumber(0),
+        _channel37(1),
+        _channel38(1),
+        _channel39(1),
+        _anonymous(0),
+        _notifyOnScan(1) {
 
+    }
+
+    /**
+     * Update the advertising type.
+     *
+     * @param[in] newAdvType The new advertising type.
+     */
+    void setAdvertisingType(ble::advertising_type_t newAdvType) {
+        _advType = newAdvType;
+    }
+
+    /**
+     * Return advertising type.
+     *
+     * @return Advertising type.
+     */
+    ble::advertising_type_t setAdvertisingType() {
+        return _advType;
     }
 
     bool getAnonymousAdvertising() {
@@ -420,34 +438,34 @@ class GapExtendedAdvertisingParams : public GapAdvertisingParams {
         _notifyOnScan = enable;
     }
 
-    ble_error_t getDuration(
-        uint32_t *maxDuration /* ms */,
-        uint8_t *maxEvents
-    ) {
-        if (!maxDuration || !maxEvents) {
-            return BLE_ERROR_INVALID_PARAM;
-        }
-        return BLE_ERROR_NONE;
+    /**/
+
+    uint32_t getMinPrimaryAdvertisingInterval() const {
+        return _minInterval;
     }
 
-    void setDuration(
-        uint32_t maxDuration /* ms */,
-        uint8_t maxEvents = 0
-    ) {
-        _maxDuration = maxDuration;
-        _maxEvents = maxEvents;
+    uint32_t getMinPrimaryAdvertisingInterval() const {
+        return _maxInterval;
     }
+
+    BLEProtocol::AddressBytes_t* getPeerAddress() {
+        return _peerAddress;
+    };
+
+    ble::peer_address_type_t getPeerAddressType() {
+        return _peerAddressType;
+    };
+
 private:
+    ble::advertising_type_t _advType;
     uint32_t _minInterval;
     uint32_t _maxInterval;
-    uint32_t _maxDuration;
     ble::peer_address_type_t _peerAddressType;
     BLEProtocol::AddressType_t _ownAddressType;
     ble::advertising_policy_mode_t _policy;
     ble::phy_t _primaryPhy;
     ble::phy_t _secondaryPhy;
     BLEProtocol::AddressBytes_t _peerAddress;
-    uint8_t _maxEvents;
     uint8_t _txPower;
     uint8_t _eventNumber;
     uint8_t _channel37:1;

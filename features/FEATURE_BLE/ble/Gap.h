@@ -1145,57 +1145,63 @@ public:
 
     /*                                     advertising                                           */
 
-    uint8_t getMaxAdvertisingSetNumber() {
+    virtual uint8_t getMaxAdvertisingSetNumber() {
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return 1;
     }
 
-    uint8_t getMaxAdvertisingDataLength() {
+    virtual uint8_t getMaxAdvertisingDataLength() {
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return 0x1F;
     }
 
-    ble_error_t createAdvertisingSet(AdvHandle_t* handle) {
+    virtual ble_error_t createAdvertisingSet(AdvHandle_t* handle) {
         (void) handle;
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    ble_error_t destroyAdvertisingSet(AdvHandle_t handle) {
+    virtual ble_error_t destroyAdvertisingSet(AdvHandle_t handle) {
         (void) handle;
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    ble_error_t setAdvertisingParams(AdvHandle_t handle, const GapAdvertisingParams* params) {
-        (void) handle;
-        (void) params;
-        /* Requesting action from porter(s): override this API if this capability is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    ble_error_t setAdvertisingParams(AdvHandle_t handle, const GapExtendedAdvertisingParams* params) {
+    virtual ble_error_t setAdvertisingParams(AdvHandle_t handle, const GapAdvertisingParams* params) {
         (void) handle;
         (void) params;
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    ble_error_t setAdvertisingPayload(AdvHandle_t handle, const GapAdvertisingData* payload) {
+    virtual ble_error_t setAdvertisingParams(AdvHandle_t handle, const GapExtendedAdvertisingParams* params) {
+        (void) handle;
+        (void) params;
+        /* Requesting action from porter(s): override this API if this capability is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    virtual ble_error_t setAdvertisingPayload(AdvHandle_t handle, const GapAdvertisingData* payload) {
         (void) handle;
         (void) payload;
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    ble_error_t setAdvertisingScanResponse(AdvHandle_t handle, const GapAdvertisingData* response) {
+    virtual ble_error_t setAdvertisingScanResponse(AdvHandle_t handle, const GapAdvertisingData* response) {
         (void) handle;
         (void) response;
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    ble_error_t startAdvertising(AdvHandle_t handle) {
+    virtual ble_error_t startAdvertising(
+        AdvHandle_t handle,
+        uint8_t maxEvents = 0,
+        uint32_t maxDuration = 0
+    ) {
+        (void) maxEvents;
+        (void) maxDuration;
         /* deprecation compatibility */
         if (handle != LEGACY_ADVERTISING_HANDLE) {
             return BLE_ERROR_NOT_IMPLEMENTED;
@@ -1211,13 +1217,13 @@ public:
         return status;
     }
 
-    ble_error_t stopAdvertising(AdvHandle_t handle) {
+    virtual ble_error_t stopAdvertising(AdvHandle_t handle) {
         (void) handle;
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    bool isAdvertisingActive(AdvHandle_t handle) const {
+    virtual bool isAdvertisingActive(AdvHandle_t handle) const {
         if (handle != LEGACY_ADVERTISING_HANDLE) {
             return false;
         }
