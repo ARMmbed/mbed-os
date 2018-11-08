@@ -1015,7 +1015,7 @@ public:
     static const AdvHandle_t LEGACY_ADVERTISING_HANDLE = 0x00;
     static const AdvHandle_t INVALID_ADVERTISING_HANDLE = 0xFF;
 
-    struct AdvReportOptionalInformation {
+    struct AdvReportExtraInformation {
         PeerAddressType_t directAddressType;
         BLEProtocol::AddressBytes_t directAddress;
         Phy_t primaryPhy;
@@ -1056,9 +1056,9 @@ public:
         void onAdvertisingReport(
             AdvertisingEventType_t type,
             PeerAddressType_t peerAddressType,
-            BLEProtocol::AddressBytes_t peerAddress,
+            BLEProtocol::AddressBytes_t const &peerAddress,
             mbed::Span<const uint8_t> advertisingData,
-            AdvReportOptionalInformation *extraInfo
+            const AdvReportExtraInformation &extraInfo
         ) {
             (void) type;
             (void) peerAddressType;
