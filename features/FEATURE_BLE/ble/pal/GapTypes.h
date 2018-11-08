@@ -547,13 +547,6 @@ struct connection_role_t : SafeEnum<connection_role_t, uint8_t> {
 };
 
 /**
- * Handle of an advertising set.
- *
- * @note Range of valid handle is comprised between 0x00 and 0xEF.
- */
-typedef uint8_t advertising_handle_t;
-
-/**
  * Properties of an advertising event.
  */
 struct advertising_event_properties_t {

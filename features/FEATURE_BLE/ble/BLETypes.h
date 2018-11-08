@@ -48,6 +48,12 @@ typedef uintptr_t connection_handle_t;
  */
 typedef uint16_t attribute_handle_t;
 
+/**
+ * Handle of an advertising set.
+ *
+ * @note Range of valid handle is comprised between 0x00 and 0xEF.
+ */
+typedef uint8_t advertising_handle_t;
 
  /**
   * Inclusive range of GATT attributes handles.

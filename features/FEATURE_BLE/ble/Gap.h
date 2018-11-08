@@ -1008,7 +1008,7 @@ public:
     typedef CallChainOfFunctionPointersWithContext<const Gap *>
         GapShutdownCallbackChain_t;
 
-    typedef uint8_t AdvHandle_t;
+    typedef ble::advertising_handle_t AdvHandle_t;
 
     static const AdvHandle_t LEGACY_ADVERTISING_HANDLE = 0x00;
     static const AdvHandle_t INVALID_ADVERTISING_HANDLE = 0xFF;
