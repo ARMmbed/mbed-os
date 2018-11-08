@@ -58,15 +58,19 @@ static nsapi_error_t _tcpsocket_connect_to_chargen_srv(TCPSocket &sock)
  * \param offset Start pattern from offset
  * \param len Length of pattern to generate.
  */
-static void generate_RFC_864_pattern(size_t offset, uint8_t *buf,  size_t len)
+static void generate_RFC_864_pattern(size_t offset, uint8_t *buf,  size_t len, bool is_xinetd)
 {
+    const int row_size = 74; // Number of chars in single row
+    const int row_count = 95; // Number of rows in pattern after which pattern start from beginning
+    const int chars_scope = is_xinetd ? 93 : 95; // Number of chars from ASCII table used in pattern
+    const char first_char = is_xinetd ? '!' : ' '; // First char from ASCII table used in pattern
     while (len--) {
-        if (offset % 74 == 72) {
+        if (offset % row_size == (row_size - 2)) {
             *buf++ = '\r';
-        } else if (offset % 74 == 73) {
+        } else if (offset % row_size == (row_size - 1)) {
             *buf++ = '\n';
         } else {
-            *buf++ = ' ' + (offset % 74 + offset / 74) % 95 ;
+            *buf++ = first_char + (offset % row_size + ((offset / row_size) % row_count)) % chars_scope;
         }
         offset++;
     }
@@ -74,10 +78,14 @@ static void generate_RFC_864_pattern(size_t offset, uint8_t *buf,  size_t len)
 
 static void check_RFC_864_pattern(void *rx_buff, const size_t len, const size_t offset)
 {
+    static bool is_xinetd = false;
     void *ref_buff = malloc(len);
     TEST_ASSERT_NOT_NULL(ref_buff);
 
-    generate_RFC_864_pattern(offset, (uint8_t *)ref_buff, len);
+    if (offset == 0) {
+        is_xinetd = ((uint8_t *)rx_buff)[0] == '!';
+    }
+    generate_RFC_864_pattern(offset, (uint8_t *)ref_buff, len, is_xinetd);
     bool match = memcmp(ref_buff, rx_buff, len) == 0;
 
     free(ref_buff);
