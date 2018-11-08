@@ -27,6 +27,7 @@
 #include "FunctionPointerWithContext.h"
 #include "platform/mbed_toolchain.h"
 #include "platform/NonCopyable.h"
+#include "platform/Span.h"
 
 /**
  * @addtogroup ble
@@ -1056,14 +1057,12 @@ public:
             AdvertisingEventType_t type,
             PeerAddressType_t peerAddressType,
             BLEProtocol::AddressBytes_t peerAddress,
-            uint8_t advertisingDataLen,
-            const uint8_t *advertisingData,
+            mbed::Span<const uint8_t> advertisingData,
             AdvReportOptionalInformation *extraInfo
         ) {
             (void) type;
             (void) peerAddressType;
             (void) peerAddress;
-            (void) advertisingDataLen;
             (void) advertisingData;
             (void) extraInfo;
         }
