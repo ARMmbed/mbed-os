@@ -1031,12 +1031,12 @@ public:
 
         virtual void onScanRequest(
             AdvHandle_t advHandle,
-            const BLEProtocol::AddressBytes_t peerAddres,
-            PeerAddressType_t peerAddresType
+            const BLEProtocol::AddressBytes_t peerAddress,
+            PeerAddressType_t peerAddressType
         ) {
             (void) advHandle;
-            (void) peerAddres;
-            (void) peerAddresType;
+            (void) peerAddress;
+            (void) peerAddressType;
         }
 
         virtual void onAdvertisingEnd(
@@ -1053,15 +1053,15 @@ public:
 
         void onAdvertisingReport(
             ble::advertising_event_t type,
-            PeerAddressType_t peerAddrType,
-            BLEProtocol::AddressBytes_t peerAddr,
+            PeerAddressType_t peerAddressType,
+            BLEProtocol::AddressBytes_t peerAddress,
             uint8_t advertisingDataLen,
             const uint8_t *advertisingData,
             AdvReportOptionalInformation *extraInfo
         ) {
             (void) type;
-            (void) peerAddrType;
-            (void) peerAddr;
+            (void) peerAddressType;
+            (void) peerAddress;
             (void) advertisingDataLen;
             (void) advertisingData;
             (void) extraInfo;
