@@ -1031,8 +1031,8 @@ public:
 
         virtual void onScanRequest(
             AdvHandle_t advHandle,
-            const BLEProtocol::AddressBytes_t peerAddress,
-            PeerAddressType_t peerAddressType
+            PeerAddressType_t peerAddressType,
+            const BLEProtocol::AddressBytes_t &peerAddress
         ) {
             (void) advHandle;
             (void) peerAddress;
