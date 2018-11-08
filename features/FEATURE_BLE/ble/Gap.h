@@ -28,12 +28,6 @@
 #include "platform/mbed_toolchain.h"
 #include "platform/NonCopyable.h"
 
-/* Forward declarations for classes that are only used for pointers or
-   references. */
-class GapAdvertisingParams;
-class GapScanningParams;
-class GapAdvertisingData;
-
 /**
  * @addtogroup ble
  * @{
@@ -88,18 +82,18 @@ class GapAdvertisingData;
  * Gap& gap;
  *
  * // construct the packet to advertise
- * GapAdvertisingData advertising_data;
+ * AdvertisingData advertising_data;
  *
  * // Add advertiser flags
  * advertising_data.addFlags(
- *    GapAdvertisingData::LE_GENERAL_DISCOVERABLE |
- *    GapAdvertisingData::BREDR_NOT_SUPPORTED
+ *    AdvertisingData::LE_GENERAL_DISCOVERABLE |
+ *    AdvertisingData::BREDR_NOT_SUPPORTED
  * );
  *
  * // Add the name of the device to the advertising data
  * static const uint8_t device_name[] = "HRM";
  * advertising_data.addData(
- *     GapAdvertisingData::COMPLETE_LOCAL_NAME,
+ *     AdvertisingData::COMPLETE_LOCAL_NAME,
  *     device_name,
  *     sizeof(device_name)
  * );
@@ -1182,14 +1176,14 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    virtual ble_error_t setAdvertisingPayload(AdvHandle_t handle, const GapAdvertisingData* payload) {
+    virtual ble_error_t setAdvertisingPayload(AdvHandle_t handle, const AdvertisingData* payload, bool minimiseFragmentation = false) {
         (void) handle;
         (void) payload;
         /* Requesting action from porter(s): override this API if this capability is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    virtual ble_error_t setAdvertisingScanResponse(AdvHandle_t handle, const GapAdvertisingData* response) {
+    virtual ble_error_t setAdvertisingScanResponse(AdvHandle_t handle, const AdvertisingData* response) {
         (void) handle;
         (void) response;
         /* Requesting action from porter(s): override this API if this capability is supported. */
@@ -1885,7 +1879,7 @@ public:
      *
      * @return BLE_ERROR_NONE if the new appearance was set correctly.
      */
-    virtual ble_error_t setAppearance(GapAdvertisingData::Appearance appearance)
+    virtual ble_error_t setAppearance(AdvertisingData::Appearance appearance)
     {
         (void)appearance;
 
@@ -1901,7 +1895,7 @@ public:
      * @return BLE_ERROR_NONE if the device-appearance was fetched correctly
      * from the underlying BLE stack.
      */
-    virtual ble_error_t getAppearance(GapAdvertisingData::Appearance *appearanceP)
+    virtual ble_error_t getAppearance(AdvertisingData::Appearance *appearanceP)
     {
         (void)appearanceP;
 

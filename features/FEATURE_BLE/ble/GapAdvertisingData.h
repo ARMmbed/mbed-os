@@ -536,24 +536,12 @@ public:
 
     AdvertisingData(mbed::Span<uint8_t> buffer) :
         _buffer(buffer),
-        _payloadLen(0),
-        _appearance(GENERIC_TAG),
-        _minimiseFragmentation(false) {
+        _payloadLen(0) {
     }
 
     AdvertisingData(uint8_t* buffer, size_t buffer_size) :
         _buffer(buffer, buffer_size),
-        _payloadLen(0),
-        _appearance(GENERIC_TAG),
-        _minimiseFragmentation(false) {
-    }
-
-    void setMinimiseFragmentation(bool enable = true) {
-        _minimiseFragmentation = enable;
-    }
-
-    bool getMinimiseFragmentation() const {
-        return _minimiseFragmentation;
+        _payloadLen(0) {
     }
 
     size_t getBufferSize() const {
@@ -672,7 +660,6 @@ public:
      */
     ble_error_t addAppearance(Appearance appearance = GENERIC_TAG)
     {
-        _appearance = appearance;
         return addData(AdvertisingData::APPEARANCE, (uint8_t *)&appearance, 2);
     }
 
@@ -732,7 +719,12 @@ public:
      */
     uint16_t getAppearance(void) const
     {
-        return (uint16_t)_appearance;
+        uint16_t appearance = GENERIC_TAG;
+        uint8_t *field = findField(AdvertisingData::APPEARANCE);
+        if (field) {
+            memcpy((uint8_t*)appearance, field, 2);
+        }
+        return appearance;
     }
 
     /**
@@ -941,8 +933,6 @@ protected:
     AdvertisingData(AdvertisingData& other) {
         _buffer = mbed::make_Span(other.getPayload(), other.getBufferSize());
         _payloadLen = other.getPayloadLen();
-        _appearance = other.getAppearance();
-        _minimiseFragmentation = other.getMinimiseFragmentation();
     }
 
 protected:
@@ -952,13 +942,6 @@ protected:
      * Length of the data added to the advertising buffer.
      */
     uint8_t _payloadLen;
-
-    /**
-     * Appearance value.
-     */
-    uint16_t _appearance;
-
-    bool _minimiseFragmentation;
 };
 
 /**
@@ -975,8 +958,6 @@ public:
     {
         memcpy(_payload, other.getPayload(), GAP_ADVERTISING_DATA_MAX_PAYLOAD);
         _payloadLen = other.getPayloadLen();
-        _appearance = other.getAppearance();
-        _minimiseFragmentation = other.getMinimiseFragmentation();
     }
 
 private:
