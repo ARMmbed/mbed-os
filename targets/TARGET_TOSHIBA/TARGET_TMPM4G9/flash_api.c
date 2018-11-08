@@ -121,3 +121,10 @@ static void internal_hosc_enable(void)
     work = (uint32_t)(TSB_CG->OSCCR & ~CGOSCCR_IHOSC1EN_MASK);
     TSB_CG->OSCCR = (uint32_t)(work | CGOSCCR_IHOSC1EN_RW_ENABLE);
 }
+
+uint8_t flash_get_erase_value(const flash_t *obj)
+{
+    (void)obj;
+
+    return 0xFF;
+}

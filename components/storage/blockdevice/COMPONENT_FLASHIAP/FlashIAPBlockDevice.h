@@ -109,6 +109,12 @@ public:
      */
     virtual bd_size_t get_erase_size(bd_addr_t addr) const;
 
+    /** Get the value of storage when erased
+     *
+     *  @return         The value of storage when erased
+     */
+    virtual int get_erase_value() const;
+
     /** Get the total size of the underlying device
      *
      *  @return         Size of the underlying device in bytes

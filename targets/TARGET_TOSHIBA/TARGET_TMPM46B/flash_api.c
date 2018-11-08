@@ -162,3 +162,14 @@ uint32_t flash_get_size(const flash_t *obj)
 {
     return FLASH_CHIP_SIZE;
 }
+
+#if defined ( __ICCARM__ )    /* IAR Compiler */
+#pragma location = "FLASH_ROM"
+#endif
+uint8_t flash_get_erase_value(const flash_t *obj)
+{
+    (void)obj;
+
+    return 0xFF;
+}
+
