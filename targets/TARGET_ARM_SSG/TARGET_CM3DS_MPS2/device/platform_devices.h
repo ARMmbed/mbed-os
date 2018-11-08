@@ -26,6 +26,7 @@
 #include "arm_mps2_io_drv.h"
 #include "spi_pl022_drv.h"
 #include "arm_uart_drv.h"
+#include "smsc9220_eth_drv.h"
 
 /* ======= Defines peripheral configuration structures ======= */
 
@@ -94,6 +95,10 @@ extern struct arm_uart_dev_t ARM_UART3_DEV;
 #endif
 #ifdef ARM_UART4
 extern struct arm_uart_dev_t ARM_UART4_DEV;
+#endif
+
+#ifdef SMSC9220_ETH
+extern struct smsc9220_eth_dev_t SMSC9220_ETH_DEV;
 #endif
 
 #endif  /* __ARM_LTD_PLATFORM_DEVICES_H__ */
