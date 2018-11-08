@@ -914,7 +914,7 @@ private:
             if ((_payloadLen - dataLength + len) <= GAP_ADVERTISING_DATA_MAX_PAYLOAD) {
 
                 /* Remove old field */
-                while ((field + dataLength + 2) < _buffer[_payloadLen]) {
+                while ((field + dataLength + 2) < _buffer.data() + _payloadLen) {
                     *field = field[dataLength + 2];
                     field++;
                 }
