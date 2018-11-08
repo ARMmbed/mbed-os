@@ -440,7 +440,7 @@ class GapExtendedAdvertisingParams {
         return _notifyOnScan;
     }
 
-    /**/
+    /* helper get functions */
 
     uint32_t getMinPrimaryInterval() const {
         return _minInterval;
@@ -450,20 +450,32 @@ class GapExtendedAdvertisingParams {
         return _maxInterval;
     }
 
-    BLEProtocol::AddressBytes_t* getPeerAddress() {
+    BLEProtocol::AddressBytes_t* getPeerAddress() const  {
         return &_peerAddress;
     };
 
-    ble::peer_address_type_t getPeerAddressType() {
+    ble::peer_address_type_t getPeerAddressType() const  {
         return _peerAddressType;
     };
 
-    ble::phy_t getPrimaryPhy() {
+    ble::phy_t getPrimaryPhy() const  {
         return _primaryPhy;
     }
 
-    ble::phy_t getSecondaryPhy() {
+    ble::phy_t getSecondaryPhy() const  {
         return _secondaryPhy;
+    }
+
+    bool getChannel37() const {
+        return _channel37;
+    }
+
+    bool getChannel38() const {
+        return _channel37;
+    }
+
+    bool getChannel39() const {
+        return _channel37;
     }
 
 private:

@@ -1619,11 +1619,10 @@ ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapAdvert
         return BLE_ERROR_NONE;
     }
 
-    pal::advertising_event_properties_t event_properties;//TODO
-    ble::advertising_type_t adv_type = params->getAdvertisingType();
+    pal::advertising_event_properties_t event_properties;
 
     AddressUseType_t use_type;
-    switch(adv_type) {
+    switch(params->getAdvertisingType()) {
         case ADV_SCANNABLE_UNDIRECTED:
         case ADV_NON_CONNECTABLE_UNDIRECTED:
         case EXT_ADV_NON_CONNECTABLE_DIRECTED:
@@ -1658,7 +1657,7 @@ ble_error_t GenericGap::setAdvertisingParams(AdvHandle_t handle, const GapExtend
         return BLE_ERROR_INVALID_PARAM;
     }
 
-    pal::advertising_channel_map_t channel_map; /*TODO translate*/
+    pal::advertising_channel_map_t channel_map(params->getChannel37(), params->getChannel38(), params->getChannel39());
     pal::advertising_event_properties_t event_properties;//TODO
     //params->getAdvertisingType()
 
