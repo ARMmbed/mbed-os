@@ -307,7 +307,7 @@ typedef struct {
     /*!
      * A pointer to the payload containing the MAC commands.
      */
-    const uint8_t* payload;
+    const uint8_t *payload;
     /*!
      * The size of the payload.
      */
@@ -402,7 +402,7 @@ typedef struct verify_adr_params_s {
     /*!
      * A pointer to the first element of the channels mask.
      */
-    uint16_t* channel_mask;
+    uint16_t *channel_mask;
 } verify_adr_params_t;
 
 /**

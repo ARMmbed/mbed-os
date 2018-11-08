@@ -186,25 +186,25 @@
  * Band 0 definition
  * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
-static const band_t KR920_BAND0 = { 1 , KR920_MAX_TX_POWER, 0, 0, 0 }; //  100.0 %
+static const band_t KR920_BAND0 = { 1, KR920_MAX_TX_POWER, 0, 0, 0 };  //  100.0 %
 
 /*!
  * LoRaMac default channel 1
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-static const channel_params_t KR920_LC1 = { 922100000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 };
+static const channel_params_t KR920_LC1 = { 922100000, 0, { ((DR_5 << 4) | DR_0) }, 0 };
 
 /*!
  * LoRaMac default channel 2
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-static const channel_params_t KR920_LC2 = { 922300000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 };
+static const channel_params_t KR920_LC2 = { 922300000, 0, { ((DR_5 << 4) | DR_0) }, 0 };
 
 /*!
  * LoRaMac default channel 3
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-static const channel_params_t KR920_LC3 = { 922500000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 };
+static const channel_params_t KR920_LC3 = { 922500000, 0, { ((DR_5 << 4) | DR_0) }, 0 };
 
 /*!
  * LoRaMac channels which are allowed for the join procedure
@@ -254,7 +254,7 @@ LoRaPHYKR920::LoRaPHYKR920()
     channels[2].band = 0;
 
     // Initialize the channels default mask
-    default_channel_mask[0] = LC( 1 ) + LC( 2 ) + LC( 3 );
+    default_channel_mask[0] = LC(1) + LC(2) + LC(3);
     // Update the channels mask
     copy_channel_mask(channel_mask, default_channel_mask, KR920_CHANNEL_MASK_SIZE);
 
@@ -356,7 +356,7 @@ bool LoRaPHYKR920::verify_frequency_for_band(uint32_t freq, uint8_t band) const
 
     // Verify if the frequency is valid. The frequency must be in a specified
     // range and can be set to specific values.
-    if ((tmp_freq >= 920900000) && (tmp_freq <=923300000)) {
+    if ((tmp_freq >= 920900000) && (tmp_freq <= 923300000)) {
         // Range ok, check for specific value
         tmp_freq -= 920900000;
         if ((tmp_freq % 200000) == 0) {
@@ -367,8 +367,8 @@ bool LoRaPHYKR920::verify_frequency_for_band(uint32_t freq, uint8_t band) const
     return false;
 }
 
-bool LoRaPHYKR920::tx_config(tx_config_params_t* config, int8_t* tx_power,
-                             lorawan_time_t* tx_toa)
+bool LoRaPHYKR920::tx_config(tx_config_params_t *config, int8_t *tx_power,
+                             lorawan_time_t *tx_toa)
 {
     int8_t phy_dr = datarates_KR920[config->datarate];
 
@@ -393,12 +393,12 @@ bool LoRaPHYKR920::tx_config(tx_config_params_t* config, int8_t* tx_power,
     _radio->set_channel(channels[config->channel].frequency);
 
     _radio->set_tx_config(MODEM_LORA, phy_tx_power, 0, bandwidth, phy_dr, 1, 8,
-                          false, true, 0, 0, false, 3000 );
+                          false, true, 0, 0, false, 3000);
 
     // Setup maximum payload lenght of the radio driver
     _radio->set_max_payload_length(MODEM_LORA, config->pkt_len);
     // Get the time-on-air of the next tx frame
-    *tx_toa =_radio->time_on_air(MODEM_LORA, config->pkt_len);
+    *tx_toa = _radio->time_on_air(MODEM_LORA, config->pkt_len);
 
     _radio->unlock();
 
@@ -406,9 +406,9 @@ bool LoRaPHYKR920::tx_config(tx_config_params_t* config, int8_t* tx_power,
     return true;
 }
 
-lorawan_status_t LoRaPHYKR920::set_next_channel(channel_selection_params_t* params,
-                                                uint8_t* channel, lorawan_time_t* time,
-                                                lorawan_time_t* aggregate_timeoff)
+lorawan_status_t LoRaPHYKR920::set_next_channel(channel_selection_params_t *params,
+                                                uint8_t *channel, lorawan_time_t *time,
+                                                lorawan_time_t *aggregate_timeoff)
 {
     uint8_t next_channel_idx = 0;
     uint8_t nb_enabled_channels = 0;
@@ -441,9 +441,9 @@ lorawan_status_t LoRaPHYKR920::set_next_channel(channel_selection_params_t* para
     if (nb_enabled_channels > 0) {
 
         for (uint8_t  i = 0, j = get_random(0, nb_enabled_channels - 1);
-                      i < KR920_MAX_NB_CHANNELS; i++) {
+                i < KR920_MAX_NB_CHANNELS; i++) {
             next_channel_idx = enabled_channels[j];
-            j = ( j + 1 ) % nb_enabled_channels;
+            j = (j + 1) % nb_enabled_channels;
 
             // Perform carrier sense for KR920_CARRIER_SENSE_TIME
             // If the channel is free, we can stop the LBT mechanism
@@ -452,7 +452,7 @@ lorawan_status_t LoRaPHYKR920::set_next_channel(channel_selection_params_t* para
             if (_radio->perform_carrier_sense(MODEM_LORA,
                                               channels[next_channel_idx].frequency,
                                               KR920_RSSI_FREE_TH,
-                                              KR920_CARRIER_SENSE_TIME ) == true) {
+                                              KR920_CARRIER_SENSE_TIME) == true) {
                 // Free channel found
                 *channel = next_channel_idx;
                 *time = 0;
@@ -480,7 +480,7 @@ lorawan_status_t LoRaPHYKR920::set_next_channel(channel_selection_params_t* para
     }
 }
 
-void LoRaPHYKR920::set_tx_cont_mode(cw_mode_params_t* params, uint32_t given_frequency)
+void LoRaPHYKR920::set_tx_cont_mode(cw_mode_params_t *params, uint32_t given_frequency)
 {
     (void)given_frequency;
 
@@ -495,7 +495,7 @@ void LoRaPHYKR920::set_tx_cont_mode(cw_mode_params_t* params, uint32_t given_fre
     // Take the minimum between the max_eirp and params->max_eirp.
     // The value of params->max_eirp could have changed during runtime,
     // e.g. due to a MAC command.
-    max_eirp = MIN (params->max_eirp, max_eirp);
+    max_eirp = MIN(params->max_eirp, max_eirp);
 
     // Calculate physical TX power
     phy_tx_power = compute_tx_power(params->tx_power, max_eirp, params->antenna_gain);

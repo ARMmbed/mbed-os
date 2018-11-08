@@ -116,9 +116,9 @@ public:
      */
     lorawan_status_t process_mac_commands(const uint8_t *payload, uint8_t mac_index,
                                           uint8_t commands_size, uint8_t snr,
-                                          loramac_mlme_confirm_t& mlme_conf,
-                                          lora_mac_system_params_t& mac_params,
-                                          LoRaPHY& lora_phy);
+                                          loramac_mlme_confirm_t &mlme_conf,
+                                          lora_mac_system_params_t &mac_params,
+                                          LoRaPHY &lora_phy);
 
     /**
      * @brief Adds a new LinkCheckReq MAC command to be sent.

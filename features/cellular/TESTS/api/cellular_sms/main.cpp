@@ -52,7 +52,7 @@ static EventQueue queue(8 * EVENTS_EVENT_SIZE);
 static rtos::Semaphore network_semaphore(0);
 static CellularConnectionFSM *cellularConnectionFSM;
 static CellularConnectionFSM::CellularState cellular_target_state;
-static CellularSMS* sms;
+static CellularSMS *sms;
 static char service_center_address[SMS_MAX_PHONE_NUMBER_SIZE];
 static int service_address_type;
 
@@ -199,7 +199,7 @@ static void test_get_sms()
 
     wait(7);
 
-    TEST_ASSERT(sms->get_sms(buf, buf_len, phone_num, SMS_MAX_PHONE_NUMBER_SIZE, time_stamp, SMS_MAX_TIME_STAMP_SIZE, &buf_size) == buf_len-1);
+    TEST_ASSERT(sms->get_sms(buf, buf_len, phone_num, SMS_MAX_PHONE_NUMBER_SIZE, time_stamp, SMS_MAX_TIME_STAMP_SIZE, &buf_size) == buf_len - 1);
     TEST_ASSERT(strcmp(phone_num, MBED_CONF_APP_CELLULAR_PHONE_NUMBER) == 0);
     TEST_ASSERT(strcmp(buf, TEST_MESSAGE) == 0);
     TEST_ASSERT(buf_size == 0);

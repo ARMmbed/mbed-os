@@ -19,8 +19,7 @@
 #include "mbed_assert.h"
 #include "NanostackMemoryManager.h"
 
-struct ns_stack_mem_t
-{
+struct ns_stack_mem_t {
     ns_stack_mem_t *next;
     void *payload;
     uint32_t len;

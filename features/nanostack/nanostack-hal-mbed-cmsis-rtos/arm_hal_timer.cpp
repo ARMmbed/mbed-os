@@ -94,7 +94,7 @@ uint16_t platform_timer_get_remaining_slots(void)
 {
     uint32_t elapsed = timer->read_us();
     if (elapsed < due) {
-        return (uint16_t) ((due - elapsed) / 50);
+        return (uint16_t)((due - elapsed) / 50);
     } else {
         return 0;
     }

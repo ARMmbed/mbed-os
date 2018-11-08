@@ -37,10 +37,10 @@ void _main_init(void)
 {
     /* microlib only supports the two region memory model */
 
-    mbed_heap_start = (unsigned char*)__heap_base;
+    mbed_heap_start = (unsigned char *)__heap_base;
     mbed_heap_size = (uint32_t)__heap_base - (uint32_t)__heap_limit;
 
-    mbed_stack_isr_start = (unsigned char*)((uint32_t)__initial_sp - ISR_STACK_SIZE);
+    mbed_stack_isr_start = (unsigned char *)((uint32_t)__initial_sp - ISR_STACK_SIZE);
     mbed_stack_isr_size = ISR_STACK_SIZE;
 
     mbed_init();

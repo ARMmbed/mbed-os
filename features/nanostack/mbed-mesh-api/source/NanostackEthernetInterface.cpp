@@ -44,11 +44,11 @@ nsapi_error_t NanostackEthernetInterface::initialize(NanostackEthernetPhy *phy)
     }
 
     return get_interface()->initialize();
- }
+}
 
 nsapi_error_t Nanostack::EthernetInterface::bringup(bool dhcp, const char *ip,
-                      const char *netmask, const char *gw,
-                      nsapi_ip_stack_t stack, bool blocking)
+                                                    const char *netmask, const char *gw,
+                                                    nsapi_ip_stack_t stack, bool blocking)
 {
     if (stack == IPV4_STACK) {
         return NSAPI_ERROR_UNSUPPORTED;

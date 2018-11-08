@@ -20,8 +20,7 @@
 
 #include "AT_CellularDevice.h"
 
-namespace mbed
-{
+namespace mbed {
 
 class UBLOX_AT : public AT_CellularDevice {
 public:

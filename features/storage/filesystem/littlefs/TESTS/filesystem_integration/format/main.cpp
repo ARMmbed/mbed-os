@@ -117,10 +117,10 @@ void test_bad_mount()
     TEST_ASSERT_EQUAL(0, res);
 
     {
-        res = bd.erase(0, 2*bd.get_erase_size());
+        res = bd.erase(0, 2 * bd.get_erase_size());
         TEST_ASSERT_EQUAL(0, res);
         memset(buffer, 0, bd.get_program_size());
-        for (int i = 0; i < 2*bd.get_erase_size(); i += bd.get_program_size()) {
+        for (int i = 0; i < 2 * bd.get_erase_size(); i += bd.get_program_size()) {
             res = bd.program(buffer, i, bd.get_program_size());
             TEST_ASSERT_EQUAL(0, res);
         }

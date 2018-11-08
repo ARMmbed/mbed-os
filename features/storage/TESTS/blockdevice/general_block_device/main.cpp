@@ -82,11 +82,11 @@ void basic_erase_program_read_test(BlockDevice *block_device, bd_size_t block_si
     int val_rand;
     for (bd_size_t i_ind = 0; i_ind < block_size; i_ind++) {
         val_rand = rand();
-        if ( (0xff & val_rand) != read_block[i_ind] ) {
+        if ((0xff & val_rand) != read_block[i_ind]) {
             utest_printf("\n Assert Failed Buf Read - block:size: %llx:%llu \n", block, block_size);
-            utest_printf("\n pos: %llu, exp: %02x, act: %02x, wrt: %02x \n", i_ind, (0xff & val_rand), 
+            utest_printf("\n pos: %llu, exp: %02x, act: %02x, wrt: %02x \n", i_ind, (0xff & val_rand),
                          read_block[i_ind],
-                         write_block[i_ind] );
+                         write_block[i_ind]);
         }
         TEST_ASSERT_EQUAL(0xff & val_rand, read_block[i_ind]);
     }
@@ -153,7 +153,7 @@ static void test_thread_job(void *block_device_ptr)
     uint8_t *write_block = new (std::nothrow) uint8_t[block_size];
     uint8_t *read_block = new (std::nothrow) uint8_t[block_size];
 
-    if (!write_block || !read_block ) {
+    if (!write_block || !read_block) {
         utest_printf("\n Not enough memory for test");
         goto end;
     }

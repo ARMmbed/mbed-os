@@ -55,11 +55,11 @@ public:
 
     virtual int8_t get_alternate_DR(uint8_t nb_trials);
 
-    virtual lorawan_status_t set_next_channel(channel_selection_params_t* nextChanParams,
-                                              uint8_t* channel, lorawan_time_t* time,
-                                              lorawan_time_t* aggregatedTimeOff );
+    virtual lorawan_status_t set_next_channel(channel_selection_params_t *nextChanParams,
+                                              uint8_t *channel, lorawan_time_t *time,
+                                              lorawan_time_t *aggregatedTimeOff);
 
-    virtual uint8_t apply_DR_offset(int8_t dr, int8_t drOffset );
+    virtual uint8_t apply_DR_offset(int8_t dr, int8_t drOffset);
 
 private:
     channel_params_t channels[AS923_MAX_NB_CHANNELS];

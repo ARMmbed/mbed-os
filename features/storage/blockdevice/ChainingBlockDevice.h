@@ -61,7 +61,7 @@ public:
      *  @note All block devices must have the same block size
      */
     template <size_t Size>
-    ChainingBlockDevice(BlockDevice *(&bds)[Size])
+    ChainingBlockDevice(BlockDevice * (&bds)[Size])
         : _bds(bds), _bd_count(sizeof(bds) / sizeof(bds[0]))
         , _read_size(0), _program_size(0), _erase_size(0), _size(0),  _init_ref_count(0)
     {

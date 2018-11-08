@@ -152,7 +152,7 @@ public:
     {
         assert(sock);
     }
-    SInfo(Socket* sock, bool delete_on_exit=true):
+    SInfo(Socket *sock, bool delete_on_exit = true):
         _id(id_count++),
         _sock(sock),
         _type(SInfo::OTHER),
@@ -1162,11 +1162,11 @@ static int cmd_socket(int argc, char *argv[])
                 cmd_printf("Invalid socket id\r\n");
                 return CMDLINE_RETCODE_FAIL;
             }
-            TCPSocket *new_sock = static_cast<TCPSocket*>(&new_info->socket());
-            nsapi_error_t ret = static_cast<TCPServer&>(info->socket()).accept(new_sock, &addr);
+            TCPSocket *new_sock = static_cast<TCPSocket *>(&new_info->socket());
+            nsapi_error_t ret = static_cast<TCPServer &>(info->socket()).accept(new_sock, &addr);
             if (ret == NSAPI_ERROR_OK) {
                 cmd_printf("TCPServer::accept() new socket sid: %d connection from %s port %d\r\n",
-                        new_info->id(), addr.get_ip_address(), addr.get_port());
+                           new_info->id(), addr.get_ip_address(), addr.get_port());
             }
             return handle_nsapi_error("TCPServer::accept()", ret);
         }

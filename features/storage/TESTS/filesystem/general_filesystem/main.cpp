@@ -1959,7 +1959,7 @@ static void FS_fill_data_and_seek()
 
     for (i = 1; i <= 255; i++) {
 
-        res = fseek(fd[0], (long)-i, SEEK_END);
+        res = fseek(fd[0], (long) - i, SEEK_END);
         TEST_ASSERT_EQUAL(0, res);
 
         j = getc(fd[0]);

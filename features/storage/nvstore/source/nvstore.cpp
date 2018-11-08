@@ -38,8 +38,7 @@ static const uint16_t master_record_key = 0xFFE;
 static const uint16_t no_key            = 0xFFF;
 static const uint16_t last_reserved_key = master_record_key;
 
-typedef struct
-{
+typedef struct {
     uint16_t key_and_flags;
     uint16_t size_and_owner;
     uint32_t crc;
@@ -88,10 +87,12 @@ static const uint8_t blank_flash_val = 0xFF;
 #endif
 
 NVStore::nvstore_area_data_t NVStore::initial_area_params[] = {{NVSTORE_AREA_1_ADDRESS, NVSTORE_AREA_1_SIZE},
-                                                               {NVSTORE_AREA_2_ADDRESS, NVSTORE_AREA_2_SIZE}};
+    {NVSTORE_AREA_2_ADDRESS, NVSTORE_AREA_2_SIZE}
+};
 #else
 NVStore::nvstore_area_data_t NVStore::initial_area_params[] = {{0, 0},
-                                                               {0, 0}};
+    {0, 0}
+};
 #endif
 
 typedef enum {
@@ -130,18 +131,18 @@ static uint32_t crc32(uint32_t init_crc, uint32_t data_size, uint8_t *data_buf)
 
     crc = init_crc;
     for (i = 0; i < data_size; i++) {
-        crc = crc ^ (uint32_t) (data_buf[i]);
+        crc = crc ^ (uint32_t)(data_buf[i]);
         for (j = 0; j < 8; j++) {
-          mask = -(crc & 1);
-          crc = (crc >> 1) ^ (0xEDB88320 & mask);
+            mask = -(crc & 1);
+            crc = (crc >> 1) ^ (0xEDB88320 & mask);
         }
     }
     return crc;
 }
 
 NVStore::NVStore() : _init_done(0), _init_attempts(0), _active_area(0), _max_keys(NVSTORE_MAX_KEYS),
-      _active_area_version(0), _free_space_offset(0), _size(0), _mutex(0), _offset_by_key(0), _flash(0),
-      _min_prog_size(0), _page_buf(0)
+    _active_area_version(0), _free_space_offset(0), _size(0), _mutex(0), _offset_by_key(0), _flash(0),
+    _min_prog_size(0), _page_buf(0)
 {
 }
 
@@ -270,7 +271,7 @@ void NVStore::calc_validate_area_params()
         _flash_area_params[area].size = 0;
         int i;
         for (i = num_sectors - 1; i >= 0; i--) {
-            sector_size = sector_map[i+1] - sector_map[i];
+            sector_size = sector_map[i + 1] - sector_map[i];
             _flash_area_params[area].size += sector_size;
             if (_flash_area_params[area].size >= min_area_size) {
                 _flash_area_params[area].address = sector_map[i];
@@ -534,8 +535,8 @@ int NVStore::garbage_collection(uint16_t key, uint16_t flags, uint8_t owner, uin
             return ret;
         }
         _offset_by_key[key] = new_area_offset | (1 - _active_area) << offs_by_key_area_bit_pos |
-                                (((flags & set_once_flag) != 0) << offs_by_key_set_once_bit_pos) |
-                                (owner << offs_by_key_owner_bit_pos);
+                              (((flags & set_once_flag) != 0) << offs_by_key_set_once_bit_pos) |
+                              (owner << offs_by_key_owner_bit_pos);
         new_area_offset = next_offset;
     }
 
@@ -608,7 +609,7 @@ int NVStore::do_get(uint16_t key, uint16_t buf_size, void *buf, uint16_t &actual
     }
 
     _mutex->lock();
-	
+
     record_offset = _offset_by_key[key];
     area = (uint8_t)(record_offset >> offs_by_key_area_bit_pos) & 1;
     record_offset &= offs_by_key_offset_mask;

@@ -43,8 +43,7 @@
  *  printf("erase count: %lld\n", profiler.get_erase_count());
  *  @endcode
  */
-class ProfilingBlockDevice : public BlockDevice
-{
+class ProfilingBlockDevice : public BlockDevice {
 public:
     /** Lifetime of the memory block device
      *

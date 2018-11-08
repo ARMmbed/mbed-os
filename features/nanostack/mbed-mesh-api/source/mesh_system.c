@@ -54,7 +54,7 @@ void mesh_system_init(void)
 {
     if (mesh_initialized == false) {
 #if MBED_CONF_MBED_MESH_API_USE_MALLOC_FOR_HEAP
-        app_stack_heap = malloc(MBED_CONF_MBED_MESH_API_HEAP_SIZE+1);
+        app_stack_heap = malloc(MBED_CONF_MBED_MESH_API_HEAP_SIZE + 1);
         MBED_ASSERT(app_stack_heap);
 #endif
         ns_hal_init(app_stack_heap, MBED_CONF_MBED_MESH_API_HEAP_SIZE,

@@ -35,7 +35,7 @@ public:
      */
     File();
 
-    /** Create a file on a filesystem 
+    /** Create a file on a filesystem
      *
      *  Creates and opens a file on a filesystem
      *
@@ -60,7 +60,7 @@ public:
      *                  bitwise or'd with one of O_CREAT, O_TRUNC, O_APPEND
      *  @return         0 on success, negative error code on failure
      */
-    virtual int open(FileSystem *fs, const char *path, int flags=O_RDONLY);
+    virtual int open(FileSystem *fs, const char *path, int flags = O_RDONLY);
 
     /** Close a file
      *
@@ -80,7 +80,7 @@ public:
     /** Write the contents of a buffer to a file
      *
      *  @param buffer   The buffer to write from
-     *  @param size     The number of bytes to write 
+     *  @param size     The number of bytes to write
      *  @return         The number of bytes written, negative error on failure
      */
     virtual ssize_t write(const void *buffer, size_t size);

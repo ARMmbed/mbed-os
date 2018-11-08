@@ -84,7 +84,7 @@ public:
     *
     * @returns Singleton instance reference.
     */
-    static NVStore& get_instance()
+    static NVStore &get_instance()
     {
         // Use this implementation of singleton (Meyer's) rather than the one that allocates
         // the instance on the heap because it ensures destruction at program end (preventing warnings

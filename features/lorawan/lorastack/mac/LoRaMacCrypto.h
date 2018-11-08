@@ -34,8 +34,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "mbedtls/cmac.h"
 
 
-class LoRaMacCrypto
-{
+class LoRaMacCrypto {
 public:
     /**
      * Constructor

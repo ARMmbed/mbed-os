@@ -27,7 +27,7 @@ public:
         phy_params.adr_ack_delay = 1;
     }
 
-    virtual ~my_LoRaPHY() 
+    virtual ~my_LoRaPHY()
     {
     }
 
@@ -40,19 +40,19 @@ public:
 class my_radio : public LoRaRadio {
 public:
 
-    virtual void init_radio(radio_events_t *events) 
+    virtual void init_radio(radio_events_t *events)
     {
     };
 
-    virtual void radio_reset() 
+    virtual void radio_reset()
     {
     };
 
-    virtual void sleep(void) 
+    virtual void sleep(void)
     {
     };
 
-    virtual void standby(void) 
+    virtual void standby(void)
     {
     };
 
@@ -62,7 +62,7 @@ public:
                                uint16_t symb_timeout, bool fix_len,
                                uint8_t payload_len,
                                bool crc_on, bool freq_hop_on, uint8_t hop_period,
-                               bool iq_inverted, bool rx_continuous) 
+                               bool iq_inverted, bool rx_continuous)
     {
     };
 
@@ -70,23 +70,23 @@ public:
                                uint32_t bandwidth, uint32_t datarate,
                                uint8_t coderate, uint16_t preamble_len,
                                bool fix_len, bool crc_on, bool freq_hop_on,
-                               uint8_t hop_period, bool iq_inverted, uint32_t timeout) 
+                               uint8_t hop_period, bool iq_inverted, uint32_t timeout)
     {
     };
 
-    virtual void send(uint8_t *buffer, uint8_t size) 
+    virtual void send(uint8_t *buffer, uint8_t size)
     {
     };
 
-    virtual void receive(void) 
+    virtual void receive(void)
     {
     };
 
-    virtual void set_channel(uint32_t freq) 
+    virtual void set_channel(uint32_t freq)
     {
     };
 
-    virtual uint32_t random(void) 
+    virtual uint32_t random(void)
     {
     };
 
@@ -95,15 +95,15 @@ public:
         return uint8_value;
     };
 
-    virtual void set_max_payload_length(radio_modems_t modem, uint8_t max) 
+    virtual void set_max_payload_length(radio_modems_t modem, uint8_t max)
     {
     };
 
-    virtual void set_public_network(bool enable) 
+    virtual void set_public_network(bool enable)
     {
     };
 
-    virtual uint32_t time_on_air(radio_modems_t modem, uint8_t pkt_len) 
+    virtual uint32_t time_on_air(radio_modems_t modem, uint8_t pkt_len)
     {
     };
 
@@ -115,7 +115,7 @@ public:
         return bool_value;
     };
 
-    virtual void start_cad(void) 
+    virtual void start_cad(void)
     {
     };
 
@@ -124,15 +124,15 @@ public:
         return bool_value;
     };
 
-    virtual void set_tx_continuous_wave(uint32_t freq, int8_t power, uint16_t time) 
+    virtual void set_tx_continuous_wave(uint32_t freq, int8_t power, uint16_t time)
     {
     };
 
-    virtual void lock(void) 
+    virtual void lock(void)
     {
     };
 
-    virtual void unlock(void) 
+    virtual void unlock(void)
     {
     };
 
@@ -422,10 +422,10 @@ TEST_F(Test_LoRaPHY, compute_rx_win_params)
     list[0] = 125000;
     object->get_phy_params().bandwidths.table = list;
     uint8_t list2[1];
-    list2[0]= 12;
+    list2[0] = 12;
     object->get_phy_params().datarates.table = &list2;
     channel_params_t ch_lst[16];
-    memset(ch_lst, 0, sizeof(channel_params_t)*16);
+    memset(ch_lst, 0, sizeof(channel_params_t) * 16);
     ch_lst[0].band = 0;
     ch_lst[0].dr_range.fields.min = DR_0;
     ch_lst[0].dr_range.fields.max = DR_5;
@@ -513,7 +513,7 @@ TEST_F(Test_LoRaPHY, link_ADR_request)
 
     object->get_phy_params().max_channel_cnt = 16;
     channel_params_t li[16];
-    memset(li, 0, sizeof(channel_params_t)*16);
+    memset(li, 0, sizeof(channel_params_t) * 16);
     object->get_phy_params().channels.channel_list = li;
     li[0].frequency = 0;
     li[1].frequency = 5;
@@ -673,7 +673,7 @@ TEST_F(Test_LoRaPHY, set_next_channel)
     ch = 5;
     t1 = 16;
     t2 = 32;
-    memset(b, 0, sizeof(band_t)*4);
+    memset(b, 0, sizeof(band_t) * 4);
     object->get_phy_params().bands.size = 2;
     object->get_phy_params().bands.table = &b;
     b[0].off_time = 0;
@@ -767,7 +767,7 @@ TEST_F(Test_LoRaPHY, set_tx_cont_mode)
 
     cw_mode_params_t p;
     p.max_eirp = 0;
-    p.channel=0;
+    p.channel = 0;
     p.tx_power = -1;
     p.datarate = 0;
     p.antenna_gain = 1;
